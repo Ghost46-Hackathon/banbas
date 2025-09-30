@@ -9,7 +9,7 @@ class RoomType(models.Model):
     max_occupancy = models.IntegerField()
     size_sqm = models.IntegerField(help_text="Size in square meters")
     amenities = models.TextField(help_text="Comma-separated amenities")
-    image_placeholder = models.CharField(max_length=200, default="https://via.placeholder.com/400x300/0066cc/ffffff?text=Room+Image")
+    image_placeholder = models.CharField(max_length=200, default="https://via.placeholder.com/400x300/134a39/ffffff?text=Room+Image")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -48,7 +48,7 @@ class Gallery(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     media_type = models.CharField(max_length=10, choices=MEDIA_TYPE_CHOICES, default='image')
-    image_placeholder = models.CharField(max_length=200, default="https://via.placeholder.com/600x400/17a2b8/ffffff?text=Gallery+Image")
+    image_placeholder = models.CharField(max_length=200, default="https://via.placeholder.com/600x400/1e6b54/ffffff?text=Gallery+Image")
     video_file = models.FileField(upload_to='videos/', blank=True, null=True, help_text="Upload video file (MP4 recommended)")
     video_thumbnail = models.CharField(max_length=200, blank=True, help_text="Thumbnail image URL for video")
     category = models.CharField(max_length=50, choices=[
@@ -96,7 +96,7 @@ class Resort(models.Model):
     website = models.URLField(blank=True)
     hero_image_placeholder = models.CharField(
         max_length=200, 
-        default="https://via.placeholder.com/1200x600/0066cc/ffffff?text=Banbas+Resort"
+        default="https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80"
     )
     hero_video = models.FileField(
         upload_to='videos/', 

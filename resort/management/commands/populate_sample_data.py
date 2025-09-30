@@ -18,7 +18,7 @@ class Command(BaseCommand):
                 'phone': '+1 (555) 123-4567',
                 'email': 'info@banbasresort.com',
                 'website': 'https://www.banbasresort.com',
-                'hero_image_placeholder': 'https://via.placeholder.com/1200x600/0066cc/ffffff?text=Banbas+Resort+Paradise',
+                'hero_image_placeholder': 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80',
                 'facebook_url': 'https://facebook.com/banbasresort',
                 'instagram_url': 'https://instagram.com/banbasresort',
                 'twitter_url': 'https://twitter.com/banbasresort',
@@ -39,7 +39,7 @@ class Command(BaseCommand):
                 'max_occupancy': 2,
                 'size_sqm': 65,
                 'amenities': 'King bed, Ocean view, Private balcony, Mini bar, Room service, WiFi, Air conditioning, Safe',
-                'image_placeholder': 'https://via.placeholder.com/400x300/0066cc/ffffff?text=Ocean+View+Suite'
+                'image_placeholder': 'https://via.placeholder.com/400x300/134a39/ffffff?text=Ocean+View+Suite'
             },
             {
                 'name': 'Deluxe Garden Room',
@@ -66,7 +66,7 @@ class Command(BaseCommand):
                 'max_occupancy': 4,
                 'size_sqm': 55,
                 'amenities': 'Beach access, Sunrise view, Outdoor shower, Hammock, Mini bar, WiFi, Air conditioning, Safe',
-                'image_placeholder': 'https://via.placeholder.com/400x300/17a2b8/ffffff?text=Beach+Cabana'
+                'image_placeholder': 'https://via.placeholder.com/400x300/1e6b54/ffffff?text=Beach+Cabana'
             },
             {
                 'name': 'Family Paradise Room',
@@ -94,7 +94,7 @@ class Command(BaseCommand):
                 'description': 'Our stunning infinity pool offers breathtaking ocean views and is perfect for relaxation and swimming. Open 24/7 with poolside service available.',
                 'icon_class': 'fas fa-swimming-pool',
                 'is_featured': True,
-                'image_placeholder': 'https://via.placeholder.com/300x200/0066cc/ffffff?text=Infinity+Pool'
+                'image_placeholder': 'https://via.placeholder.com/300x200/134a39/ffffff?text=Infinity+Pool'
             },
             {
                 'name': 'Luxury Spa',
@@ -115,7 +115,7 @@ class Command(BaseCommand):
                 'description': 'Stay active during your vacation with our modern fitness center, featuring state-of-the-art equipment and personal training services.',
                 'icon_class': 'fas fa-dumbbell',
                 'is_featured': True,
-                'image_placeholder': 'https://via.placeholder.com/300x200/17a2b8/ffffff?text=Fitness+Center'
+                'image_placeholder': 'https://via.placeholder.com/300x200/1e6b54/ffffff?text=Fitness+Center'
             },
             {
                 'name': 'Beach Bar',
@@ -162,14 +162,14 @@ class Command(BaseCommand):
                 'description': 'Beautiful exterior view of our main resort building',
                 'category': 'exterior',
                 'is_featured': True,
-                'image_placeholder': 'https://via.placeholder.com/600x400/0066cc/ffffff?text=Resort+Exterior'
+                'image_placeholder': 'https://via.placeholder.com/600x400/134a39/ffffff?text=Resort+Exterior'
             },
             {
                 'title': 'Infinity Pool Paradise',
                 'description': 'Our stunning infinity pool with ocean backdrop',
                 'category': 'amenities',
                 'is_featured': True,
-                'image_placeholder': 'https://via.placeholder.com/600x400/17a2b8/ffffff?text=Pool+Paradise'
+                'image_placeholder': 'https://via.placeholder.com/600x400/1e6b54/ffffff?text=Pool+Paradise'
             },
             {
                 'title': 'Ocean View Suite Interior',
