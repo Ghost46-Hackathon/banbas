@@ -130,6 +130,10 @@
                                         <i class="fas fa-edit"></i>
                                     </a>
                                 {% endif %}
+                                <button type="button" class="btn btn-sm btn-outline-danger" title="Delete" 
+                                        onclick="confirmDelete({{ reservation.pk }}, '{{ reservation.guest_full_name|escapejs }}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
                             </div>
                         </td>
                     </tr>
@@ -185,4 +189,39 @@
         </div>
     {% endif %}
 </div>
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="confirmDeleteLabel"><i class="fas fa-exclamation-triangle me-2"></i>Confirm Delete</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete the reservation for <strong id="deleteGuestName"></strong>?</p>
+        <p class="mb-0 small text-muted">This action cannot be undone. A deletion audit log will be recorded.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <form id="deleteForm" method="post" action="#">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger"><i class="fas fa-trash me-2"></i>Delete</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% block extra_js %}
+<script>
+function confirmDelete(id, guestName) {
+    const modalEl = document.getElementById('confirmDeleteModal');
+    document.getElementById('deleteGuestName').innerText = guestName;
+    const form = document.getElementById('deleteForm');
+    form.action = `{% url 'backoffice:reservation_delete' 0 %}`.replace('/0/', `/${id}/`);
+    const modal = new bootstrap.Modal(modalEl);
+    modal.show();
+}
+</script>
+{% endblock %}
+
 {% endblock %}

@@ -127,10 +127,13 @@ class ReservationForm(forms.ModelForm):
             if arrival_date < timezone.now().date():
                 raise ValidationError('Arrival date cannot be in the past.')
         
-        # Validate room quantities
-        single_rooms = cleaned_data.get('single_rooms', 0)
-        double_rooms = cleaned_data.get('double_rooms', 0)
-        triple_rooms = cleaned_data.get('triple_rooms', 0)
+        # Validate room quantities - handle None values
+        try:
+            single_rooms = int(cleaned_data.get('single_rooms') or 0)
+            double_rooms = int(cleaned_data.get('double_rooms') or 0)
+            triple_rooms = int(cleaned_data.get('triple_rooms') or 0)
+        except (ValueError, TypeError):
+            single_rooms = double_rooms = triple_rooms = 0
         
         total_room_quantity = single_rooms + double_rooms + triple_rooms
         number_of_rooms = cleaned_data.get('number_of_rooms', 0)
@@ -148,11 +151,18 @@ class ReservationForm(forms.ModelForm):
         reservation = super().save(commit=False)
         
         # Set room_types JSON from individual fields
-        reservation.room_types = {
-            'single': self.cleaned_data.get('single_rooms', 0),
-            'double': self.cleaned_data.get('double_rooms', 0),
-            'triple': self.cleaned_data.get('triple_rooms', 0),
-        }
+        try:
+            reservation.room_types = {
+                'single': int(self.cleaned_data.get('single_rooms') or 0),
+                'double': int(self.cleaned_data.get('double_rooms') or 0),
+                'triple': int(self.cleaned_data.get('triple_rooms') or 0),
+            }
+        except (ValueError, TypeError):
+            reservation.room_types = {
+                'single': 0,
+                'double': 0,
+                'triple': 0,
+            }
         
         if commit:
             reservation.save()

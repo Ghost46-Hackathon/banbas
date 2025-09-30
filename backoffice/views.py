@@ -173,9 +173,23 @@ class ReservationEditView(LoginRequiredMixin, UpdateView):
         old_values = {}
         new_values = {}
         
+        # Form-only fields that don't exist on the model
+        form_only_fields = ['single_rooms', 'double_rooms', 'triple_rooms']
+        
         for field in form.changed_data:
-            old_values[field] = getattr(self.object, field)
-            new_values[field] = form.cleaned_data[field]
+            if field in form_only_fields:
+                # For room type fields, get the old values from room_types JSON
+                if field == 'single_rooms':
+                    old_values[field] = self.object.room_types.get('single', 0) if self.object.room_types else 0
+                elif field == 'double_rooms':
+                    old_values[field] = self.object.room_types.get('double', 0) if self.object.room_types else 0
+                elif field == 'triple_rooms':
+                    old_values[field] = self.object.room_types.get('triple', 0) if self.object.room_types else 0
+                new_values[field] = form.cleaned_data[field]
+            else:
+                # For regular model fields
+                old_values[field] = getattr(self.object, field, None)
+                new_values[field] = form.cleaned_data[field]
         
         form.instance.updated_by = self.request.user
         response = super().form_valid(form)
@@ -217,11 +231,31 @@ class ContactInquiryDetailView(LoginRequiredMixin, DetailView):
     
     def get_object(self):
         obj = super().get_object()
-        # Mark as read when viewed
-        if not obj.is_read:
+        # Mark as read when viewed (only if not a POST request)
+        if not obj.is_read and self.request.method == 'GET':
             obj.is_read = True
             obj.save()
         return obj
+    
+    def post(self, request, *args, **kwargs):
+        inquiry = self.get_object()
+        
+        # Handle mark as read action
+        if 'mark_read' in request.POST:
+            inquiry.is_read = True
+            inquiry.save()
+            messages.success(request, f'Inquiry from {inquiry.name} marked as read.')
+            return redirect('backoffice:inquiry_detail', pk=inquiry.pk)
+        
+        # Handle delete action
+        elif 'delete_inquiry' in request.POST:
+            inquiry_name = inquiry.name
+            inquiry_subject = inquiry.subject
+            inquiry.delete()
+            messages.success(request, f'Inquiry "{inquiry_subject}" from {inquiry_name} has been deleted.')
+            return redirect('backoffice:inquiry_list')
+        
+        return self.get(request, *args, **kwargs)
 
 
 class ConvertInquiryView(LoginRequiredMixin, TemplateView):
@@ -230,11 +264,58 @@ class ConvertInquiryView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['inquiry'] = get_object_or_404(Contact, pk=kwargs['pk'])
-        context['form'] = ReservationForm(initial={
-            'guest_full_name': context['inquiry'].name,
-            'contact_number': context['inquiry'].phone,
-        })
+        
+        # If this is a GET request or form has errors, show the form
+        if not hasattr(self, 'form'):
+            context['form'] = ReservationForm(initial={
+                'guest_full_name': context['inquiry'].name,
+                'contact_number': context['inquiry'].phone,
+                'booked_by': self.request.user.get_full_name() or self.request.user.username,
+            })
+        else:
+            context['form'] = self.form
+            
         return context
+    
+    def post(self, request, *args, **kwargs):
+        inquiry = get_object_or_404(Contact, pk=kwargs['pk'])
+        form = ReservationForm(request.POST)
+        
+        if form.is_valid():
+            # Create the reservation
+            reservation = form.save(commit=False)
+            reservation.created_by = request.user
+            reservation.source_contact = inquiry  # Link to original inquiry
+            reservation.save()
+            
+            # Create audit log
+            ReservationAuditLog.objects.create(
+                reservation=reservation,
+                user=request.user,
+                action='created',
+                changes={
+                    'status': 'Created from inquiry conversion',
+                    'source_inquiry_id': inquiry.id,
+                    'source_inquiry_subject': inquiry.subject
+                }
+            )
+            
+            # Mark inquiry as read since it's been processed
+            if not inquiry.is_read:
+                inquiry.is_read = True
+                inquiry.save()
+            
+            messages.success(
+                request, 
+                f'Successfully created reservation for {reservation.guest_full_name} from inquiry "{inquiry.subject}".'
+            )
+            return redirect('backoffice:reservation_detail', pk=reservation.pk)
+        
+        else:
+            # Form has errors, store it to display in context
+            self.form = form
+            messages.error(request, 'Please fix the errors below and try again.')
+            return self.get(request, *args, **kwargs)
 
 
 class AnalyticsView(LoginRequiredMixin, TemplateView):
@@ -327,3 +408,69 @@ class UserEditView(AdminRequiredMixin, UpdateView):
         response = super().form_valid(form)
         messages.success(self.request, f'User {self.object.username} updated successfully!')
         return response
+
+
+class ReservationDeleteView(LoginRequiredMixin, DetailView):
+    model = Reservation
+    template_name = 'backoffice/reservation_confirm_delete.html'
+    context_object_name = 'reservation'
+    
+    def post(self, request, *args, **kwargs):
+        reservation = self.get_object()
+        
+        # Create comprehensive audit log before deletion
+        deletion_data = {
+            'reservation_id': reservation.id,
+            'guest_full_name': reservation.guest_full_name,
+            'company_name': reservation.company_name,
+            'arrival_date': reservation.arrival_date.isoformat(),
+            'departure_date': reservation.departure_date.isoformat(),
+            'nationality': reservation.nationality,
+            'room_category': reservation.room_category,
+            'number_of_rooms': reservation.number_of_rooms,
+            'room_types': reservation.room_types,
+            'meal_plan': reservation.meal_plan,
+            'total_adults': reservation.total_adults,
+            'total_children': reservation.total_children,
+            'booked_by': reservation.booked_by,
+            'contact_number': reservation.contact_number,
+            'payment_method': reservation.payment_method,
+            'payment_currency': reservation.payment_currency,
+            'total_price': str(reservation.total_price),
+            'created_by': reservation.created_by.username,
+            'created_at': reservation.created_at.isoformat(),
+            'updated_at': reservation.updated_at.isoformat(),
+            'updated_by': reservation.updated_by.username if reservation.updated_by else None,
+            'deleted_by': request.user.username,
+            'deletion_timestamp': timezone.now().isoformat(),
+            'nights': reservation.nights,
+            'total_guests': reservation.total_guests,
+        }
+        
+        # Create audit log entry
+        ReservationAuditLog.objects.create(
+            reservation=reservation,
+            user=request.user,
+            action='deleted',
+            original_reservation_id=reservation.id,
+            guest_name=reservation.guest_full_name,
+            changes={
+                'status': 'Reservation permanently deleted',
+                'deletion_reason': 'Manual deletion via admin interface',
+                'original_data': deletion_data
+            }
+        )
+        
+        # Store guest name for success message
+        guest_name = reservation.guest_full_name
+        
+        # Delete the reservation
+        reservation.delete()
+        
+        # Success message
+        messages.success(
+            request, 
+            f'Reservation for {guest_name} has been successfully deleted. Deletion logged for audit purposes.'
+        )
+        
+        return redirect('backoffice:reservation_list')

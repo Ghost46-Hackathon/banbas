@@ -260,11 +260,15 @@
                                 Total Price <span class="text-danger">*</span>
                             </label>
                             <div class="input-group">
-                                <span class="input-group-text">
-                                    <i class="fas fa-dollar-sign"></i>
+                                <span class="input-group-text" id="currency-symbol">
+                                    <i class="fas fa-dollar-sign"></i> NRS
                                 </span>
                                 {{ form.total_price }}
+                                <button class="btn btn-outline-secondary" type="button" id="convert-price-btn" title="Convert from previous currency">
+                                    <i class="fas fa-exchange-alt"></i>
+                                </button>
                             </div>
+                            <small class="text-muted">Price will auto-convert when currency is changed</small>
                             {% if form.total_price.errors %}
                                 <div class="text-danger small mt-1">{{ form.total_price.errors.0 }}</div>
                             {% endif %}
@@ -342,15 +346,194 @@
                 <li class="mb-2">• Total rooms will auto-calculate from room type quantities</li>
                 <li class="mb-2">• All dates must be in the future</li>
                 <li class="mb-2">• Contact number is optional but recommended</li>
+                <li class="mb-2">• Price converts automatically when currency is changed</li>
+                <li class="mb-2">• Supported currencies: NRS, INR, USD, EUR</li>
             </ul>
         </div>
     </div>
 </div>
 {% endblock %}
 
+{% block extra_css %}
+<style>
+    .toast-notification {
+        position: fixed;
+        top: 100px;
+        right: 20px;
+        z-index: 1055;
+        max-width: 400px;
+        animation: slideInRight 0.3s ease-out;
+    }
+    
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    #currency-symbol {
+        min-width: 60px;
+        justify-content: center;
+        font-weight: 600;
+        background-color: #f8f9fa;
+        border-color: #dee2e6;
+    }
+    
+    #convert-price-btn {
+        border-left: 0;
+    }
+    
+    .currency-info {
+        font-size: 0.875rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
+    }
+</style>
+{% endblock %}
+
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Exchange rates (base currency: NRS)
+    const EXCHANGE_RATES = {
+        'NRS': 1.0,        // Nepali Rupee (base)
+        'INR': 0.625,      // 1 NRS = 0.625 INR
+        'USD': 0.0075,     // 1 NRS = 0.0075 USD
+        'EUR': 0.0069      // 1 NRS = 0.0069 EUR
+    };
+    
+    // Currency symbols
+    const CURRENCY_SYMBOLS = {
+        'NRS': 'रु',
+        'INR': '₹',
+        'USD': '$',
+        'EUR': '€'
+    };
+    
+    // Currency conversion functionality
+    const currencySelect = document.getElementById('id_payment_currency');
+    const priceInput = document.getElementById('id_total_price');
+    const currencySymbol = document.getElementById('currency-symbol');
+    const convertBtn = document.getElementById('convert-price-btn');
+    
+    // Check if elements exist (they might not on all pages)
+    if (!currencySelect || !priceInput || !currencySymbol || !convertBtn) {
+        console.log('Currency conversion elements not found - feature disabled');
+        return;
+    }
+    
+    let lastCurrency = currencySelect.value || 'NRS';
+    let lastPrice = parseFloat(priceInput.value) || 0;
+    
+    // Initialize currency symbol
+    updateCurrencySymbol(lastCurrency);
+    
+    // Currency change event
+    currencySelect.addEventListener('change', function() {
+        const newCurrency = this.value;
+        const currentPrice = parseFloat(priceInput.value) || 0;
+        
+        if (currentPrice > 0 && lastCurrency !== newCurrency) {
+            // Show conversion option
+            showConversionOption(lastCurrency, newCurrency, currentPrice);
+        }
+        
+        updateCurrencySymbol(newCurrency);
+        lastCurrency = newCurrency;
+    });
+    
+    // Convert button click
+    convertBtn.addEventListener('click', function() {
+        const currentPrice = parseFloat(priceInput.value) || 0;
+        if (currentPrice > 0) {
+            const convertedPrice = convertCurrency(currentPrice, lastCurrency, currencySelect.value);
+            priceInput.value = convertedPrice.toFixed(2);
+            showConversionSuccess(lastCurrency, currencySelect.value, currentPrice, convertedPrice);
+            lastPrice = convertedPrice;
+        }
+    });
+    
+    function convertCurrency(amount, fromCurrency, toCurrency) {
+        // Convert to NRS first, then to target currency
+        const amountInNRS = amount / EXCHANGE_RATES[fromCurrency];
+        return amountInNRS * EXCHANGE_RATES[toCurrency];
+    }
+    
+    function updateCurrencySymbol(currency) {
+        const symbol = CURRENCY_SYMBOLS[currency] || currency;
+        currencySymbol.innerHTML = `<i class="fas fa-coins me-1"></i>${symbol}`;
+    }
+    
+    function showConversionOption(fromCurrency, toCurrency, currentPrice) {
+        const convertedPrice = convertCurrency(currentPrice, fromCurrency, toCurrency);
+        
+        // Create toast notification
+        const toast = document.createElement('div');
+        toast.className = 'toast-notification';
+        toast.innerHTML = `
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                <strong>Currency Changed!</strong><br>
+                Convert ${CURRENCY_SYMBOLS[fromCurrency]}${currentPrice.toFixed(2)} (${fromCurrency}) to ${CURRENCY_SYMBOLS[toCurrency]}${convertedPrice.toFixed(2)} (${toCurrency})?
+                <br>
+                <button type="button" class="btn btn-sm btn-primary mt-2" onclick="convertPriceNow(${currentPrice}, '${fromCurrency}', '${toCurrency}')">
+                    Yes, Convert
+                </button>
+                <button type="button" class="btn btn-sm btn-secondary mt-2 ms-1" data-bs-dismiss="alert">
+                    Keep Current
+                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+        
+        // Add to page
+        const container = document.querySelector('.page-header') || document.body;
+        container.appendChild(toast);
+        
+        // Auto remove after 10 seconds
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.remove();
+            }
+        }, 10000);
+    }
+    
+    function showConversionSuccess(fromCurrency, toCurrency, originalPrice, convertedPrice) {
+        const toast = document.createElement('div');
+        toast.className = 'toast-notification';
+        toast.innerHTML = `
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Price Converted!</strong><br>
+                ${CURRENCY_SYMBOLS[fromCurrency]}${originalPrice.toFixed(2)} (${fromCurrency}) → ${CURRENCY_SYMBOLS[toCurrency]}${convertedPrice.toFixed(2)} (${toCurrency})
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+        
+        const container = document.querySelector('.page-header') || document.body;
+        container.appendChild(toast);
+        
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.remove();
+            }
+        }, 5000);
+    }
+    
+    // Global function for toast buttons
+    window.convertPriceNow = function(currentPrice, fromCurrency, toCurrency) {
+        const convertedPrice = convertCurrency(currentPrice, fromCurrency, toCurrency);
+        priceInput.value = convertedPrice.toFixed(2);
+        showConversionSuccess(fromCurrency, toCurrency, currentPrice, convertedPrice);
+        
+        // Remove the toast
+        const toasts = document.querySelectorAll('.toast-notification');
+        toasts.forEach(toast => toast.remove());
+    };
+    
     // Room type checkbox handling
     const checkboxes = document.querySelectorAll('.room-type-check');
     const roomInputs = {

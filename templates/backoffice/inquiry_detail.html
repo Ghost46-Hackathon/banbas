@@ -1,0 +1,297 @@
+{% extends 'backoffice/base.html' %}
+
+{% block title %}
+    Inquiry Details - {{ inquiry.name }} - Banbas Resort Management
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">
+        <i class="fas fa-envelope-open text-info me-2"></i>
+        Inquiry Details
+    </h1>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'backoffice:dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'backoffice:inquiry_list' %}">Inquiries</a></li>
+            <li class="breadcrumb-item active">{{ inquiry.name }}</li>
+        </ol>
+    </nav>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="stat-card">
+            <!-- Inquiry Status -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-envelope-open-text text-primary me-2 fs-4"></i>
+                    <div>
+                        <h4 class="mb-1">{{ inquiry.subject }}</h4>
+                        <small class="text-muted">Inquiry #{{ inquiry.id }}</small>
+                    </div>
+                </div>
+                <div>
+                    {% if inquiry.is_read %}
+                        <span class="badge bg-success">
+                            <i class="fas fa-check-circle me-1"></i>Read
+                        </span>
+                    {% else %}
+                        <span class="badge bg-warning">
+                            <i class="fas fa-envelope me-1"></i>Unread
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="card-section mb-4">
+                <h5 class="section-title text-primary mb-3">
+                    <i class="fas fa-user me-2"></i>Contact Information
+                </h5>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Full Name</label>
+                        <div class="fw-semibold">{{ inquiry.name }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Email Address</label>
+                        <div class="fw-semibold">
+                            <a href="mailto:{{ inquiry.email }}" class="text-decoration-none">
+                                <i class="fas fa-envelope me-1"></i>{{ inquiry.email }}
+                            </a>
+                        </div>
+                    </div>
+                    {% if inquiry.phone %}
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Phone Number</label>
+                        <div class="fw-semibold">
+                            <a href="tel:{{ inquiry.phone }}" class="text-decoration-none">
+                                <i class="fas fa-phone me-1"></i>{{ inquiry.phone }}
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Received</label>
+                        <div class="fw-semibold">{{ inquiry.created_at|date:"F j, Y g:i A" }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inquiry Content -->
+            <div class="card-section mb-4">
+                <h5 class="section-title text-success mb-3">
+                    <i class="fas fa-comment-alt me-2"></i>Message Content
+                </h5>
+                <div class="message-content p-3 bg-light rounded">
+                    <div class="message-text">{{ inquiry.message|linebreaks }}</div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex gap-3 pt-3 border-top">
+                {% if not inquiry.is_read %}
+                    <form method="post" action="{% url 'backoffice:inquiry_detail' inquiry.pk %}" class="d-inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="mark_read" value="1">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check me-2"></i>Mark as Read
+                        </button>
+                    </form>
+                {% endif %}
+                
+                <a href="{% url 'backoffice:convert_inquiry' inquiry.pk %}" class="btn btn-primary">
+                    <i class="fas fa-calendar-plus me-2"></i>Convert to Reservation
+                </a>
+                
+                <a href="mailto:{{ inquiry.email }}?subject=Re: {{ inquiry.subject|urlencode }}" class="btn btn-outline-info">
+                    <i class="fas fa-reply me-2"></i>Reply via Email
+                </a>
+                
+                <a href="{% url 'backoffice:inquiry_list' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-list me-2"></i>Back to Inquiries
+                </a>
+                
+                <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteInquiryModal">
+                    <i class="fas fa-trash me-2"></i>Delete Inquiry
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Quick Actions -->
+        <div class="stat-card mb-3">
+            <h6 class="fw-semibold text-primary mb-3">
+                <i class="fas fa-bolt me-2"></i>Quick Actions
+            </h6>
+            <div class="d-grid gap-2">
+                <a href="{% url 'backoffice:convert_inquiry' inquiry.pk %}" class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-calendar-plus me-2"></i>Create Reservation
+                </a>
+                <a href="mailto:{{ inquiry.email }}" class="btn btn-outline-success btn-sm">
+                    <i class="fas fa-envelope me-2"></i>Send Email
+                </a>
+                {% if inquiry.phone %}
+                <a href="tel:{{ inquiry.phone }}" class="btn btn-outline-info btn-sm">
+                    <i class="fas fa-phone me-2"></i>Call Guest
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Inquiry Stats -->
+        <div class="stat-card mb-3">
+            <h6 class="fw-semibold text-info mb-3">
+                <i class="fas fa-chart-line me-2"></i>Inquiry Stats
+            </h6>
+            <div class="row g-2 text-center">
+                <div class="col-6">
+                    <div class="bg-light rounded p-2">
+                        <div class="fw-bold text-primary">#{{ inquiry.id }}</div>
+                        <small class="text-muted">Inquiry ID</small>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="bg-light rounded p-2">
+                        <div class="fw-bold text-success">
+                            {% if inquiry.is_read %}
+                                <i class="fas fa-check text-success"></i>
+                            {% else %}
+                                <i class="fas fa-clock text-warning"></i>
+                            {% endif %}
+                        </div>
+                        <small class="text-muted">Status</small>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="bg-light rounded p-2">
+                        <div class="fw-bold text-info">{{ inquiry.created_at|timesince }} ago</div>
+                        <small class="text-muted">Received</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Details -->
+        <div class="stat-card">
+            <h6 class="fw-semibold text-secondary mb-3">
+                <i class="fas fa-address-card me-2"></i>Contact Summary
+            </h6>
+            <div class="contact-summary">
+                <div class="mb-2">
+                    <strong>Name:</strong> {{ inquiry.name }}
+                </div>
+                <div class="mb-2">
+                    <strong>Email:</strong> 
+                    <a href="mailto:{{ inquiry.email }}" class="text-decoration-none">{{ inquiry.email }}</a>
+                </div>
+                {% if inquiry.phone %}
+                <div class="mb-2">
+                    <strong>Phone:</strong> 
+                    <a href="tel:{{ inquiry.phone }}" class="text-decoration-none">{{ inquiry.phone }}</a>
+                </div>
+                {% endif %}
+                <div class="mb-2">
+                    <strong>Subject:</strong> {{ inquiry.subject }}
+                </div>
+                <div>
+                    <strong>Received:</strong> {{ inquiry.created_at|date:"M j, Y" }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteInquiryModal" tabindex="-1" aria-labelledby="deleteInquiryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteInquiryModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Delete Inquiry
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-3">
+                    <i class="fas fa-exclamation-triangle text-danger" style="font-size: 3rem;"></i>
+                </div>
+                <h5 class="text-center mb-3">Are you sure you want to delete this inquiry?</h5>
+                <div class="alert alert-warning">
+                    <strong>Warning:</strong> This action cannot be undone. The following inquiry will be permanently deleted:
+                </div>
+                <div class="bg-light p-3 rounded">
+                    <div class="row g-2">
+                        <div class="col-4"><strong>From:</strong></div>
+                        <div class="col-8">{{ inquiry.name }}</div>
+                        <div class="col-4"><strong>Email:</strong></div>
+                        <div class="col-8">{{ inquiry.email }}</div>
+                        <div class="col-4"><strong>Subject:</strong></div>
+                        <div class="col-8">{{ inquiry.subject }}</div>
+                        <div class="col-4"><strong>Date:</strong></div>
+                        <div class="col-8">{{ inquiry.created_at|date:"M j, Y" }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </button>
+                <form method="post" action="#" style="display: inline;" id="deleteInquiryForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="delete_inquiry" value="1">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash me-2"></i>Yes, Delete Inquiry
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card-section {
+        border-bottom: 1px solid #e9ecef;
+        padding-bottom: 1rem;
+    }
+    
+    .card-section:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+    
+    .section-title {
+        border-bottom: 2px solid currentColor;
+        padding-bottom: 0.5rem;
+        display: inline-block;
+    }
+    
+    .message-content {
+        background: #f8f9fa;
+        border-left: 4px solid #007bff;
+    }
+    
+    .message-text {
+        font-size: 0.95rem;
+        line-height: 1.6;
+        color: #495057;
+    }
+    
+    .contact-summary {
+        font-size: 0.9rem;
+    }
+    
+    .contact-summary a {
+        color: #007bff;
+    }
+    
+    .contact-summary a:hover {
+        color: #0056b3;
+    }
+</style>
+{% endblock %}

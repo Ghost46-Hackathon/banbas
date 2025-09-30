@@ -1,0 +1,476 @@
+{% extends 'backoffice/base.html' %}
+
+{% block title %}
+    Convert Inquiry to Reservation - {{ inquiry.name }} - Banbas Resort Management
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">
+        <i class="fas fa-exchange-alt text-success me-2"></i>
+        Convert Inquiry to Reservation
+    </h1>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'backoffice:dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'backoffice:inquiry_list' %}">Inquiries</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'backoffice:inquiry_detail' inquiry.pk %}">{{ inquiry.name }}</a></li>
+            <li class="breadcrumb-item active">Convert to Reservation</li>
+        </ol>
+    </nav>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="stat-card">
+            <!-- Conversion Header -->
+            <div class="conversion-header mb-4 p-3 bg-light rounded">
+                <div class="row align-items-center">
+                    <div class="col-md-2 text-center">
+                        <i class="fas fa-envelope-open-text text-info" style="font-size: 2rem;"></i>
+                        <div class="small text-muted mt-1">Inquiry</div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="d-flex align-items-center justify-content-center">
+                            <div class="conversion-arrow">
+                                <i class="fas fa-arrow-right text-success" style="font-size: 1.5rem;"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2 text-center">
+                        <i class="fas fa-calendar-check text-success" style="font-size: 2rem;"></i>
+                        <div class="small text-muted mt-1">Reservation</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Original Inquiry Information -->
+            <div class="inquiry-summary mb-4 p-3 border rounded">
+                <h6 class="text-primary mb-3">
+                    <i class="fas fa-info-circle me-2"></i>Original Inquiry Details
+                </h6>
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <strong>Name:</strong> {{ inquiry.name }}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Email:</strong> {{ inquiry.email }}
+                    </div>
+                    {% if inquiry.phone %}
+                    <div class="col-md-6">
+                        <strong>Phone:</strong> {{ inquiry.phone }}
+                    </div>
+                    {% endif %}
+                    <div class="col-md-6">
+                        <strong>Subject:</strong> {{ inquiry.subject }}
+                    </div>
+                    <div class="col-12">
+                        <strong>Message:</strong>
+                        <div class="text-muted small mt-1">{{ inquiry.message|truncatewords:20 }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reservation Form -->
+            <form method="post" id="conversionForm">
+                {% csrf_token %}
+                <h5 class="text-success mb-3">
+                    <i class="fas fa-calendar-plus me-2"></i>Create Reservation
+                </h5>
+
+                <!-- Form Errors -->
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        <strong>Please fix the following errors:</strong>
+                        <ul class="mb-0 mt-2">
+                            {% for error in form.non_field_errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+
+                <!-- Guest Information Section -->
+                <div class="form-section mb-4">
+                    <h6 class="section-title text-primary mb-3">
+                        <i class="fas fa-user me-2"></i>Guest Information
+                    </h6>
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label for="{{ form.guest_full_name.id_for_label }}" class="form-label">
+                                Guest Full Name <span class="text-danger">*</span>
+                            </label>
+                            {{ form.guest_full_name }}
+                            {% if form.guest_full_name.errors %}
+                                <div class="text-danger small mt-1">{{ form.guest_full_name.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="{{ form.nationality.id_for_label }}" class="form-label">
+                                Nationality <span class="text-danger">*</span>
+                            </label>
+                            {{ form.nationality }}
+                            {% if form.nationality.errors %}
+                                <div class="text-danger small mt-1">{{ form.nationality.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-8">
+                            <label for="{{ form.company_name.id_for_label }}" class="form-label">
+                                Company Name <span class="text-muted">(Optional)</span>
+                            </label>
+                            {{ form.company_name }}
+                            {% if form.company_name.errors %}
+                                <div class="text-danger small mt-1">{{ form.company_name.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="{{ form.contact_number.id_for_label }}" class="form-label">
+                                Contact Number
+                            </label>
+                            {{ form.contact_number }}
+                            {% if form.contact_number.errors %}
+                                <div class="text-danger small mt-1">{{ form.contact_number.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stay Details Section -->
+                <div class="form-section mb-4">
+                    <h6 class="section-title text-success mb-3">
+                        <i class="fas fa-calendar-alt me-2"></i>Stay Details
+                    </h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="{{ form.arrival_date.id_for_label }}" class="form-label">
+                                Arrival Date <span class="text-danger">*</span>
+                            </label>
+                            {{ form.arrival_date }}
+                            {% if form.arrival_date.errors %}
+                                <div class="text-danger small mt-1">{{ form.arrival_date.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.departure_date.id_for_label }}" class="form-label">
+                                Departure Date <span class="text-danger">*</span>
+                            </label>
+                            {{ form.departure_date }}
+                            {% if form.departure_date.errors %}
+                                <div class="text-danger small mt-1">{{ form.departure_date.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.total_adults.id_for_label }}" class="form-label">
+                                Total Adults <span class="text-danger">*</span>
+                            </label>
+                            {{ form.total_adults }}
+                            {% if form.total_adults.errors %}
+                                <div class="text-danger small mt-1">{{ form.total_adults.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.total_children.id_for_label }}" class="form-label">
+                                Total Children <span class="text-danger">*</span>
+                            </label>
+                            {{ form.total_children }}
+                            {% if form.total_children.errors %}
+                                <div class="text-danger small mt-1">{{ form.total_children.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Room Details Section -->
+                <div class="form-section mb-4">
+                    <h6 class="section-title text-info mb-3">
+                        <i class="fas fa-bed me-2"></i>Room Details
+                    </h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="{{ form.room_category.id_for_label }}" class="form-label">
+                                Room Category <span class="text-danger">*</span>
+                            </label>
+                            {{ form.room_category }}
+                            {% if form.room_category.errors %}
+                                <div class="text-danger small mt-1">{{ form.room_category.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.number_of_rooms.id_for_label }}" class="form-label">
+                                Total Rooms <span class="text-danger">*</span>
+                            </label>
+                            {{ form.number_of_rooms }}
+                            {% if form.number_of_rooms.errors %}
+                                <div class="text-danger small mt-1">{{ form.number_of_rooms.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Room Type Selection -->
+                    <div class="mt-3">
+                        <label class="form-label">Room Types & Quantities <span class="text-danger">*</span></label>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <div class="border rounded p-3">
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input room-type-check" type="checkbox" 
+                                               id="single_check" data-target="single_rooms">
+                                        <label class="form-check-label fw-semibold" for="single_check">
+                                            Single Rooms
+                                        </label>
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-text">Qty</span>
+                                        {{ form.single_rooms }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="border rounded p-3">
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input room-type-check" type="checkbox" 
+                                               id="double_check" data-target="double_rooms">
+                                        <label class="form-check-label fw-semibold" for="double_check">
+                                            Double Rooms
+                                        </label>
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-text">Qty</span>
+                                        {{ form.double_rooms }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="border rounded p-3">
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input room-type-check" type="checkbox" 
+                                               id="triple_check" data-target="triple_rooms">
+                                        <label class="form-check-label fw-semibold" for="triple_check">
+                                            Triple Rooms
+                                        </label>
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-text">Qty</span>
+                                        {{ form.triple_rooms }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Simplified form for the rest -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label for="{{ form.meal_plan.id_for_label }}" class="form-label">
+                            Meal Plan <span class="text-danger">*</span>
+                        </label>
+                        {{ form.meal_plan }}
+                        {% if form.meal_plan.errors %}
+                            <div class="text-danger small mt-1">{{ form.meal_plan.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label for="{{ form.booked_by.id_for_label }}" class="form-label">
+                            Booked By <span class="text-danger">*</span>
+                        </label>
+                        {{ form.booked_by }}
+                        {% if form.booked_by.errors %}
+                            <div class="text-danger small mt-1">{{ form.booked_by.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4">
+                        <label for="{{ form.payment_method.id_for_label }}" class="form-label">
+                            Payment Method <span class="text-danger">*</span>
+                        </label>
+                        {{ form.payment_method }}
+                        {% if form.payment_method.errors %}
+                            <div class="text-danger small mt-1">{{ form.payment_method.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4">
+                        <label for="{{ form.payment_currency.id_for_label }}" class="form-label">
+                            Currency <span class="text-danger">*</span>
+                        </label>
+                        {{ form.payment_currency }}
+                        {% if form.payment_currency.errors %}
+                            <div class="text-danger small mt-1">{{ form.payment_currency.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4">
+                        <label for="{{ form.total_price.id_for_label }}" class="form-label">
+                            Total Price <span class="text-danger">*</span>
+                        </label>
+                        {{ form.total_price }}
+                        {% if form.total_price.errors %}
+                            <div class="text-danger small mt-1">{{ form.total_price.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Submit Buttons -->
+                <div class="d-flex gap-3 pt-3 border-top">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-calendar-plus me-2"></i>
+                        Create Reservation
+                    </button>
+                    <a href="{% url 'backoffice:inquiry_detail' inquiry.pk %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>
+                        Back to Inquiry
+                    </a>
+                    <a href="{% url 'backoffice:inquiry_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-list me-2"></i>
+                        All Inquiries
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Conversion Tips -->
+        <div class="stat-card mb-3">
+            <h6 class="fw-semibold text-success mb-3">
+                <i class="fas fa-lightbulb me-2"></i>Conversion Tips
+            </h6>
+            <ul class="list-unstyled small text-muted">
+                <li class="mb-2">• Guest name and contact details are pre-filled from the inquiry</li>
+                <li class="mb-2">• Review the original inquiry message for specific requirements</li>
+                <li class="mb-2">• Fill in all required fields before creating the reservation</li>
+                <li class="mb-2">• The inquiry will remain in the system for reference</li>
+            </ul>
+        </div>
+
+        <!-- Original Message -->
+        <div class="stat-card">
+            <h6 class="fw-semibold text-info mb-3">
+                <i class="fas fa-comment-alt me-2"></i>Original Message
+            </h6>
+            <div class="inquiry-message p-3 bg-light rounded border-start border-4 border-info">
+                <div class="small">{{ inquiry.message|linebreaks }}</div>
+            </div>
+            <div class="mt-2 small text-muted">
+                <strong>Received:</strong> {{ inquiry.created_at|date:"M j, Y g:i A" }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-section {
+        border-bottom: 1px solid #e9ecef;
+        padding-bottom: 1rem;
+    }
+    
+    .form-section:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+    
+    .section-title {
+        border-bottom: 2px solid currentColor;
+        padding-bottom: 0.5rem;
+        display: inline-block;
+    }
+    
+    .conversion-header {
+        border: 2px solid #28a745;
+    }
+    
+    .conversion-arrow {
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+    
+    .inquiry-summary {
+        background: #f8f9fa;
+        border-color: #17a2b8 !important;
+    }
+    
+    .inquiry-message {
+        max-height: 200px;
+        overflow-y: auto;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Room type checkbox handling (same as reservation form)
+    const checkboxes = document.querySelectorAll('.room-type-check');
+    const roomInputs = {
+        'single_rooms': document.getElementById('id_single_rooms'),
+        'double_rooms': document.getElementById('id_double_rooms'),
+        'triple_rooms': document.getElementById('id_triple_rooms')
+    };
+    const totalRoomsInput = document.getElementById('id_number_of_rooms');
+    
+    // Initialize checkboxes based on current values
+    Object.keys(roomInputs).forEach(key => {
+        const input = roomInputs[key];
+        const checkbox = document.querySelector(`[data-target="${key}"]`);
+        if (input && checkbox) {
+            if (input.value && parseInt(input.value) > 0) {
+                checkbox.checked = true;
+            }
+            updateRoomInputState(checkbox, input);
+        }
+    });
+    
+    // Add event listeners
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const targetId = this.dataset.target;
+            const input = roomInputs[targetId];
+            if (input) {
+                updateRoomInputState(this, input);
+                updateTotalRooms();
+            }
+        });
+    });
+    
+    // Add input listeners for quantity changes
+    Object.values(roomInputs).forEach(input => {
+        if (input) {
+            input.addEventListener('input', updateTotalRooms);
+        }
+    });
+    
+    function updateRoomInputState(checkbox, input) {
+        if (checkbox.checked) {
+            input.disabled = false;
+            if (!input.value || input.value === '0') {
+                input.value = '1';
+            }
+        } else {
+            input.disabled = true;
+            input.value = '0';
+        }
+    }
+    
+    function updateTotalRooms() {
+        let total = 0;
+        Object.values(roomInputs).forEach(input => {
+            if (input && !input.disabled && input.value) {
+                total += parseInt(input.value) || 0;
+            }
+        });
+        if (totalRoomsInput) {
+            totalRoomsInput.value = total;
+        }
+    }
+    
+    // Initial calculation
+    updateTotalRooms();
+});
+</script>
+{% endblock %}

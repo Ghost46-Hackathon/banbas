@@ -162,14 +162,21 @@ class Reservation(models.Model):
 
 class ReservationAuditLog(models.Model):
     """Audit trail for reservation changes"""
-    reservation = models.ForeignKey(Reservation, on_delete=models.CASCADE, related_name='audit_logs')
+    reservation = models.ForeignKey(Reservation, on_delete=models.SET_NULL, related_name='audit_logs', null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     action = models.CharField(max_length=50)  # 'created', 'updated', 'deleted'
     changes = models.JSONField(default=dict)  # What changed
     timestamp = models.DateTimeField(auto_now_add=True)
     
+    # Additional fields to preserve data when reservation is deleted
+    original_reservation_id = models.IntegerField(null=True, blank=True)  # Original reservation ID
+    guest_name = models.CharField(max_length=200, null=True, blank=True)  # Guest name for reference
+    
     class Meta:
         ordering = ['-timestamp']
     
     def __str__(self):
-        return f"{self.reservation} - {self.action} by {self.user.username}"
+        if self.reservation:
+            return f"{self.reservation} - {self.action} by {self.user.username}"
+        else:
+            return f"Reservation ID {self.original_reservation_id} ({self.guest_name}) - {self.action} by {self.user.username}"
