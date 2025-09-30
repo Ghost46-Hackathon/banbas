@@ -17,10 +17,12 @@
                 </ol>
             </nav>
         </div>
+        {% if not user.userprofile.is_viewer_only %}
         <a href="{% url 'backoffice:reservation_create' %}" class="btn btn-primary">
             <i class="fas fa-plus me-2"></i>
             New Reservation
         </a>
+        {% endif %}
     </div>
 </div>
 
@@ -130,10 +132,12 @@
                                         <i class="fas fa-edit"></i>
                                     </a>
                                 {% endif %}
+                                {% if user.userprofile.can_delete_reservations %}
                                 <button type="button" class="btn btn-sm btn-outline-danger" title="Delete" 
                                         onclick="confirmDelete({{ reservation.pk }}, '{{ reservation.guest_full_name|escapejs }}')">
                                     <i class="fas fa-trash"></i>
                                 </button>
+                                {% endif %}
                             </div>
                         </td>
                     </tr>
@@ -180,12 +184,18 @@
             {% if request.GET.search or request.GET.date_from or request.GET.date_to %}
                 <p class="text-muted mb-4">Try adjusting your search criteria or <a href="{% url 'backoffice:reservation_list' %}">view all reservations</a>.</p>
             {% else %}
-                <p class="text-muted mb-4">Start by creating your first reservation.</p>
+                {% if user.userprofile.is_viewer_only %}
+                    <p class="text-muted mb-4">No reservations to display.</p>
+                {% else %}
+                    <p class="text-muted mb-4">Start by creating your first reservation.</p>
+                {% endif %}
             {% endif %}
+            {% if not user.userprofile.is_viewer_only %}
             <a href="{% url 'backoffice:reservation_create' %}" class="btn btn-primary">
                 <i class="fas fa-plus me-2"></i>
                 Create First Reservation
             </a>
+            {% endif %}
         </div>
     {% endif %}
 </div>

@@ -166,9 +166,11 @@
                 <a href="{% url 'backoffice:reservation_list' %}" class="btn btn-outline-secondary">
                     <i class="fas fa-list me-2"></i>Back to List
                 </a>
+                {% if user.userprofile.can_delete_reservations %}
                 <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteReservationModal">
                     <i class="fas fa-trash me-2"></i>Delete Reservation
                 </button>
+                {% endif %}
             </div>
         </div>
     </div>

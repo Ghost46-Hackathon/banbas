@@ -65,10 +65,12 @@
                                    class="btn btn-sm btn-outline-primary" title="View Details">
                                     <i class="fas fa-eye"></i>
                                 </a>
+                                {% if user.userprofile.can_convert_inquiries %}
                                 <a href="{% url 'backoffice:convert_inquiry' inquiry.pk %}" 
                                    class="btn btn-sm btn-outline-success" title="Convert to Reservation">
                                     <i class="fas fa-calendar-plus"></i>
                                 </a>
+                                {% endif %}
                                 <a href="mailto:{{ inquiry.email }}?subject=Re: {{ inquiry.subject }}" 
                                    class="btn btn-sm btn-outline-info" title="Reply via Email">
                                     <i class="fas fa-reply"></i>
@@ -156,10 +158,12 @@
                     <i class="fas fa-external-link-alt me-2"></i>
                     View Contact Form
                 </a>
+                {% if user.userprofile.can_create_reservations %}
                 <a href="{% url 'backoffice:reservation_create' %}" class="btn btn-primary">
                     <i class="fas fa-plus me-2"></i>
                     Create Reservation
                 </a>
+                {% endif %}
             </div>
         </div>
     {% endif %}

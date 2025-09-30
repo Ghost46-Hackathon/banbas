@@ -9,10 +9,38 @@ from django.db.models import Q, Count, Sum
 from django.utils import timezone
 from django.http import HttpResponseForbidden, JsonResponse
 from datetime import datetime, timedelta
+from functools import wraps
+import logging
 
 from .models import Reservation, UserProfile, ReservationAuditLog
 from .forms import ReservationForm, UserProfileForm
 from resort.models import Contact
+
+
+def admin_required(view_func):
+    """Decorator to ensure only admin users can access a view"""
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            messages.error(request, 'Please log in to access this area.')
+            return redirect('backoffice:login')
+        
+        try:
+            profile = request.user.userprofile
+        except UserProfile.DoesNotExist:
+            messages.error(request, 'Access denied: No user profile found.')
+            return redirect('backoffice:dashboard')
+        
+        if profile.role != 'admin':
+            # Security logging
+            logger = logging.getLogger('security')
+            logger.warning(f'Unauthorized user management access attempt by {request.user.username} (role: {profile.role}) to {request.path}')
+            
+            messages.error(request, f'Access denied: User management requires administrative privileges. Your role: {profile.get_role_display()}')
+            return redirect('backoffice:dashboard')
+        
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
 
 
 class RoleRequiredMixin:
@@ -34,8 +62,82 @@ class RoleRequiredMixin:
         return super().dispatch(request, *args, **kwargs)
 
 
+class ViewerAllowedMixin:
+    """Mixin for views that viewers can access (read-only)"""
+    
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            messages.error(request, 'Please log in to access this area.')
+            return redirect('backoffice:login')
+        
+        try:
+            profile = request.user.userprofile
+        except UserProfile.DoesNotExist:
+            messages.error(request, 'Access denied: No user profile found.')
+            return redirect('backoffice:dashboard')
+        
+        # Allow viewer, agent, and admin roles
+        if profile.role not in ['viewer', 'agent', 'admin']:
+            messages.error(request, f'Access denied: Invalid role. Your role: {profile.get_role_display()}')
+            return redirect('backoffice:dashboard')
+        
+        return super().dispatch(request, *args, **kwargs)
+
+
+class AgentRequiredMixin(ViewerAllowedMixin):
+    """Mixin for views that require agent or admin access"""
+    
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            messages.error(request, 'Please log in to access this area.')
+            return redirect('backoffice:login')
+        
+        try:
+            profile = request.user.userprofile
+        except UserProfile.DoesNotExist:
+            messages.error(request, 'Access denied: No user profile found.')
+            return redirect('backoffice:dashboard')
+        
+        # Allow only agent and admin roles
+        if profile.role not in ['agent', 'admin']:
+            messages.error(request, f'Access denied: Agent or Admin role required. Your role: {profile.get_role_display()}')
+            return redirect('backoffice:dashboard')
+        
+        return super().dispatch(request, *args, **kwargs)
+
+
 class AdminRequiredMixin(RoleRequiredMixin):
+    """Strict admin-only access mixin with comprehensive security checks"""
     required_role = 'admin'
+    
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            messages.error(request, 'Please log in to access this area.')
+            return redirect('backoffice:login')
+        
+        try:
+            profile = request.user.userprofile
+        except UserProfile.DoesNotExist:
+            messages.error(request, 'Access denied: No user profile found. Contact administrator.')
+            return redirect('backoffice:dashboard')
+        
+        # Strict admin role check
+        if profile.role != 'admin':
+            # Log the access attempt for security auditing
+            import logging
+            logger = logging.getLogger('security')
+            logger.warning(f'Unauthorized access attempt by {request.user.username} (role: {profile.role}) to admin-only view: {request.path}')
+            
+            messages.error(request, f'Access denied: Administrative privileges required. Your role: {profile.get_role_display()}')
+            return redirect('backoffice:dashboard')
+        
+        # Additional security check for user management
+        if 'user' in request.resolver_match.url_name:
+            if not profile.can_edit_reservations():  # Admin check method
+                messages.error(request, 'Access denied: User management requires full administrative privileges.')
+                return redirect('backoffice:dashboard')
+        
+        return super().dispatch(request, *args, **kwargs)
 
 
 class DashboardView(LoginRequiredMixin, TemplateView):
@@ -81,7 +183,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class ReservationListView(LoginRequiredMixin, ListView):
+class ReservationListView(ViewerAllowedMixin, ListView):
     model = Reservation
     template_name = 'backoffice/reservation_list.html'
     context_object_name = 'reservations'
@@ -110,7 +212,7 @@ class ReservationListView(LoginRequiredMixin, ListView):
         return queryset
 
 
-class ReservationDetailView(LoginRequiredMixin, DetailView):
+class ReservationDetailView(ViewerAllowedMixin, DetailView):
     model = Reservation
     template_name = 'backoffice/reservation_detail.html'
     context_object_name = 'reservation'
@@ -129,7 +231,7 @@ class ReservationDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class ReservationCreateView(LoginRequiredMixin, CreateView):
+class ReservationCreateView(AgentRequiredMixin, CreateView):
     model = Reservation
     form_class = ReservationForm
     template_name = 'backoffice/reservation_form.html'
@@ -214,7 +316,7 @@ class ReservationEditView(LoginRequiredMixin, UpdateView):
         return reverse_lazy('backoffice:reservation_detail', kwargs={'pk': self.object.pk})
 
 
-class ContactInquiryListView(LoginRequiredMixin, ListView):
+class ContactInquiryListView(ViewerAllowedMixin, ListView):
     model = Contact
     template_name = 'backoffice/inquiry_list.html'
     context_object_name = 'inquiries'
@@ -224,7 +326,7 @@ class ContactInquiryListView(LoginRequiredMixin, ListView):
         return Contact.objects.all().order_by('-created_at')
 
 
-class ContactInquiryDetailView(LoginRequiredMixin, DetailView):
+class ContactInquiryDetailView(ViewerAllowedMixin, DetailView):
     model = Contact
     template_name = 'backoffice/inquiry_detail.html'
     context_object_name = 'inquiry'
@@ -258,7 +360,7 @@ class ContactInquiryDetailView(LoginRequiredMixin, DetailView):
         return self.get(request, *args, **kwargs)
 
 
-class ConvertInquiryView(LoginRequiredMixin, TemplateView):
+class ConvertInquiryView(AgentRequiredMixin, TemplateView):
     template_name = 'backoffice/convert_inquiry.html'
     
     def get_context_data(self, **kwargs):
@@ -384,29 +486,94 @@ class UserListView(AdminRequiredMixin, ListView):
     
     def get_queryset(self):
         return User.objects.select_related('userprofile').filter(is_active=True)
+    
+    def dispatch(self, request, *args, **kwargs):
+        # Additional security check - ensure user has admin role
+        try:
+            profile = request.user.userprofile
+            if profile.role != 'admin':
+                messages.error(request, 'Access denied: Only administrators can manage users.')
+                return redirect('backoffice:dashboard')
+        except UserProfile.DoesNotExist:
+            messages.error(request, 'Access denied: No role assigned.')
+            return redirect('backoffice:dashboard')
+        
+        return super().dispatch(request, *args, **kwargs)
 
 
 class UserCreateView(AdminRequiredMixin, CreateView):
-    model = User
+    model = UserProfile
     form_class = UserProfileForm
     template_name = 'backoffice/user_form.html'
     success_url = reverse_lazy('backoffice:user_list')
     
+    def dispatch(self, request, *args, **kwargs):
+        # Additional security check - ensure user has admin role
+        try:
+            profile = request.user.userprofile
+            if profile.role != 'admin':
+                messages.error(request, 'Access denied: Only administrators can create users.')
+                return redirect('backoffice:dashboard')
+        except UserProfile.DoesNotExist:
+            messages.error(request, 'Access denied: No role assigned.')
+            return redirect('backoffice:dashboard')
+        
+        return super().dispatch(request, *args, **kwargs)
+    
     def form_valid(self, form):
         response = super().form_valid(form)
-        messages.success(self.request, f'User {self.object.username} created successfully!')
+        username = form.cleaned_data.get('username', 'Unknown')
+        messages.success(self.request, f'User {username} created successfully!')
         return response
 
 
 class UserEditView(AdminRequiredMixin, UpdateView):
-    model = User
+    model = UserProfile
     form_class = UserProfileForm
     template_name = 'backoffice/user_form.html'
     success_url = reverse_lazy('backoffice:user_list')
     
+    def dispatch(self, request, *args, **kwargs):
+        # Additional security check - ensure user has admin role
+        try:
+            profile = request.user.userprofile
+            if profile.role != 'admin':
+                messages.error(request, 'Access denied: Only administrators can edit users.')
+                return redirect('backoffice:dashboard')
+        except UserProfile.DoesNotExist:
+            messages.error(request, 'Access denied: No role assigned.')
+            return redirect('backoffice:dashboard')
+        
+        # Check if the target user exists before proceeding
+        user_id = kwargs.get('pk')
+        try:
+            user = User.objects.get(pk=user_id)
+            if not hasattr(user, 'userprofile'):
+                messages.error(request, f'User profile not found for user {user.username}.')
+                return redirect('backoffice:user_list')
+        except User.DoesNotExist:
+            messages.error(request, f'User with ID {user_id} not found.')
+            return redirect('backoffice:user_list')
+        
+        return super().dispatch(request, *args, **kwargs)
+    
+    def get_object(self, queryset=None):
+        # Get UserProfile object based on User ID from URL
+        user_id = self.kwargs.get('pk')
+        try:
+            user = User.objects.get(pk=user_id)
+            return user.userprofile
+        except User.DoesNotExist:
+            from django.http import Http404
+            raise Http404("User not found.")
+        except UserProfile.DoesNotExist:
+            from django.http import Http404
+            raise Http404("User profile not found.")
+    
     def form_valid(self, form):
         response = super().form_valid(form)
-        messages.success(self.request, f'User {self.object.username} updated successfully!')
+        username = form.cleaned_data.get('username', 'Unknown')
+        messages.success(self.request, f'User {username} updated successfully!')
         return response
 
 

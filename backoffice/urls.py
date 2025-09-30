@@ -1,13 +1,14 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views
+from .views import admin_required
 
 app_name = 'backoffice'
 
 urlpatterns = [
     # Authentication
     path('login/', auth_views.LoginView.as_view(template_name='backoffice/login.html'), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('logout/', auth_views.LogoutView.as_view(next_page='/_internal/login/'), name='logout'),
     
     # Dashboard
     path('', views.DashboardView.as_view(), name='dashboard'),
@@ -27,8 +28,8 @@ urlpatterns = [
     # Analytics
     path('analytics/', views.AnalyticsView.as_view(), name='analytics'),
     
-    # User Management (Admin only)
-    path('users/', views.UserListView.as_view(), name='user_list'),
-    path('users/create/', views.UserCreateView.as_view(), name='user_create'),
-    path('users/<int:pk>/edit/', views.UserEditView.as_view(), name='user_edit'),
+    # User Management (Admin only) - Double protected with AdminRequiredMixin + decorator
+    path('users/', admin_required(views.UserListView.as_view()), name='user_list'),
+    path('users/create/', admin_required(views.UserCreateView.as_view()), name='user_create'),
+    path('users/<int:pk>/edit/', admin_required(views.UserEditView.as_view()), name='user_edit'),
 ]

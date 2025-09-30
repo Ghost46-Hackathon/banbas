@@ -188,7 +188,7 @@
                         Analytics
                     </a>
                 </li>
-                {% if user.userprofile.role == 'admin' %}
+                {% if user.is_authenticated and user.userprofile and user.userprofile.role == 'admin' and user.userprofile.can_edit_reservations %}
                 <li class="nav-item">
                     <a class="nav-link {% if 'user' in request.resolver_match.url_name %}active{% endif %}" 
                        href="{% url 'backoffice:user_list' %}">

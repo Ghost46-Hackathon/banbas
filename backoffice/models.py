@@ -26,6 +26,21 @@ class UserProfile(models.Model):
     
     def can_view_revenue(self):
         return self.role == 'admin'
+    
+    def can_create_reservations(self):
+        return self.role in ['agent', 'admin']
+    
+    def can_view_reservations(self):
+        return self.role in ['viewer', 'agent', 'admin']
+    
+    def can_delete_reservations(self):
+        return self.role == 'admin'
+    
+    def can_convert_inquiries(self):
+        return self.role in ['agent', 'admin']
+    
+    def is_viewer_only(self):
+        return self.role == 'viewer'
 
 
 class Reservation(models.Model):
