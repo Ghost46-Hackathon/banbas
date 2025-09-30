@@ -25,14 +25,15 @@
 <body>
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-light">
-        <div class="container">
-            <a class="navbar-brand fw-bold text-primary fs-3 d-flex align-items-center" href="{% url 'resort:home' %}">
+        <div class="container-fluid px-4">
+            <!-- Logo - Far Left -->
+            <a class="navbar-brand d-flex align-items-center" href="{% url 'resort:home' %}">
                 <!-- Single logo that adapts to background -->
                 <img src="{% static 'images/logo/logo.png' %}" alt="Banbas Resort" class="navbar-logo" 
                      onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
                 <!-- Fallback text/icon -->
                 <span class="navbar-fallback" style="display: none;">
-                    <i class="fas fa-umbrella-beach me-2"></i>Banbas Resort
+                    <i class="fas fa-umbrella-beach me-2"></i>BANBAS
                 </span>
             </a>
             
@@ -41,29 +42,32 @@
             </button>
             
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+                <!-- Centered Navigation Menu -->
+                <ul class="navbar-nav mx-auto">
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold" href="{% url 'resort:home' %}">Home</a>
+                        <a class="nav-link" href="{% url 'resort:home' %}">HOME</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold" href="{% url 'resort:about' %}">About</a>
+                        <a class="nav-link" href="{% url 'resort:about' %}">ABOUT</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold" href="{% url 'resort:rooms' %}">Rooms</a>
+                        <a class="nav-link" href="{% url 'resort:rooms' %}">ROOMS</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold" href="{% url 'resort:amenities' %}">Amenities</a>
+                        <a class="nav-link" href="{% url 'resort:amenities' %}">AMENITIES</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold" href="{% url 'resort:gallery' %}">Gallery</a>
+                        <a class="nav-link" href="{% url 'resort:gallery' %}">GALLERY</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold" href="{% url 'resort:contact' %}">Contact</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="btn btn-primary ms-2" href="{% url 'resort:contact' %}">Book Now</a>
+                        <a class="nav-link" href="{% url 'resort:contact' %}">CONTACT</a>
                     </li>
                 </ul>
+                
+                <!-- Right Side - Book a Stay -->
+                <div class="navbar-nav ms-auto">
+                    <a class="btn btn-primary book-stay-btn" href="{% url 'resort:contact' %}">BOOK A STAY</a>
+                </div>
             </div>
         </div>
     </nav>
@@ -84,6 +88,12 @@
         {% block content %}
         {% endblock %}
     </main>
+
+    <!-- Floating Book a Stay Button -->
+    <a href="{% url 'resort:contact' %}" class="floating-book-btn" title="Book Your Stay">
+        <i class="fas fa-calendar-check"></i>
+        Book a Stay
+    </a>
 
     <!-- Footer -->
     <footer class="bg-dark text-light py-5 mt-5">
