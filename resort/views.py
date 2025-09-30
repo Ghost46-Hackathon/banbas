@@ -2,8 +2,11 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.http import JsonResponse
-from .models import RoomType, Amenity, Gallery, Contact, Resort, Booking
-from .forms import ContactForm, BookingForm
+from django.conf import settings
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from .models import RoomType, Amenity, Gallery, Contact, Resort
+from .forms import ContactForm
 
 
 def home(request):
@@ -94,8 +97,26 @@ def contact(request):
     if request.method == 'POST':
         form = ContactForm(request.POST)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Thank you for your message! We will get back to you soon.')
+            contact_entry = form.save()
+            # Send automated acknowledgment email to guest
+            try:
+                guest_name = form.cleaned_data.get('name', '').strip() or 'Guest'
+                guest_email = form.cleaned_data.get('email')
+                subject = f"Thanks, {guest_name}! We've received your inquiry"
+                message = render_to_string('email/auto_reply.txt', {
+                    'name': guest_name,
+                })
+                send_mail(
+                    subject=subject,
+                    message=message,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[guest_email],
+                    fail_silently=True,
+                )
+            except Exception:
+                # Avoid breaking UX if email fails
+                pass
+            messages.success(request, 'Thank you for your message! We will get back to you shortly.')
             return redirect('resort:contact')
     else:
         form = ContactForm()
@@ -117,33 +138,3 @@ def about(request):
         'amenities': amenities,
     }
     return render(request, 'resort/about.html', context)
-
-
-def booking(request):
-    """Booking page with booking form"""
-    resort = Resort.objects.first()
-    
-    if request.method == 'POST':
-        form = BookingForm(request.POST)
-        if form.is_valid():
-            booking = form.save()
-            messages.success(
-                request, 
-                f'Thank you {booking.full_name}! Your booking request has been submitted successfully. '
-                f'We will contact you within 24 hours to confirm availability and finalize your reservation.'
-            )
-            return redirect('resort:booking')
-        else:
-            # If form is invalid, add error message
-            messages.error(
-                request, 
-                'Please correct the errors below and try again.'
-            )
-    else:
-        form = BookingForm()
-    
-    context = {
-        'form': form,
-        'resort': resort,
-    }
-    return render(request, 'resort/booking.html', context)

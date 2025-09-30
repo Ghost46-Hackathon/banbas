@@ -1,0 +1,18 @@
+Dear {{ name }},
+
+Thank you for your inquiry about Banbas Resort! We're delighted that you're considering us for your upcoming stay.
+
+We have received your message and our reservation team will personally reach out to you within the next 2-4 hours to gather additional details and help create your perfect getaway experience.
+
+In the meantime, feel free to explore our amenities and rooms on our website, or contact us directly if you have any immediate questions.
+
+We look forward to welcoming you to paradise!
+
+Warm regards,
+The Banbas Resort Team
+
+---
+This is an automated message. Please do not reply to this email directly.
+For immediate assistance, contact us at:
+Phone: [Your resort phone number]
+Email: [Your resort email]
