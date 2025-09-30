@@ -1,13 +1,27 @@
 // Custom JavaScript for Banbas Resort
 
-// Navbar scroll effect
+// TAJ Hotels-style navbar scroll effect
 window.addEventListener('scroll', function() {
     const navbar = document.querySelector('.navbar');
-    if (window.scrollY > 50) {
+    const scrollY = window.scrollY;
+    
+    if (scrollY > 100) {
+        // Add scrolled state - becomes white and sticky
         navbar.classList.add('scrolled');
+        navbar.classList.add('navbar-sticky');
+        navbar.classList.remove('navbar-initial');
     } else {
+        // Remove scrolled state - becomes transparent overlay
         navbar.classList.remove('scrolled');
+        navbar.classList.remove('navbar-sticky');
+        navbar.classList.add('navbar-initial');
     }
+});
+
+// Initialize navbar as transparent overlay
+document.addEventListener('DOMContentLoaded', function() {
+    const navbar = document.querySelector('.navbar');
+    navbar.classList.add('navbar-initial');
 });
 
 // Smooth scrolling for anchor links
