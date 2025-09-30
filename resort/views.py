@@ -2,8 +2,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.http import JsonResponse
-from .models import RoomType, Amenity, Gallery, Contact, Resort
-from .forms import ContactForm
+from .models import RoomType, Amenity, Gallery, Contact, Resort, Booking
+from .forms import ContactForm, BookingForm
 
 
 def home(request):
@@ -117,3 +117,33 @@ def about(request):
         'amenities': amenities,
     }
     return render(request, 'resort/about.html', context)
+
+
+def booking(request):
+    """Booking page with booking form"""
+    resort = Resort.objects.first()
+    
+    if request.method == 'POST':
+        form = BookingForm(request.POST)
+        if form.is_valid():
+            booking = form.save()
+            messages.success(
+                request, 
+                f'Thank you {booking.full_name}! Your booking request has been submitted successfully. '
+                f'We will contact you within 24 hours to confirm availability and finalize your reservation.'
+            )
+            return redirect('resort:booking')
+        else:
+            # If form is invalid, add error message
+            messages.error(
+                request, 
+                'Please correct the errors below and try again.'
+            )
+    else:
+        form = BookingForm()
+    
+    context = {
+        'form': form,
+        'resort': resort,
+    }
+    return render(request, 'resort/booking.html', context)

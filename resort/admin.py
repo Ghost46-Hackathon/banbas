@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import RoomType, Amenity, Gallery, Contact, Resort
+from .models import RoomType, Amenity, Gallery, Contact, Resort, Booking
 
 
 @admin.register(Resort)
@@ -88,3 +88,44 @@ class ContactAdmin(admin.ModelAdmin):
             'fields': ('is_read', 'created_at')
         })
     )
+
+
+@admin.register(Booking)
+class BookingAdmin(admin.ModelAdmin):
+    list_display = [
+        'full_name', 'email', 'checkin_date', 'checkout_date', 
+        'total_guests', 'rooms', 'status', 'created_at'
+    ]
+    list_filter = ['status', 'room_type', 'checkin_date', 'created_at']
+    search_fields = ['first_name', 'last_name', 'email', 'phone']
+    list_editable = ['status']
+    readonly_fields = ['created_at', 'updated_at']
+    ordering = ['-created_at']
+    
+    fieldsets = (
+        ('Guest Information', {
+            'fields': ('first_name', 'last_name', 'email', 'phone', 'address')
+        }),
+        ('Stay Details', {
+            'fields': ('checkin_date', 'checkout_date', 'adults', 'children', 'rooms')
+        }),
+        ('Room Preferences', {
+            'fields': ('room_type', 'bed_preference', 'preferences'),
+            'classes': ('collapse',)
+        }),
+        ('Special Requests', {
+            'fields': ('occasion', 'arrival_time', 'services', 'special_requests'),
+            'classes': ('collapse',)
+        }),
+        ('Booking Status', {
+            'fields': ('status', 'created_at', 'updated_at')
+        })
+    )
+    
+    def full_name(self, obj):
+        return obj.full_name
+    full_name.short_description = 'Full Name'
+    
+    def total_guests(self, obj):
+        return obj.total_guests
+    total_guests.short_description = 'Total Guests'

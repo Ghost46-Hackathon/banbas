@@ -85,6 +85,89 @@ class Contact(models.Model):
         return f"{self.name} - {self.subject}"
 
 
+class Booking(models.Model):
+    """Model to store booking requests"""
+    ROOM_TYPE_CHOICES = [
+        ('', 'No Preference'),
+        ('deluxe', 'Deluxe Room'),
+        ('suite', 'Suite'),
+        ('oceanview', 'Ocean View'),
+        ('presidential', 'Presidential Suite'),
+    ]
+    
+    BED_PREFERENCE_CHOICES = [
+        ('', 'No Preference'),
+        ('king', 'King Bed'),
+        ('queen', 'Queen Bed'),
+        ('twin', 'Twin Beds'),
+    ]
+    
+    OCCASION_CHOICES = [
+        ('', 'Select Occasion'),
+        ('honeymoon', 'Honeymoon'),
+        ('anniversary', 'Anniversary'),
+        ('birthday', 'Birthday'),
+        ('business', 'Business Travel'),
+        ('vacation', 'Vacation'),
+        ('other', 'Other'),
+    ]
+    
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('confirmed', 'Confirmed'),
+        ('cancelled', 'Cancelled'),
+        ('completed', 'Completed'),
+    ]
+    
+    # Guest Information
+    first_name = models.CharField(max_length=50)
+    last_name = models.CharField(max_length=50)
+    email = models.EmailField()
+    phone = models.CharField(max_length=20)
+    address = models.TextField(blank=True)
+    
+    # Stay Details
+    checkin_date = models.DateField()
+    checkout_date = models.DateField()
+    adults = models.IntegerField()
+    children = models.IntegerField(default=0)
+    rooms = models.IntegerField()
+    
+    # Room Preferences
+    room_type = models.CharField(max_length=20, choices=ROOM_TYPE_CHOICES, blank=True)
+    bed_preference = models.CharField(max_length=10, choices=BED_PREFERENCE_CHOICES, blank=True)
+    preferences = models.JSONField(default=list, blank=True)  # Store multiple preferences
+    
+    # Special Requests
+    occasion = models.CharField(max_length=20, choices=OCCASION_CHOICES, blank=True)
+    arrival_time = models.TimeField(blank=True, null=True)
+    services = models.JSONField(default=list, blank=True)  # Store multiple services
+    special_requests = models.TextField(blank=True)
+    
+    # Booking Meta
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.first_name} {self.last_name} - {self.checkin_date} to {self.checkout_date}"
+    
+    @property
+    def full_name(self):
+        return f"{self.first_name} {self.last_name}"
+    
+    @property
+    def total_guests(self):
+        return self.adults + self.children
+    
+    @property
+    def nights(self):
+        return (self.checkout_date - self.checkin_date).days
+
+
 class Resort(models.Model):
     """Single instance model for resort information"""
     name = models.CharField(max_length=100, default="Banbas Resort")

@@ -21,7 +21,7 @@
             <p class="lead fs-3 mb-5">{{ resort.tagline|default:'Your Paradise Awaits' }}</p>
             <div class="hero-buttons">
                 <a href="{% url 'resort:rooms' %}" class="btn btn-primary btn-lg me-3">Explore Rooms</a>
-                <a href="{% url 'resort:contact' %}" class="btn btn-outline-light btn-lg">Book Now</a>
+                <a href="{% url 'resort:booking' %}" class="btn btn-outline-light btn-lg">Book Now</a>
             </div>
         </div>
     </div>
@@ -198,7 +198,7 @@
                 <h2 class="display-4 fw-bold mb-4" style="color: white;">Ready for Your Perfect Vacation?</h2>
                 <p class="lead mb-5">Book your stay at Banbas Resort today and create memories that will last a lifetime. Our team is ready to make your dream vacation a reality.</p>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-center">
-                    <a href="{% url 'resort:contact' %}" class="btn btn-light btn-lg me-md-2">Book Now</a>
+                    <a href="{% url 'resort:booking' %}" class="btn btn-light btn-lg me-md-2">Book Now</a>
                     <a href="{% url 'resort:rooms' %}" class="btn btn-outline-light btn-lg">View Rooms</a>
                 </div>
             </div>
