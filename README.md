@@ -75,6 +75,62 @@ python manage.py populate_sample_data
 python manage.py collectstatic
 ```
 
+## Docker Setup
+
+For containerized deployment, use Docker and Docker Compose:
+
+### Prerequisites
+- Docker
+- Docker Compose
+
+### Quick Start with Docker
+```bash
+# Clone the repository
+git clone https://github.com/Ghost46-Hackathon/banbas.git
+cd banbas
+
+# Switch to docker branch (contains Docker configuration)
+git checkout docker
+
+# Build and run with Docker Compose
+docker-compose up --build
+```
+
+The application will be available at http://localhost:8000/
+
+### Docker Commands
+```bash
+# Build the Docker image
+docker build -t banbas-resort .
+
+# Run the container
+docker run -p 8000:8000 banbas-resort
+
+# Run with Docker Compose (recommended)
+docker-compose up --build
+
+# Run in background
+docker-compose up -d
+
+# Stop containers
+docker-compose down
+
+# View logs
+docker-compose logs -f
+
+# Access container shell
+docker-compose exec web bash
+```
+
+### Docker Features
+- Automatically runs migrations and populates sample data
+- Health checks to ensure the application is running
+- Volume mounts for database and media persistence
+- Environment variable configuration
+- Non-root user for security
+- Optimized build with .dockerignore
+
 ## Notes
 - Development server is for local use only. For production, configure `ALLOWED_HOSTS`, set `DEBUG = False`, and use a proper WSGI/ASGI server.
 - Dependencies are pinned in `requirements.txt`.
+- Docker branch contains containerization setup with Dockerfile and docker-compose.yml

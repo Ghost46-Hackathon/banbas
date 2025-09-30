@@ -124,6 +124,7 @@ The project includes a management command to populate sample data:
 ### Dependencies
 - Django 5.2.6
 - Pillow (for image handling)
+- Requests 2.31.0 (for Docker health checks)
 - Bootstrap 5.3.2 (CDN)
 - Font Awesome 6.0 (CDN)
 - Google Fonts (Poppins, Playfair Display)
@@ -138,10 +139,38 @@ The project includes a management command to populate sample data:
 - Room booking interface (frontend ready)
 - Newsletter subscription (frontend ready)
 
+### Docker Setup (docker branch)
+
+The project includes Docker support in the `docker` branch:
+
+```bash
+# Switch to docker branch
+git checkout docker
+
+# Run with Docker Compose
+docker-compose up --build
+
+# Run in background
+docker-compose up -d
+
+# Stop containers
+docker-compose down
+```
+
+**Docker Features:**
+- Multi-stage build optimized for Python/Django
+- Automatic database migrations and sample data population
+- Health checks for container monitoring
+- Volume mounts for persistent data
+- Environment variable configuration
+- Non-root user for security
+- Support for both SQLite (development) and PostgreSQL (production)
+
 ### Deployment Considerations
-- Configure `ALLOWED_HOSTS` in settings.py for production
+- Configure `ALLOWED_HOSTS` in settings.py or via environment variables
 - Set `DEBUG = False` for production
 - Configure proper database (PostgreSQL/MySQL) for production
 - Set up proper static file serving
 - Configure email backend for contact form
 - Add SSL certificate for HTTPS
+- Use Docker for consistent deployment across environments
