@@ -1,0 +1,215 @@
+{% extends 'resort/base.html' %}
+{% load static %}
+
+{% block title %}Banbas Resort - Your Paradise Awaits{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero" style="background-image: url('{{ resort.hero_image_placeholder|default:'https://via.placeholder.com/1200x600/0066cc/ffffff?text=Banbas+Resort' }}');">
+    <div class="container">
+        <div class="hero-content">
+            <h1 class="display-1 fw-bold mb-4">{{ resort.name|default:'Banbas Resort' }}</h1>
+            <p class="lead fs-3 mb-5">{{ resort.tagline|default:'Your Paradise Awaits' }}</p>
+            <div class="hero-buttons">
+                <a href="{% url 'resort:rooms' %}" class="btn btn-primary btn-lg me-3">Explore Rooms</a>
+                <a href="{% url 'resort:contact' %}" class="btn btn-outline-light btn-lg">Book Now</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Welcome Section -->
+<section class="section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <div class="section-title text-start">
+                    <h2>Welcome to Paradise</h2>
+                    <p class="lead">
+                        {{ resort.description|default:'Experience luxury and comfort at Banbas Resort, where every moment is designed to create unforgettable memories. Our world-class amenities and stunning oceanfront location provide the perfect escape from everyday life.' }}
+                    </p>
+                </div>
+                <div class="row g-3 mb-4">
+                    <div class="col-6">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-swimming-pool text-primary fs-3 me-3"></i>
+                            <div>
+                                <h6 class="mb-0">Infinity Pool</h6>
+                                <small class="text-muted">Oceanfront views</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-utensils text-primary fs-3 me-3"></i>
+                            <div>
+                                <h6 class="mb-0">Fine Dining</h6>
+                                <small class="text-muted">Gourmet cuisine</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-spa text-primary fs-3 me-3"></i>
+                            <div>
+                                <h6 class="mb-0">Luxury Spa</h6>
+                                <small class="text-muted">Wellness center</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-wifi text-primary fs-3 me-3"></i>
+                            <div>
+                                <h6 class="mb-0">Free WiFi</h6>
+                                <small class="text-muted">High-speed internet</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <a href="{% url 'resort:about' %}" class="btn btn-outline-primary">Learn More</a>
+            </div>
+            <div class="col-lg-6">
+                <img src="https://via.placeholder.com/600x400/17a2b8/ffffff?text=Resort+Welcome" 
+                     alt="Resort Welcome" 
+                     class="img-fluid rounded shadow-lg">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Rooms Section -->
+{% if featured_rooms %}
+<section class="section bg-light">
+    <div class="container">
+        <div class="section-title">
+            <h2>Our Luxurious Rooms</h2>
+            <p>Choose from our collection of elegantly designed rooms and suites, each offering comfort and style.</p>
+        </div>
+        
+        <div class="row g-4">
+            {% for room in featured_rooms %}
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100">
+                    <img src="{{ room.image_placeholder }}" 
+                         class="card-img-top" 
+                         alt="{{ room.name }}">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">{{ room.name }}</h5>
+                        <p class="card-text flex-grow-1">{{ room.description|truncatewords:20 }}</p>
+                        <div class="room-details mb-3">
+                            <small class="text-muted">
+                                <i class="fas fa-users me-1"></i> {{ room.max_occupancy }} guests
+                                <i class="fas fa-expand-arrows-alt ms-3 me-1"></i> {{ room.size_sqm }} m²
+                            </small>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="price">${{ room.base_price }}/night</span>
+                            <a href="{% url 'resort:room_detail' room.pk %}" class="btn btn-primary">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-5">
+            <a href="{% url 'resort:rooms' %}" class="btn btn-outline-primary btn-lg">View All Rooms</a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Featured Amenities Section -->
+{% if featured_amenities %}
+<section class="section">
+    <div class="container">
+        <div class="section-title">
+            <h2>World-Class Amenities</h2>
+            <p>Indulge in our premium facilities designed for your ultimate comfort and enjoyment.</p>
+        </div>
+        
+        <div class="row g-4">
+            {% for amenity in featured_amenities %}
+            <div class="col-lg-4 col-md-6">
+                <div class="amenity-card">
+                    <div class="amenity-icon">
+                        <i class="{{ amenity.icon_class|default:'fas fa-star' }}"></i>
+                    </div>
+                    <h5>{{ amenity.name }}</h5>
+                    <p>{{ amenity.description|truncatewords:15 }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-5">
+            <a href="{% url 'resort:amenities' %}" class="btn btn-outline-primary btn-lg">All Amenities</a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Gallery Preview Section -->
+{% if featured_gallery %}
+<section class="section bg-light">
+    <div class="container">
+        <div class="section-title">
+            <h2>Discover Our Resort</h2>
+            <p>Take a visual journey through our beautiful resort and stunning surroundings.</p>
+        </div>
+        
+        <div class="row g-4">
+            {% for image in featured_gallery %}
+            <div class="col-lg-4 col-md-6">
+                <div class="gallery-item">
+                    <img src="{{ image.image_placeholder }}" 
+                         alt="{{ image.title }}" 
+                         class="img-fluid">
+                    <div class="gallery-overlay">
+                        <h5>{{ image.title }}</h5>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-5">
+            <a href="{% url 'resort:gallery' %}" class="btn btn-outline-primary btn-lg">View Gallery</a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Call to Action Section -->
+<section class="section bg-primary text-white">
+    <div class="container text-center">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <h2 class="display-4 fw-bold mb-4" style="color: white;">Ready for Your Perfect Vacation?</h2>
+                <p class="lead mb-5">Book your stay at Banbas Resort today and create memories that will last a lifetime. Our team is ready to make your dream vacation a reality.</p>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                    <a href="{% url 'resort:contact' %}" class="btn btn-light btn-lg me-md-2">Book Now</a>
+                    <a href="{% url 'resort:rooms' %}" class="btn btn-outline-light btn-lg">View Rooms</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Newsletter Section -->
+<section class="section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 text-center">
+                <h3>Stay Updated</h3>
+                <p class="mb-4">Subscribe to our newsletter for special offers and resort updates.</p>
+                <form id="newsletter-form" class="d-flex gap-2">
+                    <input type="email" class="form-control" placeholder="Your email address" required>
+                    <button type="submit" class="btn btn-primary">Subscribe</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
