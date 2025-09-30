@@ -230,6 +230,39 @@ function calculatePrice(basePrice, nights, guests) {
     return total;
 }
 
+// Floating Book Now Button Functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const floatingBtn = document.querySelector('.floating-book-btn');
+    
+    if (floatingBtn) {
+        // Add click tracking/analytics if needed
+        floatingBtn.addEventListener('click', function() {
+            // Optional: Add analytics tracking
+            console.log('Floating Book Now button clicked');
+            
+            // The href will handle the navigation
+        });
+        
+        // Hide floating button when scrolled to footer to avoid overlap
+        const footer = document.querySelector('footer');
+        if (footer) {
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        floatingBtn.style.opacity = '0.5';
+                        floatingBtn.style.transform = 'translateY(10px)';
+                    } else {
+                        floatingBtn.style.opacity = '1';
+                        floatingBtn.style.transform = 'translateY(0)';
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            observer.observe(footer);
+        }
+    }
+});
+
 // Utility function to format currency
 function formatCurrency(amount) {
     return new Intl.NumberFormat('en-US', {

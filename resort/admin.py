@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import RoomType, Amenity, Gallery, Contact, Resort, Booking
+from .models import RoomType, Amenity, Gallery, Contact, Resort, Booking, Activity, RoomGallery
 
 
 @admin.register(Resort)
@@ -21,22 +21,46 @@ class ResortAdmin(admin.ModelAdmin):
     )
 
 
+class RoomGalleryInline(admin.TabularInline):
+    model = RoomGallery
+    extra = 1
+    fields = ['media_type', 'title', 'image_url', 'video_url', 'video_thumbnail', 'order', 'is_featured']
+    ordering = ['order']
+
+
+@admin.register(RoomGallery)
+class RoomGalleryAdmin(admin.ModelAdmin):
+    list_display = ['room_type', 'media_type', 'title', 'order', 'is_featured', 'created_at']
+    list_filter = ['media_type', 'is_featured', 'room_type']
+    search_fields = ['title', 'room_type__name']
+    ordering = ['room_type', 'order']
+
+
 @admin.register(RoomType)
 class RoomTypeAdmin(admin.ModelAdmin):
-    list_display = ['name', 'base_price', 'max_occupancy', 'size_sqm', 'created_at']
-    list_filter = ['max_occupancy', 'created_at']
+    list_display = ['name', 'max_occupancy', 'size_sqm', 'room_count', 'is_available', 'is_featured', 'created_at']
+    list_filter = ['max_occupancy', 'is_available', 'is_featured', 'has_ocean_view', 'has_balcony', 'is_suite']
     search_fields = ['name', 'description']
-    ordering = ['base_price']
+    list_editable = ['is_available', 'is_featured']
+    ordering = ['name']
+    inlines = [RoomGalleryInline]
     
     fieldsets = (
         ('Basic Information', {
-            'fields': ('name', 'description')
+            'fields': ('name', 'description', 'detailed_description')
         }),
-        ('Details', {
-            'fields': ('base_price', 'max_occupancy', 'size_sqm', 'amenities')
+        ('Room Details', {
+            'fields': ('max_occupancy', 'size_sqm', 'room_count', 'amenities')
+        }),
+        ('Features', {
+            'fields': ('has_balcony', 'has_ocean_view', 'has_garden_view', 'has_kitchenette', 'has_jacuzzi', 'is_suite')
         }),
         ('Media', {
-            'fields': ('image_placeholder',)
+            'fields': ('main_image',)
+        }),
+        ('Pricing & Availability', {
+            'fields': ('base_price', 'is_available', 'is_featured'),
+            'description': 'Base price is for admin reference only and not displayed to guests.'
         })
     )
 
@@ -129,3 +153,49 @@ class BookingAdmin(admin.ModelAdmin):
     def total_guests(self, obj):
         return obj.total_guests
     total_guests.short_description = 'Total Guests'
+
+
+@admin.register(Activity)
+class ActivityAdmin(admin.ModelAdmin):
+    list_display = ['name', 'category', 'difficulty', 'price', 'duration', 'is_featured', 'is_available', 'created_at']
+    list_filter = ['category', 'difficulty', 'is_featured', 'is_available', 'requires_booking', 'includes_equipment', 'includes_guide', 'created_at']
+    search_fields = ['name', 'short_description', 'full_description', 'location']
+    list_editable = ['is_featured', 'is_available', 'price']
+    ordering = ['-is_featured', '-is_available', 'category', 'name']
+    
+    fieldsets = (
+        ('Basic Information', {
+            'fields': ('name', 'category', 'short_description', 'full_description')
+        }),
+        ('Rich Content', {
+            'fields': ('detailed_content',),
+            'description': 'Use the rich text editor to add detailed content, images, and formatting for the activity detail page.'
+        }),
+        ('Activity Details', {
+            'fields': ('difficulty', 'duration', 'max_participants', 'min_age', 'price', 'location')
+        }),
+        ('Visual Design', {
+            'fields': ('icon_class', 'image_placeholder', 'background_color'),
+            'description': 'Icon class examples: fas fa-swimming-pool, fas fa-mountain, fas fa-spa, fas fa-utensils'
+        }),
+        ('Availability & Features', {
+            'fields': ('is_available', 'is_featured', 'requires_booking', 'includes_equipment', 'includes_guide', 'includes_transport')
+        }),
+        ('Scheduling', {
+            'fields': ('available_days', 'available_times'),
+            'description': 'Use comma-separated values. Days: Monday,Tuesday,etc. Times: 9:00 AM,2:00 PM,etc.'
+        }),
+        ('Additional Information', {
+            'fields': ('what_to_bring', 'included_items'),
+            'description': 'Use comma-separated values for lists'
+        })
+    )
+    
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related()
+    
+    class Media:
+        css = {
+            'all': ('admin/css/activity_admin.css',)
+        }
+        js = ('admin/js/activity_admin.js',)
