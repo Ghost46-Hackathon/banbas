@@ -22,7 +22,27 @@ window.addEventListener('scroll', function() {
 document.addEventListener('DOMContentLoaded', function() {
     const navbar = document.querySelector('.navbar');
     navbar.classList.add('navbar-initial');
+    
+    // Handle logo display
+    handleLogoDisplay(navbar);
 });
+
+// Handle logo display based on navbar state
+function handleLogoDisplay(navbar) {
+    const logo = navbar.querySelector('.navbar-logo');
+    const fallback = navbar.querySelector('.navbar-fallback');
+    
+    // Check if logo exists and loads properly
+    if (logo) {
+        logo.onload = function() {
+            fallback.style.display = 'none';
+        };
+        logo.onerror = function() {
+            this.style.display = 'none';
+            fallback.style.display = 'inline';
+        };
+    }
+}
 
 // Smooth scrolling for anchor links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {

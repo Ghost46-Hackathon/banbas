@@ -30,6 +30,9 @@ python manage.py populate_sample_data
 
 # 5) Run the development server
 python manage.py runserver
+
+# OR run on local network (accessible from other devices)
+python manage.py runserver 0.0.0.0:8000
 ```
 
 ### macOS and Linux (bash/zsh)
@@ -52,12 +55,40 @@ python manage.py populate_sample_data
 
 # 5) Run the development server
 python manage.py runserver
+
+# OR run on local network (accessible from other devices)  
+python manage.py runserver 0.0.0.0:8000
 ```
 
 ## Accessing the App
-- Website: http://127.0.0.1:8000/
-- Admin: http://127.0.0.1:8000/admin/
+- **Local**: http://127.0.0.1:8000/
+- **Admin**: http://127.0.0.1:8000/admin/
   - Default superuser: created via `python manage.py createsuperuser` (or use the one you created)
+
+### Access from Other Devices (Local Network)
+To access the website from phones, tablets, or other computers on your network:
+
+#### Option 1: Use the PowerShell Script (Windows)
+```powershell
+.\run-network.ps1
+```
+
+#### Option 2: Manual Command
+```bash
+# Run server on all network interfaces
+python manage.py runserver 0.0.0.0:8000
+```
+
+#### Option 3: Use Python Helper Script
+```bash
+python run_local_network.py
+```
+
+**Then access from any device on your network:**
+- **Website**: http://10.10.152.117:8000/ (replace with your actual IP)
+- **Admin**: http://10.10.152.117:8000/admin/
+
+**Note**: Make sure Windows Firewall allows connections on port 8000, or run the PowerShell script which handles this automatically.
 
 ## Adding Videos
 To add sample videos to your resort website:
@@ -70,6 +101,20 @@ To add sample videos to your resort website:
 2. **Upload via Admin Panel** (http://127.0.0.1:8000/admin/)
    - **Resort Hero Video**: Go to Resort settings → Media section
    - **Gallery Videos**: Go to Gallery → Add new item → Select "Video" type
+
+## Adding Your Logo
+To replace the placeholder logo with your actual logo:
+
+1. **Replace the logo file**: `static/images/logo/logo.png`
+   - **Size**: 200-300px width × 45px height recommended
+   - **Format**: PNG with transparent background
+   - **Colors**: Use your brand colors (#134a39 green theme recommended)
+
+2. **Logo Features**:
+   - **Smart Display**: Automatically inverts to white on transparent navbar
+   - **Responsive**: Scales properly on all devices  
+   - **Fallback**: Shows "Banbas Resort" text if logo fails to load
+   - **Multi-use**: Used in navbar, footer, and as favicon
 
 3. **Recommended Video Types**:
    - `hero-background.mp4` - Main hero section background
