@@ -26,65 +26,121 @@
     </div>
 </section>
 
-<!-- Welcome Section -->
-<section class="section">
+<!-- Chitwan National Park Heritage Section -->
+<section class="section bg-light">
     <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-6">
-                <div class="section-title text-start">
-                    <h2>Welcome to Paradise</h2>
-                    <p class="lead">
-                        {{ resort.description|default:'Experience luxury and comfort at Banbas Resort, where every moment is designed to create unforgettable memories. Our world-class amenities and stunning oceanfront location provide the perfect escape from everyday life.' }}
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold text-uppercase" style="color: #B8860B; font-family: var(--font-display); letter-spacing: 2px; line-height: 1.5; padding-top: 5%;">
+                RESORT BESIDES A WORLD HERITAGE SITE<br>
+                <span class="display-5 fw-bold text-uppercase">CHITWAN NATIONAL PARK</span>
+            </h2>
+        </div>
+        
+        <div class="row justify-content-center">
+            <div class="col-lg-10 col-xl-8">
+                <div class="heritage-content text-center">
+                    <p class="lead" style="font-size: 1.2rem; line-height: 1.8; color: #555; margin-bottom: 0; padding-bottom: 5%;">
+                        Experience the unparalleled beauty of Chitwan National Park from the comfort of your 
+                        own residence. Every wild tree and the wetland inside Banbas blends into the natural 
+                        splendor that surrounds you. Wake up to the symphony of over 60 species of wild birds 
+                        serenading your mornings with their exotic melodies. Royal Bengal tiger, one-horned 
+                        rhinoceros, and the magnificent Asian wild elephant live right next to you in their 
+                        natural habitat. Banbas is a sanctuary for those who yearn to be enveloped by nature's 
+                        untouched beauty. This is where your spirit finds both peace and adventure at once.
                     </p>
                 </div>
-                <div class="row g-3 mb-4">
-                    <div class="col-6">
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-swimming-pool text-primary fs-3 me-3"></i>
-                            <div>
-                                <h6 class="mb-0">Infinity Pool</h6>
-                                <small class="text-muted">Oceanfront views</small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-utensils text-primary fs-3 me-3"></i>
-                            <div>
-                                <h6 class="mb-0">Fine Dining</h6>
-                                <small class="text-muted">Gourmet cuisine</small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-spa text-primary fs-3 me-3"></i>
-                            <div>
-                                <h6 class="mb-0">Luxury Spa</h6>
-                                <small class="text-muted">Wellness center</small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-wifi text-primary fs-3 me-3"></i>
-                            <div>
-                                <h6 class="mb-0">Free WiFi</h6>
-                                <small class="text-muted">High-speed internet</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <a href="{% url 'resort:about' %}" class="btn btn-outline-primary">Learn More</a>
-            </div>
-            <div class="col-lg-6">
-                <img src="https://www.banbasresort.com/images/home/adventures/slider2.jpg" 
-                     alt="Resort Welcome" 
-                     class="img-fluid rounded shadow-lg">
             </div>
         </div>
     </div>
 </section>
+
+<!-- Resort Activities Section -->
+{% if featured_activities %}
+<section class="section activities-section">
+    <div class="container">
+        <div class="section-title">
+            <h2 style="color: white;">Resort Activities</h2>
+            <p style="color: rgba(255, 255, 255, 0.9);">Discover exciting experiences and adventures designed to make your stay unforgettable.</p>
+        </div>
+        
+        <div class="row g-4">
+            {% for activity in featured_activities %}
+            <div class="col-lg-4 col-md-6">
+                <div class="activity-card h-100" style="background: linear-gradient(135deg, {{ activity.background_color }}e6, {{ activity.background_color }}cc);">
+                    <div class="activity-image">
+                        <img src="{{ activity.image_placeholder }}" 
+                             alt="{{ activity.name }}" 
+                             class="img-fluid">
+                        <div class="activity-overlay">
+                            <div class="activity-icon">
+                                <i class="{{ activity.icon_class }} fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-header">
+                            <h5 class="activity-title">{{ activity.name }}</h5>
+                            <span class="activity-category">{{ activity.get_category_display }}</span>
+                        </div>
+                        <p class="activity-description">{{ activity.short_description }}</p>
+                        <div class="activity-details">
+                            <div class="row g-2">
+                                <div class="col-4">
+                                    <small class="detail-item">
+                                        <i class="fas fa-clock me-1"></i>
+                                        {{ activity.duration }}
+                                    </small>
+                                </div>
+                                <div class="col-4">
+                                    <small class="detail-item">
+                                        <i class="fas fa-users me-1"></i>
+                                        {{ activity.max_participants }} max
+                                    </small>
+                                </div>
+                                <div class="col-4">
+                                    <small class="detail-item">
+                                        <i class="fas fa-signal me-1"></i>
+                                        {{ activity.get_difficulty_display }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="activity-footer">
+                            <a href="{% url 'resort:activity_detail' activity.pk %}" class="btn btn-activity-detail">Learn More</a>
+                            <div class="activity-features">
+                                {% if activity.includes_equipment %}
+                                    <span class="feature-badge" title="Equipment included">
+                                        <i class="fas fa-tools"></i>
+                                    </span>
+                                {% endif %}
+                                {% if activity.includes_guide %}
+                                    <span class="feature-badge" title="Guide included">
+                                        <i class="fas fa-user-tie"></i>
+                                    </span>
+                                {% endif %}
+                                {% if activity.includes_transport %}
+                                    <span class="feature-badge" title="Transport included">
+                                        <i class="fas fa-shuttle-van"></i>
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        {% if featured_activities|length >= 6 %}
+        <div class="text-center mt-5">
+            <a href="{% url 'resort:contact' %}" class="btn btn-primary btn-lg">
+                <i class="fas fa-calendar-alt me-2"></i>View All Activities
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endif %}
 
 <!-- Featured Rooms Section -->
 {% if featured_rooms %}
@@ -99,7 +155,7 @@
             {% for room in featured_rooms %}
             <div class="col-lg-4 col-md-6">
                 <div class="card h-100">
-                    <img src="{{ room.image_placeholder }}" 
+                    <img src="{{ room.main_image }}" 
                          class="card-img-top" 
                          alt="{{ room.name }}">
                     <div class="card-body d-flex flex-column">
@@ -109,11 +165,18 @@
                             <small class="text-muted">
                                 <i class="fas fa-users me-1"></i> {{ room.max_occupancy }} guests
                                 <i class="fas fa-expand-arrows-alt ms-3 me-1"></i> {{ room.size_sqm }} m²
+                                {% if room.room_count > 1 %}
+                                <i class="fas fa-bed ms-3 me-1"></i> {{ room.room_count }} rooms available
+                                {% endif %}
                             </small>
                         </div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="price">${{ room.base_price }}/night</span>
-                            <a href="{% url 'resort:room_detail' room.pk %}" class="btn btn-primary">View Details</a>
+                        <div class="room-features mb-3">
+                            {% for feature in room.get_features_list|slice:":2" %}
+                                <span class="badge bg-light text-dark me-1 mb-1">{{ feature }}</span>
+                            {% endfor %}
+                        </div>
+                        <div class="text-center">
+                            <a href="{% url 'resort:room_detail' room.pk %}" class="btn btn-primary w-100">Explore Room</a>
                         </div>
                     </div>
                 </div>

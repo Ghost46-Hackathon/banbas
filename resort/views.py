@@ -2,29 +2,38 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.http import JsonResponse
-from .models import RoomType, Amenity, Gallery, Contact, Resort
+from .models import RoomType, Amenity, Gallery, Contact, Resort, Activity
 from .forms import ContactForm
 
 
 def home(request):
     """Home page with hero section and featured content"""
     resort = Resort.objects.first()
-    featured_rooms = RoomType.objects.all()[:3]
+    featured_rooms = RoomType.objects.filter(is_available=True, is_featured=True)[:3]
+    if featured_rooms.count() < 3:
+        # If not enough featured rooms, fill with available rooms
+        additional_rooms = RoomType.objects.filter(is_available=True).exclude(
+            pk__in=featured_rooms.values_list('pk', flat=True)
+        )[:3-featured_rooms.count()]
+        featured_rooms = list(featured_rooms) + list(additional_rooms)
+    
     featured_amenities = Amenity.objects.filter(is_featured=True)[:6]
     featured_gallery = Gallery.objects.filter(is_featured=True)[:6]
+    featured_activities = Activity.objects.filter(is_featured=True, is_available=True)[:6]
     
     context = {
         'resort': resort,
         'featured_rooms': featured_rooms,
         'featured_amenities': featured_amenities,
         'featured_gallery': featured_gallery,
+        'featured_activities': featured_activities,
     }
     return render(request, 'resort/home.html', context)
 
 
 def rooms(request):
     """Rooms listing page"""
-    rooms = RoomType.objects.all()
+    rooms = RoomType.objects.filter(is_available=True)
     paginator = Paginator(rooms, 6)  # Show 6 rooms per page
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -38,12 +47,19 @@ def rooms(request):
 
 def room_detail(request, pk):
     """Individual room detail page"""
-    room = get_object_or_404(RoomType, pk=pk)
-    related_rooms = RoomType.objects.exclude(pk=pk)[:3]
+    room = get_object_or_404(RoomType, pk=pk, is_available=True)
+    gallery_items = room.gallery_items.all()
+    gallery_images = gallery_items.filter(media_type='image')
+    gallery_videos = gallery_items.filter(media_type='video')
+    related_rooms = RoomType.objects.filter(is_available=True).exclude(pk=pk)[:3]
+    resort = Resort.objects.first()
     
     context = {
         'room': room,
+        'gallery_images': gallery_images,
+        'gallery_videos': gallery_videos,
         'related_rooms': related_rooms,
+        'resort': resort,
     }
     return render(request, 'resort/room_detail.html', context)
 
@@ -117,3 +133,17 @@ def about(request):
         'amenities': amenities,
     }
     return render(request, 'resort/about.html', context)
+
+
+def activity_detail(request, pk):
+    """Individual activity detail page"""
+    activity = get_object_or_404(Activity, pk=pk, is_available=True)
+    related_activities = Activity.objects.filter(is_available=True).exclude(pk=pk)[:3]
+    resort = Resort.objects.first()
+    
+    context = {
+        'activity': activity,
+        'related_activities': related_activities,
+        'resort': resort,
+    }
+    return render(request, 'resort/activity_detail.html', context)

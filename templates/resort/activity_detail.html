@@ -1,0 +1,442 @@
+{% extends 'resort/base.html' %}
+{% load static %}
+
+{% block title %}{{ activity.name }} - Banbas Resort Activities{% endblock %}
+
+{% block content %}
+<!-- Activity Hero Section -->
+<section class="activity-hero" style="background-image: linear-gradient(135deg, rgba(19, 74, 57, 0.8), rgba(30, 107, 84, 0.6)), url('{{ activity.image_placeholder }}');">
+    <div class="container">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-10">
+                <div class="activity-hero-content">
+                    <div class="activity-category-badge mb-3">
+                        <span class="badge bg-light text-dark px-4 py-2 rounded-pill">
+                            <i class="{{ activity.icon_class }} me-2"></i>
+                            {{ activity.get_category_display }}
+                        </span>
+                    </div>
+                    <h1 class="display-4 fw-bold text-white mb-4">{{ activity.name }}</h1>
+                    <p class="lead text-white mb-4 fs-5">{{ activity.short_description }}</p>
+                    <div class="activity-quick-info d-flex justify-content-center gap-4 flex-wrap">
+                        <div class="info-item text-white">
+                            <i class="fas fa-clock me-2"></i>
+                            <strong>{{ activity.duration }}</strong>
+                        </div>
+                        <div class="info-item text-white">
+                            <i class="fas fa-users me-2"></i>
+                            <strong>{{ activity.max_participants }} max</strong>
+                        </div>
+                        <div class="info-item text-white">
+                            <i class="fas fa-signal me-2"></i>
+                            <strong>{{ activity.get_difficulty_display }}</strong>
+                        </div>
+                        {% if activity.location %}
+                        <div class="info-item text-white">
+                            <i class="fas fa-map-marker-alt me-2"></i>
+                            <strong>{{ activity.location }}</strong>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Activity Details Section -->
+<section class="section">
+    <div class="container">
+        <div class="row">
+            <!-- Main Content -->
+            <div class="col-lg-8">
+                <div class="activity-content-card">
+                    <!-- Full Description -->
+                    {% if activity.full_description %}
+                    <div class="content-section mb-5">
+                        <h3 class="section-heading">About This Activity</h3>
+                        <p class="lead">{{ activity.full_description }}</p>
+                    </div>
+                    {% endif %}
+
+                    <!-- Rich Text Content -->
+                    {% if activity.detailed_content %}
+                    <div class="content-section mb-5">
+                        <div class="rich-content">
+                            {{ activity.detailed_content|safe }}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Activity Features -->
+                    <div class="content-section mb-5">
+                        <h3 class="section-heading">What's Included</h3>
+                        <div class="row g-3">
+                            {% if activity.includes_equipment %}
+                            <div class="col-md-6">
+                                <div class="feature-item">
+                                    <i class="fas fa-tools text-primary me-3"></i>
+                                    <span>Equipment Provided</span>
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% if activity.includes_guide %}
+                            <div class="col-md-6">
+                                <div class="feature-item">
+                                    <i class="fas fa-user-tie text-primary me-3"></i>
+                                    <span>Professional Guide</span>
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% if activity.includes_transport %}
+                            <div class="col-md-6">
+                                <div class="feature-item">
+                                    <i class="fas fa-shuttle-van text-primary me-3"></i>
+                                    <span>Transportation</span>
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% if activity.requires_booking %}
+                            <div class="col-md-6">
+                                <div class="feature-item">
+                                    <i class="fas fa-calendar-check text-primary me-3"></i>
+                                    <span>Advance Booking Required</span>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Included Items List -->
+                        {% if activity.included_items %}
+                        <div class="mt-4">
+                            <h5 class="mb-3">Included Items:</h5>
+                            <ul class="included-list">
+                                {% for item in activity.get_included_items_list %}
+                                <li><i class="fas fa-check text-success me-2"></i>{{ item }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+
+                        <!-- What to Bring -->
+                        {% if activity.what_to_bring %}
+                        <div class="mt-4">
+                            <h5 class="mb-3">What to Bring:</h5>
+                            <ul class="bring-list">
+                                {% for item in activity.get_what_to_bring_list %}
+                                <li><i class="fas fa-hand-point-right text-warning me-2"></i>{{ item }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Availability -->
+                    {% if activity.available_days or activity.available_times %}
+                    <div class="content-section mb-5">
+                        <h3 class="section-heading">Availability</h3>
+                        <div class="row g-4">
+                            {% if activity.available_days %}
+                            <div class="col-md-6">
+                                <h5 class="mb-3">Available Days:</h5>
+                                <div class="day-tags">
+                                    {% for day in activity.get_available_days_list %}
+                                    <span class="badge bg-light text-dark me-2 mb-2">{{ day }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% if activity.available_times %}
+                            <div class="col-md-6">
+                                <h5 class="mb-3">Available Times:</h5>
+                                <div class="time-tags">
+                                    {% for time in activity.get_available_times_list %}
+                                    <span class="badge bg-primary me-2 mb-2">{{ time }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <div class="activity-sidebar">
+                    <!-- Booking Card -->
+                    <div class="booking-card mb-4">
+                        <div class="card border-0 shadow-lg">
+                            <div class="card-body text-center p-4">
+                                <h4 class="card-title mb-4">Ready to Experience?</h4>
+                                {% if activity.requires_booking %}
+                                <p class="text-muted mb-4">Contact us to book this amazing activity</p>
+                                <a href="{% url 'resort:contact' %}" class="btn btn-primary btn-lg w-100 mb-3">
+                                    <i class="fas fa-calendar-plus me-2"></i>Book Now
+                                </a>
+                                {% else %}
+                                <p class="text-success mb-4">
+                                    <i class="fas fa-gift me-2"></i>This activity is complimentary!
+                                </p>
+                                {% endif %}
+                                <small class="text-muted">
+                                    {% if activity.min_age > 0 %}
+                                    Minimum age: {{ activity.min_age }} years
+                                    {% else %}
+                                    Suitable for all ages
+                                    {% endif %}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Activity Details -->
+                    <div class="details-card">
+                        <div class="card border-0 shadow">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0">Activity Details</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="detail-row">
+                                    <strong>Duration:</strong>
+                                    <span>{{ activity.duration }}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <strong>Group Size:</strong>
+                                    <span>Max {{ activity.max_participants }} people</span>
+                                </div>
+                                <div class="detail-row">
+                                    <strong>Difficulty:</strong>
+                                    <span class="badge bg-{{ activity.difficulty|slugify }}-level">{{ activity.get_difficulty_display }}</span>
+                                </div>
+                                {% if activity.location %}
+                                <div class="detail-row">
+                                    <strong>Location:</strong>
+                                    <span>{{ activity.location }}</span>
+                                </div>
+                                {% endif %}
+                                <div class="detail-row">
+                                    <strong>Category:</strong>
+                                    <span>{{ activity.get_category_display }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Related Activities Section -->
+{% if related_activities %}
+<section class="section bg-light">
+    <div class="container">
+        <div class="section-title">
+            <h2>Other Activities You Might Like</h2>
+            <p>Discover more amazing experiences at Banbas Resort</p>
+        </div>
+        
+        <div class="row g-4">
+            {% for related in related_activities %}
+            <div class="col-lg-4">
+                <div class="card h-100 border-0 shadow">
+                    <img src="{{ related.image_placeholder }}" class="card-img-top" alt="{{ related.name }}" style="height: 200px; object-fit: cover;">
+                    <div class="card-body d-flex flex-column">
+                        <div class="mb-2">
+                            <span class="badge bg-primary">{{ related.get_category_display }}</span>
+                        </div>
+                        <h5 class="card-title">{{ related.name }}</h5>
+                        <p class="card-text flex-grow-1">{{ related.short_description }}</p>
+                        <a href="{% url 'resort:activity_detail' related.pk %}" class="btn btn-outline-primary">Learn More</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Contact Section -->
+<section class="section bg-primary text-white">
+    <div class="container text-center">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <h2 class="display-5 fw-bold mb-4">Ready to Book {{ activity.name }}?</h2>
+                <p class="lead mb-5">
+                    Contact our activity coordinators to secure your spot for this incredible experience. 
+                    Our team is here to help make your adventure unforgettable.
+                </p>
+                <div class="row g-3 justify-content-center">
+                    <div class="col-auto">
+                        <a href="{% url 'resort:contact' %}" class="btn btn-light btn-lg">
+                            <i class="fas fa-envelope me-2"></i>Contact Us
+                        </a>
+                    </div>
+                    {% if resort.phone %}
+                    <div class="col-auto">
+                        <a href="tel:{{ resort.phone }}" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-phone me-2"></i>Call Now
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+/* Activity Detail Page Styles */
+.activity-hero {
+    min-height: 60vh;
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    display: flex;
+    align-items: center;
+    position: relative;
+    padding-top: 120px;
+}
+
+.activity-hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+.activity-category-badge .badge {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.activity-quick-info .info-item {
+    font-size: 0.95rem;
+    padding: 0.5rem 0;
+}
+
+.activity-content-card {
+    background: white;
+    padding: 0;
+}
+
+.content-section {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 2rem;
+}
+
+.content-section:last-child {
+    border-bottom: none;
+}
+
+.section-heading {
+    color: var(--primary-color);
+    font-family: var(--font-display);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--primary-color);
+    display: inline-block;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 0;
+    font-weight: 500;
+}
+
+.included-list, .bring-list {
+    list-style: none;
+    padding-left: 0;
+}
+
+.included-list li, .bring-list li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.included-list li:last-child, .bring-list li:last-child {
+    border-bottom: none;
+}
+
+.day-tags .badge, .time-tags .badge {
+    font-size: 0.85rem;
+    padding: 0.5rem 1rem;
+}
+
+.booking-card .card {
+    border-radius: 15px;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.bg-easy-level { background-color: var(--success-color) !important; }
+.bg-moderate-level { background-color: var(--warning-color) !important; }
+.bg-challenging-level { background-color: var(--danger-color) !important; }
+.bg-expert-level { background-color: #6f42c1 !important; }
+
+.rich-content {
+    line-height: 1.8;
+    color: #555;
+}
+
+.rich-content h1, .rich-content h2, .rich-content h3 {
+    color: var(--primary-color);
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
+
+.rich-content h1:first-child, .rich-content h2:first-child, .rich-content h3:first-child {
+    margin-top: 0;
+}
+
+.rich-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 1rem 0;
+}
+
+.rich-content blockquote {
+    border-left: 4px solid var(--primary-color);
+    padding-left: 1rem;
+    margin: 1.5rem 0;
+    font-style: italic;
+    background-color: #f8f9fa;
+    padding: 1rem 1rem 1rem 2rem;
+    border-radius: 0 8px 8px 0;
+}
+
+@media (max-width: 768px) {
+    .activity-hero {
+        min-height: 50vh;
+        background-attachment: scroll;
+        padding-top: 100px;
+    }
+    
+    .activity-hero h1 {
+        font-size: 2rem;
+    }
+    
+    .activity-quick-info {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .activity-content-card {
+        margin-top: 2rem;
+    }
+}
+</style>
+{% endblock %}

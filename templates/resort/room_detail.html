@@ -1,0 +1,418 @@
+{% extends 'resort/base.html' %}
+{% load static %}
+
+{% block title %}{{ room.name }} - Banbas Resort{% endblock %}
+
+{% block content %}
+<!-- Room Hero Section -->
+<section class="room-hero" style="background-image: linear-gradient(135deg, rgba(19, 74, 57, 0.7), rgba(30, 107, 84, 0.5)), url('{{ room.main_image }}');">
+    <div class="container">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-10">
+                <div class="room-hero-content">
+                    {% if room.is_suite %}
+                    <div class="room-category-badge mb-3">
+                        <span class="badge bg-warning text-dark px-4 py-2 rounded-pill">
+                            <i class="fas fa-crown me-2"></i>Luxury Suite
+                        </span>
+                    </div>
+                    {% endif %}
+                    <h1 class="display-4 fw-bold text-white mb-4">{{ room.name }}</h1>
+                    <p class="lead text-white mb-4 fs-5">{{ room.description }}</p>
+                    <div class="room-quick-info d-flex justify-content-center gap-4 flex-wrap">
+                        <div class="info-item text-white">
+                            <i class="fas fa-users me-2"></i>
+                            <strong>{{ room.max_occupancy }} Guests</strong>
+                        </div>
+                        <div class="info-item text-white">
+                            <i class="fas fa-expand-arrows-alt me-2"></i>
+                            <strong>{{ room.size_sqm }} m²</strong>
+                        </div>
+                        {% if room.room_count > 1 %}
+                        <div class="info-item text-white">
+                            <i class="fas fa-bed me-2"></i>
+                            <strong>{{ room.room_count }} Available</strong>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Room Details Section -->
+<section class="section">
+    <div class="container">
+        <div class="row">
+            <!-- Main Content -->
+            <div class="col-lg-8">
+                <div class="room-content-card">
+                    <!-- Rich Text Content -->
+                    {% if room.detailed_description %}
+                    <div class="content-section mb-5">
+                        <h3 class="section-heading">Room Description</h3>
+                        <div class="rich-content">
+                            {{ room.detailed_description|safe }}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Room Features -->
+                    <div class="content-section mb-5">
+                        <h3 class="section-heading">Room Features</h3>
+                        <div class="row g-3">
+                            {% for feature in room.get_features_list %}
+                            <div class="col-md-6">
+                                <div class="feature-item">
+                                    <i class="fas fa-check-circle text-success me-3"></i>
+                                    <span>{{ feature }}</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Amenities -->
+                    {% if room.get_amenities_list %}
+                    <div class="content-section mb-5">
+                        <h3 class="section-heading">Amenities</h3>
+                        <div class="amenities-grid">
+                            {% for amenity in room.get_amenities_list %}
+                            <div class="amenity-item">
+                                <i class="fas fa-star text-primary me-2"></i>
+                                <span>{{ amenity }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Photo Gallery -->
+                    {% if gallery_images %}
+                    <div class="content-section mb-5">
+                        <h3 class="section-heading">Photo Gallery</h3>
+                        <div class="row g-3">
+                            {% for image in gallery_images %}
+                            <div class="col-md-4">
+                                <div class="gallery-item">
+                                    <img src="{{ image.image_url }}" alt="{{ image.title|default:room.name }}" 
+                                         class="img-fluid rounded shadow" 
+                                         data-bs-toggle="modal" 
+                                         data-bs-target="#galleryModal{{ image.id }}">
+                                </div>
+                                
+                                <!-- Modal for full-size image -->
+                                <div class="modal fade" id="galleryModal{{ image.id }}" tabindex="-1">
+                                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                                        <div class="modal-content">
+                                            <div class="modal-header border-0">
+                                                <h5 class="modal-title">{{ image.title|default:room.name }}</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body p-0">
+                                                <img src="{{ image.image_url }}" class="img-fluid w-100" alt="{{ image.title|default:room.name }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Video Gallery -->
+                    {% if gallery_videos %}
+                    <div class="content-section mb-5">
+                        <h3 class="section-heading">Video Tour</h3>
+                        <div class="row g-3">
+                            {% for video in gallery_videos %}
+                            <div class="col-md-6">
+                                <div class="video-item">
+                                    <div class="ratio ratio-16x9">
+                                        {% if 'youtube.com' in video.video_url or 'youtu.be' in video.video_url %}
+                                            <iframe src="{{ video.video_url }}" allowfullscreen></iframe>
+                                        {% else %}
+                                            <video controls poster="{{ video.video_thumbnail }}">
+                                                <source src="{{ video.video_url }}" type="video/mp4">
+                                                Your browser does not support the video tag.
+                                            </video>
+                                        {% endif %}
+                                    </div>
+                                    {% if video.title %}
+                                    <h6 class="mt-2">{{ video.title }}</h6>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <div class="room-sidebar">
+                    <!-- Booking Card -->
+                    <div class="booking-card mb-4">
+                        <div class="card border-0 shadow-lg">
+                            <div class="card-body text-center p-4">
+                                <h4 class="card-title mb-4">Ready to Book?</h4>
+                                <p class="text-muted mb-4">Contact us for availability and personalized service</p>
+                                <a href="{% url 'resort:contact' %}" class="btn btn-primary btn-lg w-100 mb-3">
+                                    <i class="fas fa-calendar-plus me-2"></i>Book Now
+                                </a>
+                                <small class="text-muted">
+                                    {% if room.room_count > 1 %}
+                                    {{ room.room_count }} rooms of this type available
+                                    {% else %}
+                                    Exclusive room type
+                                    {% endif %}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Room Summary -->
+                    <div class="details-card">
+                        <div class="card border-0 shadow">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0">Room Details</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="detail-row">
+                                    <strong>Capacity:</strong>
+                                    <span>{{ room.max_occupancy }} guests</span>
+                                </div>
+                                <div class="detail-row">
+                                    <strong>Size:</strong>
+                                    <span>{{ room.size_sqm }} m²</span>
+                                </div>
+                                <div class="detail-row">
+                                    <strong>Rooms Available:</strong>
+                                    <span>{{ room.room_count }}</span>
+                                </div>
+                                {% if room.get_features_list %}
+                                <div class="detail-row">
+                                    <strong>Special Features:</strong>
+                                    <span>{{ room.get_features_list|length }} premium features</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Related Rooms Section -->
+{% if related_rooms %}
+<section class="section bg-light">
+    <div class="container">
+        <div class="section-title">
+            <h2>Other Room Types</h2>
+            <p>Explore our other luxurious accommodations</p>
+        </div>
+        
+        <div class="row g-4">
+            {% for related in related_rooms %}
+            <div class="col-lg-4">
+                <div class="card h-100 border-0 shadow">
+                    <img src="{{ related.main_image }}" class="card-img-top" alt="{{ related.name }}" style="height: 200px; object-fit: cover;">
+                    <div class="card-body d-flex flex-column">
+                        <div class="mb-2">
+                            {% if related.is_suite %}
+                            <span class="badge bg-warning text-dark">Suite</span>
+                            {% endif %}
+                            {% if related.has_ocean_view %}
+                            <span class="badge bg-info">Ocean View</span>
+                            {% endif %}
+                        </div>
+                        <h5 class="card-title">{{ related.name }}</h5>
+                        <p class="card-text flex-grow-1">{{ related.description }}</p>
+                        <a href="{% url 'resort:room_detail' related.pk %}" class="btn btn-outline-primary">View Details</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Contact Section -->
+<section class="section bg-primary text-white">
+    <div class="container text-center">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <h2 class="display-5 fw-bold mb-4">Ready to Book {{ room.name }}?</h2>
+                <p class="lead mb-5">
+                    Contact our reservations team to check availability and secure your perfect getaway. 
+                    We're here to make your stay unforgettable.
+                </p>
+                <div class="row g-3 justify-content-center">
+                    <div class="col-auto">
+                        <a href="{% url 'resort:contact' %}" class="btn btn-light btn-lg">
+                            <i class="fas fa-envelope me-2"></i>Contact Us
+                        </a>
+                    </div>
+                    {% if resort.phone %}
+                    <div class="col-auto">
+                        <a href="tel:{{ resort.phone }}" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-phone me-2"></i>Call Now
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+/* Room Detail Page Styles */
+.room-hero {
+    min-height: 60vh;
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    display: flex;
+    align-items: center;
+    position: relative;
+    padding-top: 120px;
+}
+
+.room-hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+.room-category-badge .badge {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.room-quick-info .info-item {
+    font-size: 0.95rem;
+    padding: 0.5rem 0;
+}
+
+.room-content-card {
+    background: white;
+    padding: 0;
+}
+
+.content-section {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 2rem;
+}
+
+.content-section:last-child {
+    border-bottom: none;
+}
+
+.section-heading {
+    color: var(--primary-color);
+    font-family: var(--font-display);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--primary-color);
+    display: inline-block;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 0;
+    font-weight: 500;
+}
+
+.amenities-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.amenity-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0;
+}
+
+.gallery-item img {
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.gallery-item img:hover {
+    transform: scale(1.05);
+}
+
+.video-item {
+    margin-bottom: 1rem;
+}
+
+.booking-card .card {
+    border-radius: 15px;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.rich-content {
+    line-height: 1.8;
+    color: #555;
+}
+
+.rich-content h1, .rich-content h2, .rich-content h3 {
+    color: var(--primary-color);
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
+
+.rich-content h1:first-child, .rich-content h2:first-child, .rich-content h3:first-child {
+    margin-top: 0;
+}
+
+.rich-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 1rem 0;
+}
+
+@media (max-width: 768px) {
+    .room-hero {
+        min-height: 50vh;
+        background-attachment: scroll;
+        padding-top: 100px;
+    }
+    
+    .room-hero h1 {
+        font-size: 2rem;
+    }
+    
+    .room-quick-info {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .amenities-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
