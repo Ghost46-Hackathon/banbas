@@ -40,9 +40,17 @@ class Amenity(models.Model):
 
 
 class Gallery(models.Model):
+    MEDIA_TYPE_CHOICES = [
+        ('image', 'Image'),
+        ('video', 'Video'),
+    ]
+    
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True)
+    media_type = models.CharField(max_length=10, choices=MEDIA_TYPE_CHOICES, default='image')
     image_placeholder = models.CharField(max_length=200, default="https://via.placeholder.com/600x400/17a2b8/ffffff?text=Gallery+Image")
+    video_file = models.FileField(upload_to='videos/', blank=True, null=True, help_text="Upload video file (MP4 recommended)")
+    video_thumbnail = models.CharField(max_length=200, blank=True, help_text="Thumbnail image URL for video")
     category = models.CharField(max_length=50, choices=[
         ('rooms', 'Rooms'),
         ('amenities', 'Amenities'),
@@ -89,6 +97,12 @@ class Resort(models.Model):
     hero_image_placeholder = models.CharField(
         max_length=200, 
         default="https://via.placeholder.com/1200x600/0066cc/ffffff?text=Banbas+Resort"
+    )
+    hero_video = models.FileField(
+        upload_to='videos/', 
+        blank=True, 
+        null=True, 
+        help_text="Hero background video (MP4 recommended, under 10MB)"
     )
     facebook_url = models.URLField(blank=True)
     instagram_url = models.URLField(blank=True)

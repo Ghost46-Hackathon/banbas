@@ -12,8 +12,8 @@ class ResortAdmin(admin.ModelAdmin):
         ('Contact Information', {
             'fields': ('address', 'phone', 'email', 'website')
         }),
-        ('Images', {
-            'fields': ('hero_image_placeholder',)
+        ('Media', {
+            'fields': ('hero_image_placeholder', 'hero_video')
         }),
         ('Social Media', {
             'fields': ('facebook_url', 'instagram_url', 'twitter_url')
@@ -52,11 +52,20 @@ class AmenityAdmin(admin.ModelAdmin):
 
 @admin.register(Gallery)
 class GalleryAdmin(admin.ModelAdmin):
-    list_display = ['title', 'category', 'is_featured', 'created_at']
-    list_filter = ['category', 'is_featured', 'created_at']
+    list_display = ['title', 'media_type', 'category', 'is_featured', 'created_at']
+    list_filter = ['media_type', 'category', 'is_featured', 'created_at']
     search_fields = ['title', 'description']
-    list_editable = ['is_featured', 'category']
+    list_editable = ['is_featured', 'category', 'media_type']
     ordering = ['-is_featured', '-created_at']
+    
+    fieldsets = (
+        ('Basic Information', {
+            'fields': ('title', 'description', 'category', 'is_featured')
+        }),
+        ('Media Content', {
+            'fields': ('media_type', 'image_placeholder', 'video_file', 'video_thumbnail')
+        })
+    )
 
 
 @admin.register(Contact)

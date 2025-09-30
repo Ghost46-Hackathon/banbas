@@ -5,7 +5,16 @@
 
 {% block content %}
 <!-- Hero Section -->
-<section class="hero" style="background-image: url('{{ resort.hero_image_placeholder|default:'https://via.placeholder.com/1200x600/0066cc/ffffff?text=Banbas+Resort' }}');">
+<section class="hero" {% if not resort.hero_video %}style="background-image: url('{{ resort.hero_image_placeholder|default:'https://via.placeholder.com/1200x600/0066cc/ffffff?text=Banbas+Resort' }}');"{% endif %}>
+    {% if resort.hero_video %}
+    <!-- Hero Background Video -->
+    <video class="hero-video" autoplay muted loop playsinline>
+        <source src="{{ resort.hero_video.url }}" type="video/mp4">
+        <!-- Fallback image if video fails to load -->
+        <img src="{{ resort.hero_image_placeholder }}" alt="{{ resort.name }}" />
+    </video>
+    {% endif %}
+    
     <div class="container">
         <div class="hero-content">
             <h1 class="display-1 fw-bold mb-4">{{ resort.name|default:'Banbas Resort' }}</h1>
