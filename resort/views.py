@@ -112,6 +112,9 @@ def contact(request):
     
     if request.method == 'POST':
         form = ContactForm(request.POST)
+        # Conditional server-side validation: require check-in date for booking inquiries
+        if request.POST.get('inquiry_type') == 'booking' and not request.POST.get('preferred_checkin'):
+            form.add_error('preferred_checkin', 'Please select a check-in date for booking inquiries.')
         if form.is_valid():
             contact_entry = form.save()
             # Send automated acknowledgment email to guest

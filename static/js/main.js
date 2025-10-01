@@ -613,34 +613,33 @@ function showInquirySuccess(form) {
 // Enhanced contact form functionality
 document.addEventListener('DOMContentLoaded', function() {
     const inquiryTypeSelect = document.getElementById('inquiry-type');
-    const bookingFields = document.getElementById('booking-fields');
+    const bookingCheckin = document.getElementById('booking-checkin');
     
-    if (inquiryTypeSelect && bookingFields) {
-        // Show/hide booking fields based on inquiry type
-        inquiryTypeSelect.addEventListener('change', function() {
-            if (this.value === 'booking' || this.value === 'group') {
-                bookingFields.classList.remove('d-none');
-                bookingFields.style.animation = 'fadeInUp 0.3s ease-out';
-            } else {
-                bookingFields.classList.add('d-none');
-            }
-        });
-        
-        // Set minimum dates for booking inquiry
+    if (inquiryTypeSelect && bookingCheckin) {
+        // Set minimum date for check-in
         const today = new Date().toISOString().split('T')[0];
-        const checkinInput = document.getElementById('preferred-checkin');
-        const checkoutInput = document.getElementById('preferred-checkout');
-        
+        const checkinInput = document.getElementById('preferred-checkin') || document.getElementById('id_preferred_checkin');
         if (checkinInput) {
             checkinInput.min = today;
-            checkinInput.addEventListener('change', function() {
-                if (checkoutInput && this.value) {
-                    const minCheckout = new Date(this.value);
-                    minCheckout.setDate(minCheckout.getDate() + 1);
-                    checkoutInput.min = minCheckout.toISOString().split('T')[0];
-                }
-            });
         }
+        
+        // Initialize visibility on load
+        const toggleBooking = () => {
+            if (inquiryTypeSelect.value === 'booking') {
+                bookingCheckin.classList.remove('d-none');
+                bookingCheckin.style.animation = 'fadeInUp 0.3s ease-out';
+                // If no date chosen yet, default to today for convenience
+                if (checkinInput && !checkinInput.value) {
+                    checkinInput.value = today;
+                }
+            } else {
+                bookingCheckin.classList.add('d-none');
+            }
+        };
+        toggleBooking();
+        
+        // Show/hide check-in based on inquiry type
+        inquiryTypeSelect.addEventListener('change', toggleBooking);
     }
 });
 

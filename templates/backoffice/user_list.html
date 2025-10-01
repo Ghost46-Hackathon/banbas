@@ -31,7 +31,7 @@
             <div class="stat-icon bg-primary bg-opacity-10 text-primary mx-auto">
                 <i class="fas fa-users"></i>
             </div>
-            <h3 class="fw-bold mb-1">{{ users.count }}</h3>
+<h3 class="fw-bold mb-1">{{ total_users }}</h3>
             <p class="text-muted mb-0">Total Users</p>
         </div>
     </div>
@@ -40,7 +40,7 @@
             <div class="stat-icon bg-success bg-opacity-10 text-success mx-auto">
                 <i class="fas fa-user-shield"></i>
             </div>
-            <h3 class="fw-bold mb-1">{% for user in users %}{% if user.userprofile.role == 'admin' %}{{ forloop.counter }}{% endif %}{% endfor %}</h3>
+<h3 class="fw-bold mb-1">{{ admin_count }}</h3>
             <p class="text-muted mb-0">Admins</p>
         </div>
     </div>
@@ -49,7 +49,7 @@
             <div class="stat-icon bg-info bg-opacity-10 text-info mx-auto">
                 <i class="fas fa-user-tie"></i>
             </div>
-            <h3 class="fw-bold mb-1">{% for user in users %}{% if user.userprofile.role == 'agent' %}{{ forloop.counter }}{% endif %}{% endfor %}</h3>
+<h3 class="fw-bold mb-1">{{ agent_count }}</h3>
             <p class="text-muted mb-0">Agents</p>
         </div>
     </div>
@@ -58,7 +58,7 @@
             <div class="stat-icon bg-warning bg-opacity-10 text-warning mx-auto">
                 <i class="fas fa-user-eye"></i>
             </div>
-            <h3 class="fw-bold mb-1">{% for user in users %}{% if user.userprofile.role == 'viewer' %}{{ forloop.counter }}{% endif %}{% endfor %}</h3>
+<h3 class="fw-bold mb-1">{{ viewer_count }}</h3>
             <p class="text-muted mb-0">Viewers</p>
         </div>
     </div>

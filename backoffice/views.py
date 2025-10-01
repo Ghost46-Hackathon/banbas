@@ -10,10 +10,12 @@ from django.utils import timezone
 from django.http import HttpResponseForbidden, JsonResponse
 from datetime import datetime, timedelta
 from functools import wraps
+from decimal import Decimal
 import logging
 
 from .models import Reservation, UserProfile, ReservationAuditLog
 from .forms import ReservationForm, UserProfileForm
+from .currency_rates import EXCHANGE_RATES
 from resort.models import Contact
 
 
@@ -168,13 +170,40 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             'total_inquiries': Contact.objects.count(),
         }
         
-        # Revenue data (admin only)
+        # Revenue data (admin only) with explicit currency selection and conversion
         if profile and profile.can_view_revenue():
-            context['stats']['total_revenue'] = Reservation.objects.aggregate(
-                revenue=Sum('total_price'))['revenue'] or 0
-            context['stats']['monthly_revenue'] = Reservation.objects.filter(
-                created_at__date__gte=last_30_days
-            ).aggregate(revenue=Sum('total_price'))['revenue'] or 0
+            allowed_currencies = ['NRS', 'USD', 'INR', 'EUR']
+            selected_currency = self.request.GET.get('currency')
+            if selected_currency not in allowed_currencies:
+                existing = list(Reservation.objects.values_list('payment_currency', flat=True).distinct())
+                selected_currency = existing[0] if existing else 'USD'
+            context['selected_currency'] = selected_currency
+            context['available_currencies'] = allowed_currencies
+            
+            # Prepare Decimal-based rates map to avoid float precision issues
+            rates = {code: Decimal(str(rate)) for code, rate in EXCHANGE_RATES.items()}
+            
+            def convert_amount(amount_dec: Decimal, from_cur: str, to_cur: str) -> Decimal:
+                if not amount_dec:
+                    return Decimal('0')
+                if from_cur == to_cur:
+                    return amount_dec
+                # Convert to NRS, then to target
+                amount_in_nrs = amount_dec / rates[from_cur]
+                return (amount_in_nrs * rates[to_cur]).quantize(Decimal('0.01'))
+            
+            # Total revenue across all reservations converted to selected currency
+            total_revenue_converted = Decimal('0')
+            for amount, cur in Reservation.objects.values_list('total_price', 'payment_currency'):
+                total_revenue_converted += convert_amount(amount, cur, selected_currency)
+            
+            # Monthly revenue (last 30 days) converted to selected currency
+            monthly_revenue_converted = Decimal('0')
+            for amount, cur in Reservation.objects.filter(created_at__date__gte=last_30_days).values_list('total_price', 'payment_currency'):
+                monthly_revenue_converted += convert_amount(amount, cur, selected_currency)
+            
+            context['stats']['total_revenue'] = total_revenue_converted
+            context['stats']['monthly_revenue'] = monthly_revenue_converted
         
         # Recent activity
         context['recent_reservations'] = Reservation.objects.select_related('created_by')[:5]
@@ -221,10 +250,12 @@ class ReservationDetailView(ViewerAllowedMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context['audit_logs'] = self.object.audit_logs.select_related('user')[:10]
         
-        # Check if user can edit
+        # Check if user can edit: admin can edit all; agents can edit their own
         try:
             profile = self.request.user.userprofile
-            context['can_edit'] = profile.can_edit_reservations()
+            is_admin = (profile.role == 'admin')
+            is_owner = (self.object.created_by_id == self.request.user.id)
+            context['can_edit'] = is_admin or is_owner
         except UserProfile.DoesNotExist:
             context['can_edit'] = False
         
@@ -236,6 +267,19 @@ class ReservationCreateView(AgentRequiredMixin, CreateView):
     form_class = ReservationForm
     template_name = 'backoffice/reservation_form.html'
     success_url = reverse_lazy('backoffice:reservation_list')
+    
+    def get_initial(self):
+        initial = super().get_initial()
+        # Pre-fill booked_by with current user for convenience
+        me = self.request.user
+        initial.setdefault('booked_by', me.get_full_name() or me.username)
+        return initial
+    
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        # Pass user to form so it can disable fields for non-admins
+        kwargs['user'] = self.request.user
+        return kwargs
     
     def form_valid(self, form):
         form.instance.created_by = self.request.user
@@ -259,16 +303,28 @@ class ReservationEditView(LoginRequiredMixin, UpdateView):
     template_name = 'backoffice/reservation_form.html'
     
     def dispatch(self, request, *args, **kwargs):
-        # Check if user can edit reservations
+        # Allow admins to edit any reservation and agents to edit only their own
         try:
             profile = request.user.userprofile
-            if not profile.can_edit_reservations():
-                messages.error(request, 'Only administrators can edit reservations.')
-                return redirect('backoffice:reservation_detail', pk=kwargs['pk'])
         except UserProfile.DoesNotExist:
             return HttpResponseForbidden("Access denied")
         
+        # Fetch target reservation for ownership check
+        obj = get_object_or_404(Reservation, pk=kwargs.get('pk'))
+        is_admin = (profile.role == 'admin')
+        is_owner = (obj.created_by_id == request.user.id)
+        
+        if not (is_admin or is_owner):
+            messages.error(request, 'You can only edit reservations you created. Administrators can edit all reservations.')
+            return redirect('backoffice:reservation_detail', pk=kwargs['pk'])
+        
         return super().dispatch(request, *args, **kwargs)
+    
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        # Pass user to form so it can disable fields for non-admins
+        kwargs['user'] = self.request.user
+        return kwargs
     
     def form_valid(self, form):
         # Track changes for audit log
@@ -304,7 +360,7 @@ class ReservationEditView(LoginRequiredMixin, UpdateView):
                 action='updated',
                 changes={
                     'fields_changed': form.changed_data,
-                    'old_values': old_values,
+                    'old_values': {k: str(v) for k, v in old_values.items()},
                     'new_values': {k: str(v) for k, v in new_values.items()}
                 }
             )
@@ -373,7 +429,9 @@ class ConvertInquiryView(AgentRequiredMixin, TemplateView):
                 'guest_full_name': context['inquiry'].name,
                 'contact_number': context['inquiry'].phone,
                 'booked_by': self.request.user.get_full_name() or self.request.user.username,
-            })
+                'arrival_date': getattr(context['inquiry'], 'preferred_checkin', None),
+                'departure_date': getattr(context['inquiry'], 'preferred_checkout', None),
+            }, user=self.request.user)
         else:
             context['form'] = self.form
             
@@ -381,7 +439,7 @@ class ConvertInquiryView(AgentRequiredMixin, TemplateView):
     
     def post(self, request, *args, **kwargs):
         inquiry = get_object_or_404(Contact, pk=kwargs['pk'])
-        form = ReservationForm(request.POST)
+        form = ReservationForm(request.POST, user=request.user)
         
         if form.is_valid():
             # Create the reservation
@@ -453,10 +511,11 @@ class AnalyticsView(LoginRequiredMixin, TemplateView):
         )
         
         # Basic analytics
+        total_reservations = reservations.count()
         context.update({
             'date_from': date_from,
             'date_to': date_to,
-            'total_reservations': reservations.count(),
+            'total_reservations': total_reservations,
             'total_guests': reservations.aggregate(
                 adults=Sum('total_adults'),
                 children=Sum('total_children')
@@ -470,11 +529,41 @@ class AnalyticsView(LoginRequiredMixin, TemplateView):
             ).count(),
         })
         
-        # Revenue data (admin only)
+        # Revenue data (admin only) with currency conversion
         if profile and profile.can_view_revenue():
-            context['revenue_data'] = reservations.aggregate(
-                total_revenue=Sum('total_price')
+            allowed_currencies = ['NRS', 'USD', 'INR', 'EUR']
+            selected_currency = self.request.GET.get('currency')
+            if selected_currency not in allowed_currencies:
+                existing = list(
+                    reservations.values_list('payment_currency', flat=True).distinct()
+                )
+                selected_currency = existing[0] if existing else 'USD'
+            context['selected_currency'] = selected_currency
+            context['available_currencies'] = allowed_currencies
+            
+            rates = {code: Decimal(str(rate)) for code, rate in EXCHANGE_RATES.items()}
+            
+            def convert_amount(amount_dec: Decimal, from_cur: str, to_cur: str) -> Decimal:
+                if not amount_dec:
+                    return Decimal('0')
+                if from_cur == to_cur:
+                    return amount_dec
+                amount_in_nrs = amount_dec / rates[from_cur]
+                return (amount_in_nrs * rates[to_cur]).quantize(Decimal('0.01'))
+            
+            total_revenue_converted = Decimal('0')
+            for amount, cur in reservations.values_list('total_price', 'payment_currency'):
+                total_revenue_converted += convert_amount(amount, cur, selected_currency)
+            
+            avg_per_res = (
+                (total_revenue_converted / total_reservations).quantize(Decimal('0.01'))
+                if total_reservations > 0 else Decimal('0.00')
             )
+            
+            context['revenue_data'] = {
+                'total_revenue': total_revenue_converted,
+                'avg_per_reservation': avg_per_res,
+            }
         
         return context
 
@@ -486,6 +575,18 @@ class UserListView(AdminRequiredMixin, ListView):
     
     def get_queryset(self):
         return User.objects.select_related('userprofile').filter(is_active=True)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        qs = context['users']
+        # Safe DB counts instead of template loop counters
+        context.update({
+            'total_users': qs.count(),
+            'admin_count': qs.filter(userprofile__role='admin').count(),
+            'agent_count': qs.filter(userprofile__role='agent').count(),
+            'viewer_count': qs.filter(userprofile__role='viewer').count(),
+        })
+        return context
     
     def dispatch(self, request, *args, **kwargs):
         # Additional security check - ensure user has admin role

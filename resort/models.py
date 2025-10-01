@@ -241,6 +241,9 @@ class Contact(models.Model):
     phone = models.CharField(max_length=20, blank=True)
     subject = models.CharField(max_length=200)
     message = models.TextField()
+    # Optional booking preferences captured from contact form
+    preferred_checkin = models.DateField(null=True, blank=True)
+    preferred_checkout = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     is_read = models.BooleanField(default=False)
 

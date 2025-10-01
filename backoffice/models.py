@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, User
 from django.utils import timezone
+from django.core.serializers.json import DjangoJSONEncoder
 from decimal import Decimal
 import json
 
@@ -180,7 +181,8 @@ class ReservationAuditLog(models.Model):
     reservation = models.ForeignKey(Reservation, on_delete=models.SET_NULL, related_name='audit_logs', null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     action = models.CharField(max_length=50)  # 'created', 'updated', 'deleted'
-    changes = models.JSONField(default=dict)  # What changed
+    # Use DjangoJSONEncoder so Decimal, date/time, UUID, etc. serialize safely
+    changes = models.JSONField(default=dict, encoder=DjangoJSONEncoder)  # What changed
     timestamp = models.DateTimeField(auto_now_add=True)
     
     # Additional fields to preserve data when reservation is deleted

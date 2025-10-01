@@ -126,7 +126,7 @@
                                    class="btn btn-sm btn-outline-primary" title="View Details">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                {% if user.userprofile.can_edit_reservations %}
+{% if user.userprofile.can_edit_reservations or reservation.created_by_id == user.id %}
                                     <a href="{% url 'backoffice:reservation_edit' reservation.pk %}" 
                                        class="btn btn-sm btn-outline-warning" title="Edit">
                                         <i class="fas fa-edit"></i>

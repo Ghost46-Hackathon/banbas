@@ -7,7 +7,7 @@ from .models import Contact, Booking
 class ContactForm(forms.ModelForm):
     class Meta:
         model = Contact
-        fields = ['name', 'email', 'phone', 'subject', 'message']
+        fields = ['name', 'email', 'phone', 'subject', 'message', 'preferred_checkin', 'preferred_checkout']
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -29,13 +29,27 @@ class ContactForm(forms.ModelForm):
                 'class': 'form-control',
                 'rows': 5,
                 'placeholder': 'Tell us about your inquiry or special requests...'
-            })
+            }),
+            'preferred_checkin': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date',
+                'placeholder': 'yyyy-mm-dd'
+            }),
+            'preferred_checkout': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date',
+                'placeholder': 'yyyy-mm-dd'
+            }),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Make phone field not required
         self.fields['phone'].required = False
+        # Set min dates to today for date pickers
+        today = timezone.now().date().isoformat()
+        self.fields['preferred_checkin'].widget.attrs.setdefault('min', today)
+        self.fields['preferred_checkout'].widget.attrs.setdefault('min', today)
 
 
 class BookingForm(forms.ModelForm):

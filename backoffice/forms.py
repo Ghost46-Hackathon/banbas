@@ -101,6 +101,8 @@ class ReservationForm(forms.ModelForm):
         }
     
     def __init__(self, *args, **kwargs):
+        # Accept current user to control field-level permissions
+        self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
         # Set minimum dates
         today = timezone.now().date().isoformat()
@@ -113,6 +115,19 @@ class ReservationForm(forms.ModelForm):
             self.fields['single_rooms'].initial = room_types.get('single', 0)
             self.fields['double_rooms'].initial = room_types.get('double', 0)
             self.fields['triple_rooms'].initial = room_types.get('triple', 0)
+        
+        # Make 'booked_by' read-only for non-admins and set sensible default
+        if self.user:
+            role = None
+            try:
+                role = self.user.userprofile.role
+            except Exception:
+                role = None
+            if role != 'admin':
+                self.fields['booked_by'].disabled = True
+                if not self.instance or not self.instance.pk:
+                    # On creation, default to current user's identity
+                    self.fields['booked_by'].initial = self.user.get_full_name() or self.user.username
     
     def clean(self):
         cleaned_data = super().clean()

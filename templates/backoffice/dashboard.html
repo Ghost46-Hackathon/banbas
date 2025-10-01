@@ -57,6 +57,16 @@
 
 <!-- Revenue Cards (Admin Only) -->
 {% if user_profile.can_view_revenue %}
+<div class="d-flex justify-content-end mb-2">
+    <form method="get" class="d-flex align-items-center gap-2">
+        <label class="text-muted small me-2">Currency:</label>
+        <select class="form-select form-select-sm" name="currency" onchange="this.form.submit()">
+            {% for code in available_currencies %}
+                <option value="{{ code }}" {% if selected_currency == code %}selected{% endif %}>{{ code }}</option>
+            {% endfor %}
+        </select>
+    </form>
+</div>
 <div class="row g-4 mb-4">
     <div class="col-lg-6">
         <div class="stat-card text-center">
@@ -65,9 +75,9 @@
             </div>
             <h3 class="fw-bold text-success">
                 {% if stats.total_revenue %}
-                    ${{ stats.total_revenue|floatformat:2 }}
+                    {{ selected_currency }} {{ stats.total_revenue|floatformat:2 }}
                 {% else %}
-                    $0.00
+                    {{ selected_currency }} 0.00
                 {% endif %}
             </h3>
             <p class="text-muted mb-0">Total Revenue</p>
@@ -81,9 +91,9 @@
             </div>
             <h3 class="fw-bold text-primary">
                 {% if stats.monthly_revenue %}
-                    ${{ stats.monthly_revenue|floatformat:2 }}
+                    {{ selected_currency }} {{ stats.monthly_revenue|floatformat:2 }}
                 {% else %}
-                    $0.00
+                    {{ selected_currency }} 0.00
                 {% endif %}
             </h3>
             <p class="text-muted mb-0">Monthly Revenue</p>
