@@ -1,0 +1,237 @@
+{% extends 'backoffice/base.html' %}
+
+{% block title %}Reservations - Banbas Resort Management{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">
+                <i class="fas fa-calendar-check text-primary me-2"></i>
+                Reservations
+            </h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'backoffice:dashboard' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Reservations</li>
+                </ol>
+            </nav>
+        </div>
+        {% if not user.userprofile.is_viewer_only %}
+        <a href="{% url 'backoffice:reservation_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>
+            New Reservation
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Search and Filter Section -->
+<div class="stat-card mb-4">
+    <form method="get" class="row g-3">
+        <div class="col-md-4">
+            <label for="search" class="form-label">Search</label>
+            <div class="input-group">
+                <span class="input-group-text">
+                    <i class="fas fa-search"></i>
+                </span>
+                <input type="text" class="form-control" id="search" name="search" 
+                       value="{{ request.GET.search }}" placeholder="Guest name, company, or phone">
+            </div>
+        </div>
+        <div class="col-md-3">
+            <label for="date_from" class="form-label">Arrival From</label>
+            <input type="date" class="form-control" id="date_from" name="date_from" 
+                   value="{{ request.GET.date_from }}">
+        </div>
+        <div class="col-md-3">
+            <label for="date_to" class="form-label">Arrival To</label>
+            <input type="date" class="form-control" id="date_to" name="date_to" 
+                   value="{{ request.GET.date_to }}">
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">&nbsp;</label>
+            <div class="d-grid">
+                <button type="submit" class="btn btn-outline-primary">
+                    <i class="fas fa-filter me-2"></i>
+                    Filter
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Reservations Table -->
+<div class="stat-card">
+    {% if reservations %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Guest</th>
+                        <th>Stay Period</th>
+                        <th>Rooms</th>
+                        <th>Guests</th>
+                        <th>Total Price</th>
+                        <th>Created By</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reservation in reservations %}
+                    <tr>
+                        <td>
+                            <div class="fw-semibold">{{ reservation.guest_full_name }}</div>
+                            {% if reservation.company_name %}
+                                <small class="text-muted">{{ reservation.company_name }}</small>
+                            {% endif %}
+                            {% if reservation.nationality %}
+                                <div>
+                                    <span class="badge bg-light text-dark">{{ reservation.nationality }}</span>
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="fw-semibold">{{ reservation.arrival_date|date:"M d, Y" }}</div>
+                            <small class="text-muted">to {{ reservation.departure_date|date:"M d, Y" }}</small>
+                            <div class="small text-primary">{{ reservation.nights }} night{{ reservation.nights|pluralize }}</div>
+                        </td>
+                        <td>
+                            <div class="fw-semibold">{{ reservation.number_of_rooms }} room{{ reservation.number_of_rooms|pluralize }}</div>
+                            <small class="text-muted">{{ reservation.room_types_display }}</small>
+                            <div class="small text-info">{{ reservation.get_room_category_display }}</div>
+                        </td>
+                        <td>
+                            <span class="fw-semibold">{{ reservation.total_adults }}</span> adult{{ reservation.total_adults|pluralize }}
+                            {% if reservation.total_children %}
+                                <br><small class="text-muted">{{ reservation.total_children }} child{{ reservation.total_children|pluralize:"ren" }}</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="fw-semibold text-success">
+                                {{ reservation.payment_currency }} {{ reservation.total_price|floatformat:2 }}
+                            </div>
+                            <small class="text-muted">{{ reservation.get_payment_method_display }}</small>
+                        </td>
+                        <td>
+                            <small class="text-muted">{{ reservation.created_by.get_full_name|default:reservation.created_by.username }}</small>
+                        </td>
+                        <td>
+                            <small class="text-muted">{{ reservation.created_at|date:"M d, Y" }}</small>
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{% url 'backoffice:reservation_detail' reservation.pk %}" 
+                                   class="btn btn-sm btn-outline-primary" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+{% if user.userprofile.can_edit_reservations or reservation.created_by_id == user.id %}
+                                    <a href="{% url 'backoffice:reservation_edit' reservation.pk %}" 
+                                       class="btn btn-sm btn-outline-warning" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                {% endif %}
+                                {% if user.userprofile.can_delete_reservations %}
+                                <button type="button" class="btn btn-sm btn-outline-danger" title="Delete" 
+                                        onclick="confirmDelete({{ reservation.pk }}, '{{ reservation.guest_full_name|escapejs }}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if is_paginated %}
+            <nav aria-label="Reservations pagination" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">First</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">Previous</a>
+                        </li>
+                    {% endif %}
+
+                    <li class="page-item active">
+                        <span class="page-link">
+                            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                        </span>
+                    </li>
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">Next</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">Last</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+
+    {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-calendar-times fa-4x text-muted mb-4"></i>
+            <h4 class="text-muted mb-3">No Reservations Found</h4>
+            {% if request.GET.search or request.GET.date_from or request.GET.date_to %}
+                <p class="text-muted mb-4">Try adjusting your search criteria or <a href="{% url 'backoffice:reservation_list' %}">view all reservations</a>.</p>
+            {% else %}
+                {% if user.userprofile.is_viewer_only %}
+                    <p class="text-muted mb-4">No reservations to display.</p>
+                {% else %}
+                    <p class="text-muted mb-4">Start by creating your first reservation.</p>
+                {% endif %}
+            {% endif %}
+            {% if not user.userprofile.is_viewer_only %}
+            <a href="{% url 'backoffice:reservation_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>
+                Create First Reservation
+            </a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="confirmDeleteLabel"><i class="fas fa-exclamation-triangle me-2"></i>Confirm Delete</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete the reservation for <strong id="deleteGuestName"></strong>?</p>
+        <p class="mb-0 small text-muted">This action cannot be undone. A deletion audit log will be recorded.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <form id="deleteForm" method="post" action="#">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger"><i class="fas fa-trash me-2"></i>Delete</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% block extra_js %}
+<script>
+function confirmDelete(id, guestName) {
+    const modalEl = document.getElementById('confirmDeleteModal');
+    document.getElementById('deleteGuestName').innerText = guestName;
+    const form = document.getElementById('deleteForm');
+    form.action = `{% url 'backoffice:reservation_delete' 0 %}`.replace('/0/', `/${id}/`);
+    const modal = new bootstrap.Modal(modalEl);
+    modal.show();
+}
+</script>
+{% endblock %}
+
+{% endblock %}

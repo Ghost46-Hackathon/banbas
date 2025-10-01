@@ -1,0 +1,371 @@
+{% extends 'backoffice/base.html' %}
+
+{% block title %}
+    {% if object %}Edit User{% else %}New User{% endif %} - Banbas Resort Management
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">
+        {% if object %}
+            <i class="fas fa-user-edit text-warning me-2"></i>
+            Edit User
+        {% else %}
+            <i class="fas fa-user-plus text-primary me-2"></i>
+            New User
+        {% endif %}
+    </h1>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'backoffice:dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'backoffice:user_list' %}">Users</a></li>
+            <li class="breadcrumb-item active">
+                {% if object %}Edit{% else %}New{% endif %}
+            </li>
+        </ol>
+    </nav>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="stat-card">
+            <form method="post" id="userForm">
+                {% csrf_token %}
+                
+                <!-- Form Errors -->
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        <strong>Please fix the following errors:</strong>
+                        <ul class="mb-0 mt-2">
+                            {% for error in form.non_field_errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+
+                <!-- Basic Information Section -->
+                <div class="form-section mb-4">
+                    <h5 class="section-title text-primary mb-3">
+                        <i class="fas fa-user me-2"></i>Basic Information
+                    </h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="{{ form.username.id_for_label }}" class="form-label">
+                                Username <span class="text-danger">*</span>
+                            </label>
+                            {{ form.username }}
+                            {% if form.username.errors %}
+                                <div class="text-danger small mt-1">{{ form.username.errors.0 }}</div>
+                            {% endif %}
+                            <div class="form-text">Used for login. Must be unique.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.email.id_for_label }}" class="form-label">
+                                Email Address <span class="text-danger">*</span>
+                            </label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                                <div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>
+                            {% endif %}
+                            <div class="form-text">Used for notifications and password reset.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.first_name.id_for_label }}" class="form-label">
+                                First Name <span class="text-danger">*</span>
+                            </label>
+                            {{ form.first_name }}
+                            {% if form.first_name.errors %}
+                                <div class="text-danger small mt-1">{{ form.first_name.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.last_name.id_for_label }}" class="form-label">
+                                Last Name <span class="text-danger">*</span>
+                            </label>
+                            {{ form.last_name }}
+                            {% if form.last_name.errors %}
+                                <div class="text-danger small mt-1">{{ form.last_name.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Section -->
+                <div class="form-section mb-4">
+                    <h5 class="section-title text-warning mb-3">
+                        <i class="fas fa-lock me-2"></i>Security
+                    </h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="{{ form.password.id_for_label }}" class="form-label">
+                                Password {% if not object %}<span class="text-danger">*</span>{% endif %}
+                            </label>
+                            {{ form.password }}
+                            {% if form.password.errors %}
+                                <div class="text-danger small mt-1">{{ form.password.errors.0 }}</div>
+                            {% endif %}
+                            {% if form.password.help_text %}
+                                <div class="form-text">{{ form.password.help_text }}</div>
+                            {% endif %}
+                            {% if not object %}
+                                <div class="form-text">Minimum 8 characters recommended.</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="password_confirm" class="form-label">
+                                Confirm Password {% if not object %}<span class="text-danger">*</span>{% endif %}
+                            </label>
+                            <input type="password" class="form-control" id="password_confirm" name="password_confirm">
+                            <div class="form-text">Re-enter the password to confirm.</div>
+                            <div id="passwordMatchError" class="text-danger small mt-1" style="display: none;">
+                                Passwords do not match.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Role & Permissions Section -->
+                <div class="form-section mb-4">
+                    <h5 class="section-title text-success mb-3">
+                        <i class="fas fa-user-shield me-2"></i>Role & Permissions
+                    </h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="{{ form.role.id_for_label }}" class="form-label">
+                                User Role <span class="text-danger">*</span>
+                            </label>
+                            {{ form.role }}
+                            {% if form.role.errors %}
+                                <div class="text-danger small mt-1">{{ form.role.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <div class="role-permissions">
+                                <label class="form-label">Role Permissions</label>
+                                <div id="rolePermissions" class="border rounded p-3 bg-light">
+                                    <div id="agentPermissions" class="role-info" style="display: none;">
+                                        <h6 class="text-primary mb-2">
+                                            <i class="fas fa-user-tie me-2"></i>Agent Permissions
+                                        </h6>
+                                        <ul class="small mb-0">
+                                            <li>Create new reservations</li>
+                                            <li>View guest inquiries</li>
+                                            <li>Convert inquiries to reservations</li>
+                                            <li>View basic analytics</li>
+                                        </ul>
+                                    </div>
+                                    <div id="viewerPermissions" class="role-info" style="display: none;">
+                                        <h6 class="text-secondary mb-2">
+                                            <i class="fas fa-user-eye me-2"></i>Viewer Permissions
+                                        </h6>
+                                        <ul class="small mb-0">
+                                            <li>View reservations (read-only)</li>
+                                            <li>View guest inquiries</li>
+                                            <li>View basic analytics</li>
+                                            <li>Cannot create or edit data</li>
+                                        </ul>
+                                    </div>
+                                    <div id="adminPermissions" class="role-info" style="display: none;">
+                                        <h6 class="text-danger mb-2">
+                                            <i class="fas fa-user-shield me-2"></i>Admin Permissions
+                                        </h6>
+                                        <ul class="small mb-0">
+                                            <li>Full access to all features</li>
+                                            <li>Edit existing reservations</li>
+                                            <li>View revenue analytics</li>
+                                            <li>User management</li>
+                                            <li>Delete reservations</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="form-actions d-flex justify-content-between">
+                    <a href="{% url 'backoffice:user_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>
+                        Back to Users
+                    </a>
+                    <div>
+                        <button type="button" class="btn btn-outline-warning me-2" onclick="resetForm()">
+                            <i class="fas fa-undo me-2"></i>
+                            Reset
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <i class="fas fa-save me-2"></i>
+                            {% if object %}Update User{% else %}Create User{% endif %}
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Sidebar with Tips -->
+    <div class="col-lg-4">
+        <div class="stat-card">
+            <h6 class="text-primary mb-3">
+                <i class="fas fa-lightbulb me-2"></i>
+                User Management Tips
+            </h6>
+            
+            <div class="mb-3">
+                <h6 class="small fw-semibold text-secondary">Role Guidelines</h6>
+                <ul class="small text-muted mb-0">
+                    <li><strong>Agent:</strong> Front desk staff who create reservations</li>
+                    <li><strong>Viewer:</strong> Read-only access for reporting</li>
+                    <li><strong>Admin:</strong> Full system access for managers</li>
+                </ul>
+            </div>
+
+            <div class="mb-3">
+                <h6 class="small fw-semibold text-secondary">Security Best Practices</h6>
+                <ul class="small text-muted mb-0">
+                    <li>Use strong passwords (8+ characters)</li>
+                    <li>Include numbers and special characters</li>
+                    <li>Regularly review user permissions</li>
+                    <li>Deactivate unused accounts</li>
+                </ul>
+            </div>
+
+            {% if object %}
+            <div class="alert alert-info">
+                <h6 class="alert-heading small">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Current User Info
+                </h6>
+                <ul class="small mb-0">
+                    <li><strong>Created:</strong> {{ object.user.date_joined|date:"M d, Y" }}</li>
+                    <li><strong>Last Login:</strong> 
+                        {% if object.user.last_login %}
+                            {{ object.user.last_login|date:"M d, Y g:i A" }}
+                        {% else %}
+                            Never
+                        {% endif %}
+                    </li>
+                    <li><strong>Status:</strong> 
+                        {% if object.user.is_active %}
+                            <span class="text-success">Active</span>
+                        {% else %}
+                            <span class="text-danger">Inactive</span>
+                        {% endif %}
+                    </li>
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-section {
+        position: relative;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .form-section:last-child {
+        border-bottom: none;
+    }
+    
+    .section-title {
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+    }
+    
+    .role-info {
+        transition: opacity 0.3s ease;
+    }
+    
+    .form-actions {
+        padding-top: 2rem;
+        margin-top: 2rem;
+        border-top: 1px solid #e9ecef;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const roleSelect = document.getElementById('{{ form.role.id_for_label }}');
+        const passwordField = document.getElementById('{{ form.password.id_for_label }}');
+        const passwordConfirmField = document.getElementById('password_confirm');
+        const submitBtn = document.getElementById('submitBtn');
+        
+        // Show role permissions based on selection
+        function updateRolePermissions() {
+            const selectedRole = roleSelect.value;
+            const roleInfos = document.querySelectorAll('.role-info');
+            
+            // Hide all role info divs
+            roleInfos.forEach(info => info.style.display = 'none');
+            
+            // Show selected role info
+            if (selectedRole) {
+                const targetDiv = document.getElementById(selectedRole + 'Permissions');
+                if (targetDiv) {
+                    targetDiv.style.display = 'block';
+                }
+            }
+        }
+        
+        // Password matching validation
+        function validatePasswords() {
+            const password = passwordField.value;
+            const confirmPassword = passwordConfirmField.value;
+            const errorDiv = document.getElementById('passwordMatchError');
+            
+            if (confirmPassword && password !== confirmPassword) {
+                errorDiv.style.display = 'block';
+                passwordConfirmField.classList.add('is-invalid');
+                return false;
+            } else {
+                errorDiv.style.display = 'none';
+                passwordConfirmField.classList.remove('is-invalid');
+                return true;
+            }
+        }
+        
+        // Event listeners
+        roleSelect.addEventListener('change', updateRolePermissions);
+        passwordConfirmField.addEventListener('input', validatePasswords);
+        passwordField.addEventListener('input', validatePasswords);
+        
+        // Form submission validation
+        document.getElementById('userForm').addEventListener('submit', function(e) {
+            if (!validatePasswords()) {
+                e.preventDefault();
+                alert('Please fix the password mismatch before submitting.');
+                return false;
+            }
+        });
+        
+        // Initialize role permissions display
+        updateRolePermissions();
+        
+        // Set initial password confirm value if editing
+        {% if object %}
+        if (passwordField.value) {
+            passwordConfirmField.value = passwordField.value;
+        }
+        {% endif %}
+    });
+    
+    function resetForm() {
+        if (confirm('Are you sure you want to reset all changes?')) {
+            document.getElementById('userForm').reset();
+            // Re-initialize role permissions
+            document.dispatchEvent(new Event('DOMContentLoaded'));
+        }
+    }
+</script>
+{% endblock %}

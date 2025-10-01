@@ -23,6 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('ckeditor/', include('ckeditor_uploader.urls')),
     path('', include('resort.urls')),
+    path('_internal/', include('backoffice.urls')),
 ]
 
 # Serve media files in development

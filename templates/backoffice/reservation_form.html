@@ -1,0 +1,597 @@
+{% extends 'backoffice/base.html' %}
+
+{% block title %}
+    {% if object %}Edit Reservation{% else %}New Reservation{% endif %} - Banbas Resort Management
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">
+        {% if object %}
+            <i class="fas fa-edit text-warning me-2"></i>
+            Edit Reservation
+        {% else %}
+            <i class="fas fa-plus-circle text-primary me-2"></i>
+            New Reservation
+        {% endif %}
+    </h1>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'backoffice:dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'backoffice:reservation_list' %}">Reservations</a></li>
+            <li class="breadcrumb-item active">
+                {% if object %}Edit{% else %}New{% endif %}
+            </li>
+        </ol>
+    </nav>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="stat-card">
+            <form method="post" id="reservationForm">
+                {% csrf_token %}
+                
+                <!-- Form Errors -->
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        <strong>Please fix the following errors:</strong>
+                        <ul class="mb-0 mt-2">
+                            {% for error in form.non_field_errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+
+                <!-- Guest Information Section -->
+                <div class="form-section mb-4">
+                    <h5 class="section-title text-primary mb-3">
+                        <i class="fas fa-user me-2"></i>Guest Information
+                    </h5>
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label for="{{ form.guest_full_name.id_for_label }}" class="form-label">
+                                Guest Full Name <span class="text-danger">*</span>
+                            </label>
+                            {{ form.guest_full_name }}
+                            {% if form.guest_full_name.errors %}
+                                <div class="text-danger small mt-1">{{ form.guest_full_name.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="{{ form.nationality.id_for_label }}" class="form-label">
+                                Nationality <span class="text-danger">*</span>
+                            </label>
+                            {{ form.nationality }}
+                            {% if form.nationality.errors %}
+                                <div class="text-danger small mt-1">{{ form.nationality.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-8">
+                            <label for="{{ form.company_name.id_for_label }}" class="form-label">
+                                Company Name <span class="text-muted">(Optional)</span>
+                            </label>
+                            {{ form.company_name }}
+                            {% if form.company_name.errors %}
+                                <div class="text-danger small mt-1">{{ form.company_name.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="{{ form.contact_number.id_for_label }}" class="form-label">
+                                Contact Number
+                            </label>
+                            {{ form.contact_number }}
+                            {% if form.contact_number.errors %}
+                                <div class="text-danger small mt-1">{{ form.contact_number.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stay Details Section -->
+                <div class="form-section mb-4">
+                    <h5 class="section-title text-success mb-3">
+                        <i class="fas fa-calendar-alt me-2"></i>Stay Details
+                    </h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="{{ form.arrival_date.id_for_label }}" class="form-label">
+                                Arrival Date <span class="text-danger">*</span>
+                            </label>
+                            {{ form.arrival_date }}
+                            {% if form.arrival_date.errors %}
+                                <div class="text-danger small mt-1">{{ form.arrival_date.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.departure_date.id_for_label }}" class="form-label">
+                                Departure Date <span class="text-danger">*</span>
+                            </label>
+                            {{ form.departure_date }}
+                            {% if form.departure_date.errors %}
+                                <div class="text-danger small mt-1">{{ form.departure_date.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.total_adults.id_for_label }}" class="form-label">
+                                Total Adults <span class="text-danger">*</span>
+                            </label>
+                            {{ form.total_adults }}
+                            {% if form.total_adults.errors %}
+                                <div class="text-danger small mt-1">{{ form.total_adults.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.total_children.id_for_label }}" class="form-label">
+                                Total Children <span class="text-danger">*</span>
+                            </label>
+                            {{ form.total_children }}
+                            {% if form.total_children.errors %}
+                                <div class="text-danger small mt-1">{{ form.total_children.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Room Details Section -->
+                <div class="form-section mb-4">
+                    <h5 class="section-title text-info mb-3">
+                        <i class="fas fa-bed me-2"></i>Room Details
+                    </h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="{{ form.room_category.id_for_label }}" class="form-label">
+                                Room Category <span class="text-danger">*</span>
+                            </label>
+                            {{ form.room_category }}
+                            {% if form.room_category.errors %}
+                                <div class="text-danger small mt-1">{{ form.room_category.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.number_of_rooms.id_for_label }}" class="form-label">
+                                Total Rooms <span class="text-danger">*</span>
+                            </label>
+                            {{ form.number_of_rooms }}
+                            {% if form.number_of_rooms.errors %}
+                                <div class="text-danger small mt-1">{{ form.number_of_rooms.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Room Type Selection -->
+                    <div class="mt-3">
+                        <label class="form-label">Room Types & Quantities <span class="text-danger">*</span></label>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <div class="border rounded p-3">
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input room-type-check" type="checkbox" 
+                                               id="single_check" data-target="single_rooms">
+                                        <label class="form-check-label fw-semibold" for="single_check">
+                                            Single Rooms
+                                        </label>
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-text">Qty</span>
+                                        {{ form.single_rooms }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="border rounded p-3">
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input room-type-check" type="checkbox" 
+                                               id="double_check" data-target="double_rooms">
+                                        <label class="form-check-label fw-semibold" for="double_check">
+                                            Double Rooms
+                                        </label>
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-text">Qty</span>
+                                        {{ form.double_rooms }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="border rounded p-3">
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input room-type-check" type="checkbox" 
+                                               id="triple_check" data-target="triple_rooms">
+                                        <label class="form-check-label fw-semibold" for="triple_check">
+                                            Triple Rooms
+                                        </label>
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-text">Qty</span>
+                                        {{ form.triple_rooms }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Meal Plan Section -->
+                <div class="form-section mb-4">
+                    <h5 class="section-title text-warning mb-3">
+                        <i class="fas fa-utensils me-2"></i>Meal Plan
+                    </h5>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label for="{{ form.meal_plan.id_for_label }}" class="form-label">
+                                Meal Plan <span class="text-danger">*</span>
+                            </label>
+                            {{ form.meal_plan }}
+                            {% if form.meal_plan.errors %}
+                                <div class="text-danger small mt-1">{{ form.meal_plan.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Section -->
+                <div class="form-section mb-4">
+                    <h5 class="section-title text-success mb-3">
+                        <i class="fas fa-money-bill-wave me-2"></i>Payment Details
+                    </h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="{{ form.payment_method.id_for_label }}" class="form-label">
+                                Payment Method <span class="text-danger">*</span>
+                            </label>
+                            {{ form.payment_method }}
+                            {% if form.payment_method.errors %}
+                                <div class="text-danger small mt-1">{{ form.payment_method.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.payment_currency.id_for_label }}" class="form-label">
+                                Currency <span class="text-danger">*</span>
+                            </label>
+                            {{ form.payment_currency }}
+                            {% if form.payment_currency.errors %}
+                                <div class="text-danger small mt-1">{{ form.payment_currency.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-12">
+                            <label for="{{ form.total_price.id_for_label }}" class="form-label">
+                                Total Price <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text" id="currency-symbol">
+                                    <i class="fas fa-dollar-sign"></i> NRS
+                                </span>
+                                {{ form.total_price }}
+                                <button class="btn btn-outline-secondary" type="button" id="convert-price-btn" title="Convert from previous currency">
+                                    <i class="fas fa-exchange-alt"></i>
+                                </button>
+                            </div>
+                            <small class="text-muted">Price will auto-convert when currency is changed</small>
+                            {% if form.total_price.errors %}
+                                <div class="text-danger small mt-1">{{ form.total_price.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Booking Information Section -->
+                <div class="form-section mb-4">
+                    <h5 class="section-title text-secondary mb-3">
+                        <i class="fas fa-user-tie me-2"></i>Booking Information
+                    </h5>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label for="{{ form.booked_by.id_for_label }}" class="form-label">
+                                Booked By <span class="text-danger">*</span>
+                            </label>
+                            {{ form.booked_by }}
+                            {% if form.booked_by.errors %}
+                                <div class="text-danger small mt-1">{{ form.booked_by.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Buttons -->
+                <div class="d-flex gap-3 pt-3 border-top">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>
+                        {% if object %}Update Reservation{% else %}Create Reservation{% endif %}
+                    </button>
+                    <a href="{% url 'backoffice:reservation_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-2"></i>
+                        Cancel
+                    </a>
+                    {% if object %}
+                        <a href="{% url 'backoffice:reservation_detail' object.pk %}" class="btn btn-outline-info">
+                            <i class="fas fa-eye me-2"></i>
+                            View Details
+                        </a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Help Sidebar -->
+    <div class="col-lg-4">
+        <div class="stat-card">
+            <h6 class="fw-semibold text-primary mb-3">
+                <i class="fas fa-info-circle me-2"></i>
+                Required Fields
+            </h6>
+            <ul class="list-unstyled small">
+                <li class="mb-1"><i class="fas fa-check text-success me-2"></i>Guest Full Name</li>
+                <li class="mb-1"><i class="fas fa-check text-success me-2"></i>Arrival & Departure Dates</li>
+                <li class="mb-1"><i class="fas fa-check text-success me-2"></i>Nationality</li>
+                <li class="mb-1"><i class="fas fa-check text-success me-2"></i>Room Category</li>
+                <li class="mb-1"><i class="fas fa-check text-success me-2"></i>Room Types & Quantities</li>
+                <li class="mb-1"><i class="fas fa-check text-success me-2"></i>Meal Plan</li>
+                <li class="mb-1"><i class="fas fa-check text-success me-2"></i>Total Adults & Children</li>
+                <li class="mb-1"><i class="fas fa-check text-success me-2"></i>Booked By</li>
+                <li class="mb-1"><i class="fas fa-check text-success me-2"></i>Payment Method & Currency</li>
+                <li class="mb-1"><i class="fas fa-check text-success me-2"></i>Total Price</li>
+            </ul>
+        </div>
+        
+        <div class="stat-card mt-3">
+            <h6 class="fw-semibold text-info mb-3">
+                <i class="fas fa-lightbulb me-2"></i>
+                Tips
+            </h6>
+            <ul class="list-unstyled small text-muted">
+                <li class="mb-2">• Select room types by checking boxes and entering quantities</li>
+                <li class="mb-2">• Total rooms will auto-calculate from room type quantities</li>
+                <li class="mb-2">• All dates must be in the future</li>
+                <li class="mb-2">• Contact number is optional but recommended</li>
+                <li class="mb-2">• Price converts automatically when currency is changed</li>
+                <li class="mb-2">• Supported currencies: NRS, INR, USD, EUR</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .toast-notification {
+        position: fixed;
+        top: 100px;
+        right: 20px;
+        z-index: 1055;
+        max-width: 400px;
+        animation: slideInRight 0.3s ease-out;
+    }
+    
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    #currency-symbol {
+        min-width: 60px;
+        justify-content: center;
+        font-weight: 600;
+        background-color: #f8f9fa;
+        border-color: #dee2e6;
+    }
+    
+    #convert-price-btn {
+        border-left: 0;
+    }
+    
+    .currency-info {
+        font-size: 0.875rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Exchange rates (base currency: NRS)
+    const EXCHANGE_RATES = {
+        'NRS': 1.0,        // Nepali Rupee (base)
+        'INR': 0.625,      // 1 NRS = 0.625 INR
+        'USD': 0.0075,     // 1 NRS = 0.0075 USD
+        'EUR': 0.0069      // 1 NRS = 0.0069 EUR
+    };
+    
+    // Currency symbols
+    const CURRENCY_SYMBOLS = {
+        'NRS': 'रु',
+        'INR': '₹',
+        'USD': '$',
+        'EUR': '€'
+    };
+    
+    // Currency conversion functionality
+    const currencySelect = document.getElementById('id_payment_currency');
+    const priceInput = document.getElementById('id_total_price');
+    const currencySymbol = document.getElementById('currency-symbol');
+    const convertBtn = document.getElementById('convert-price-btn');
+    
+    // Check if elements exist (they might not on all pages)
+    if (!currencySelect || !priceInput || !currencySymbol || !convertBtn) {
+        console.log('Currency conversion elements not found - feature disabled');
+        return;
+    }
+    
+    let lastCurrency = currencySelect.value || 'NRS';
+    let lastPrice = parseFloat(priceInput.value) || 0;
+    
+    // Initialize currency symbol
+    updateCurrencySymbol(lastCurrency);
+    
+    // Currency change event
+    currencySelect.addEventListener('change', function() {
+        const newCurrency = this.value;
+        const currentPrice = parseFloat(priceInput.value) || 0;
+        
+        if (currentPrice > 0 && lastCurrency !== newCurrency) {
+            // Show conversion option
+            showConversionOption(lastCurrency, newCurrency, currentPrice);
+        }
+        
+        updateCurrencySymbol(newCurrency);
+        lastCurrency = newCurrency;
+    });
+    
+    // Convert button click
+    convertBtn.addEventListener('click', function() {
+        const currentPrice = parseFloat(priceInput.value) || 0;
+        if (currentPrice > 0) {
+            const convertedPrice = convertCurrency(currentPrice, lastCurrency, currencySelect.value);
+            priceInput.value = convertedPrice.toFixed(2);
+            showConversionSuccess(lastCurrency, currencySelect.value, currentPrice, convertedPrice);
+            lastPrice = convertedPrice;
+        }
+    });
+    
+    function convertCurrency(amount, fromCurrency, toCurrency) {
+        // Convert to NRS first, then to target currency
+        const amountInNRS = amount / EXCHANGE_RATES[fromCurrency];
+        return amountInNRS * EXCHANGE_RATES[toCurrency];
+    }
+    
+    function updateCurrencySymbol(currency) {
+        const symbol = CURRENCY_SYMBOLS[currency] || currency;
+        currencySymbol.innerHTML = `<i class="fas fa-coins me-1"></i>${symbol}`;
+    }
+    
+    function showConversionOption(fromCurrency, toCurrency, currentPrice) {
+        const convertedPrice = convertCurrency(currentPrice, fromCurrency, toCurrency);
+        
+        // Create toast notification
+        const toast = document.createElement('div');
+        toast.className = 'toast-notification';
+        toast.innerHTML = `
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                <strong>Currency Changed!</strong><br>
+                Convert ${CURRENCY_SYMBOLS[fromCurrency]}${currentPrice.toFixed(2)} (${fromCurrency}) to ${CURRENCY_SYMBOLS[toCurrency]}${convertedPrice.toFixed(2)} (${toCurrency})?
+                <br>
+                <button type="button" class="btn btn-sm btn-primary mt-2" onclick="convertPriceNow(${currentPrice}, '${fromCurrency}', '${toCurrency}')">
+                    Yes, Convert
+                </button>
+                <button type="button" class="btn btn-sm btn-secondary mt-2 ms-1" data-bs-dismiss="alert">
+                    Keep Current
+                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+        
+        // Add to page
+        const container = document.querySelector('.page-header') || document.body;
+        container.appendChild(toast);
+        
+        // Auto remove after 10 seconds
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.remove();
+            }
+        }, 10000);
+    }
+    
+    function showConversionSuccess(fromCurrency, toCurrency, originalPrice, convertedPrice) {
+        const toast = document.createElement('div');
+        toast.className = 'toast-notification';
+        toast.innerHTML = `
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Price Converted!</strong><br>
+                ${CURRENCY_SYMBOLS[fromCurrency]}${originalPrice.toFixed(2)} (${fromCurrency}) → ${CURRENCY_SYMBOLS[toCurrency]}${convertedPrice.toFixed(2)} (${toCurrency})
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+        
+        const container = document.querySelector('.page-header') || document.body;
+        container.appendChild(toast);
+        
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.remove();
+            }
+        }, 5000);
+    }
+    
+    // Global function for toast buttons
+    window.convertPriceNow = function(currentPrice, fromCurrency, toCurrency) {
+        const convertedPrice = convertCurrency(currentPrice, fromCurrency, toCurrency);
+        priceInput.value = convertedPrice.toFixed(2);
+        showConversionSuccess(fromCurrency, toCurrency, currentPrice, convertedPrice);
+        
+        // Remove the toast
+        const toasts = document.querySelectorAll('.toast-notification');
+        toasts.forEach(toast => toast.remove());
+    };
+    
+    // Room type checkbox handling
+    const checkboxes = document.querySelectorAll('.room-type-check');
+    const roomInputs = {
+        'single_rooms': document.getElementById('id_single_rooms'),
+        'double_rooms': document.getElementById('id_double_rooms'),
+        'triple_rooms': document.getElementById('id_triple_rooms')
+    };
+    const totalRoomsInput = document.getElementById('id_number_of_rooms');
+    
+    // Initialize checkboxes based on current values
+    Object.keys(roomInputs).forEach(key => {
+        const input = roomInputs[key];
+        const checkbox = document.querySelector(`[data-target="${key}"]`);
+        if (input.value && parseInt(input.value) > 0) {
+            checkbox.checked = true;
+        }
+        updateRoomInputState(checkbox, input);
+    });
+    
+    // Add event listeners
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const targetId = this.dataset.target;
+            const input = roomInputs[targetId];
+            updateRoomInputState(this, input);
+            updateTotalRooms();
+        });
+    });
+    
+    // Add input listeners for quantity changes
+    Object.values(roomInputs).forEach(input => {
+        input.addEventListener('input', updateTotalRooms);
+    });
+    
+    function updateRoomInputState(checkbox, input) {
+        if (checkbox.checked) {
+            input.disabled = false;
+            if (!input.value || input.value === '0') {
+                input.value = '1';
+            }
+        } else {
+            input.disabled = true;
+            input.value = '0';
+        }
+    }
+    
+    function updateTotalRooms() {
+        let total = 0;
+        Object.values(roomInputs).forEach(input => {
+            if (!input.disabled && input.value) {
+                total += parseInt(input.value) || 0;
+            }
+        });
+        totalRoomsInput.value = total;
+    }
+    
+    // Initial calculation
+    updateTotalRooms();
+});
+</script>
+{% endblock %}

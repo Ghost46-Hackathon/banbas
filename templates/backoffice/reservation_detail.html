@@ -1,0 +1,356 @@
+{% extends 'backoffice/base.html' %}
+
+{% block title %}
+    Reservation Details - {{ reservation.guest_full_name }} - Banbas Resort Management
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">
+        <i class="fas fa-eye text-info me-2"></i>
+        Reservation Details
+    </h1>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'backoffice:dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'backoffice:reservation_list' %}">Reservations</a></li>
+            <li class="breadcrumb-item active">{{ reservation.guest_full_name }}</li>
+        </ol>
+    </nav>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="stat-card">
+            <!-- Guest Information -->
+            <div class="card-section mb-4">
+                <h5 class="section-title text-primary mb-3">
+                    <i class="fas fa-user me-2"></i>Guest Information
+                </h5>
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label class="form-label text-muted">Full Name</label>
+                        <div class="fw-semibold">{{ reservation.guest_full_name }}</div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label text-muted">Nationality</label>
+                        <div class="fw-semibold">{{ reservation.nationality }}</div>
+                    </div>
+                    {% if reservation.company_name %}
+                    <div class="col-md-8">
+                        <label class="form-label text-muted">Company Name</label>
+                        <div class="fw-semibold">{{ reservation.company_name }}</div>
+                    </div>
+                    {% endif %}
+                    {% if reservation.contact_number %}
+                    <div class="col-md-4">
+                        <label class="form-label text-muted">Contact Number</label>
+                        <div class="fw-semibold">{{ reservation.contact_number }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Stay Details -->
+            <div class="card-section mb-4">
+                <h5 class="section-title text-success mb-3">
+                    <i class="fas fa-calendar-alt me-2"></i>Stay Details
+                </h5>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Arrival Date</label>
+                        <div class="fw-semibold">{{ reservation.arrival_date|date:"F j, Y" }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Departure Date</label>
+                        <div class="fw-semibold">{{ reservation.departure_date|date:"F j, Y" }}</div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label text-muted">Total Nights</label>
+                        <div class="fw-semibold">{{ reservation.nights }}</div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label text-muted">Total Adults</label>
+                        <div class="fw-semibold">{{ reservation.total_adults }}</div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label text-muted">Total Children</label>
+                        <div class="fw-semibold">{{ reservation.total_children }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Room Details -->
+            <div class="card-section mb-4">
+                <h5 class="section-title text-info mb-3">
+                    <i class="fas fa-bed me-2"></i>Room Details
+                </h5>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Room Category</label>
+                        <div class="fw-semibold">{{ reservation.get_room_category_display }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Total Rooms</label>
+                        <div class="fw-semibold">{{ reservation.number_of_rooms }}</div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label text-muted">Room Types</label>
+                        <div class="fw-semibold">{{ reservation.room_types_display }}</div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label text-muted">Meal Plan</label>
+                        <div class="fw-semibold">{{ reservation.get_meal_plan_display }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Details -->
+            <div class="card-section mb-4">
+                <h5 class="section-title text-success mb-3">
+                    <i class="fas fa-money-bill-wave me-2"></i>Payment Details
+                </h5>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Payment Method</label>
+                        <div class="fw-semibold">{{ reservation.get_payment_method_display }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Currency</label>
+                        <div class="fw-semibold">{{ reservation.payment_currency }}</div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label text-muted">Total Price</label>
+                        <div class="fw-semibold fs-5 text-success">{{ reservation.total_price }} {{ reservation.payment_currency }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Booking Information -->
+            <div class="card-section mb-4">
+                <h5 class="section-title text-secondary mb-3">
+                    <i class="fas fa-user-tie me-2"></i>Booking Information
+                </h5>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Booked By</label>
+                        <div class="fw-semibold">{{ reservation.booked_by }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Created By</label>
+                        <div class="fw-semibold">{{ reservation.created_by.get_full_name|default:reservation.created_by.username }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Created At</label>
+                        <div class="fw-semibold">{{ reservation.created_at|date:"F j, Y g:i A" }}</div>
+                    </div>
+                    {% if reservation.updated_at != reservation.created_at %}
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Last Updated</label>
+                        <div class="fw-semibold">{{ reservation.updated_at|date:"F j, Y g:i A" }}</div>
+                        {% if reservation.updated_by %}
+                            <small class="text-muted">by {{ reservation.updated_by.get_full_name|default:reservation.updated_by.username }}</small>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex gap-3 pt-3 border-top">
+                {% if can_edit %}
+                    <a href="{% url 'backoffice:reservation_edit' reservation.pk %}" class="btn btn-warning">
+                        <i class="fas fa-edit me-2"></i>Edit Reservation
+                    </a>
+                {% endif %}
+                <a href="{% url 'backoffice:reservation_list' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-list me-2"></i>Back to List
+                </a>
+                {% if user.userprofile.can_delete_reservations %}
+                <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteReservationModal">
+                    <i class="fas fa-trash me-2"></i>Delete Reservation
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Quick Stats -->
+        <div class="stat-card mb-3">
+            <h6 class="fw-semibold text-primary mb-3">
+                <i class="fas fa-chart-bar me-2"></i>Quick Stats
+            </h6>
+            <div class="row g-2 text-center">
+                <div class="col-6">
+                    <div class="bg-light rounded p-2">
+                        <div class="fw-bold text-primary">{{ reservation.nights }}</div>
+                        <small class="text-muted">Nights</small>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="bg-light rounded p-2">
+                        <div class="fw-bold text-success">{{ reservation.total_guests }}</div>
+                        <small class="text-muted">Guests</small>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="bg-light rounded p-2">
+                        <div class="fw-bold text-info">{{ reservation.number_of_rooms }}</div>
+                        <small class="text-muted">Rooms</small>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="bg-light rounded p-2">
+                        <div class="fw-bold text-warning">{{ reservation.payment_currency }}</div>
+                        <small class="text-muted">Currency</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        {% if audit_logs %}
+        <div class="stat-card">
+            <h6 class="fw-semibold text-secondary mb-3">
+                <i class="fas fa-history me-2"></i>Recent Activity
+            </h6>
+            <div class="timeline">
+                {% for log in audit_logs %}
+                <div class="timeline-item">
+                    <div class="timeline-marker bg-primary"></div>
+                    <div class="timeline-content">
+                        <div class="fw-semibold">{{ log.get_action_display|capfirst }}</div>
+                        <small class="text-muted">
+                            by {{ log.user.get_full_name|default:log.user.username }}
+                        </small>
+                        <div class="text-muted small">{{ log.timestamp|date:"M j, Y g:i A" }}</div>
+                        {% if log.changes %}
+                        <div class="mt-1">
+                            <details class="small">
+                                <summary class="text-primary" style="cursor: pointer;">View Changes</summary>
+                                <pre class="mt-1 p-2 bg-light rounded small">{{ log.changes|pprint }}</pre>
+                            </details>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteReservationModal" tabindex="-1" aria-labelledby="deleteReservationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteReservationModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Delete Reservation
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-3">
+                    <i class="fas fa-exclamation-triangle text-danger" style="font-size: 3rem;"></i>
+                </div>
+                <h5 class="text-center mb-3">Are you sure you want to delete this reservation?</h5>
+                <div class="alert alert-warning">
+                    <strong>Warning:</strong> This action cannot be undone. The following reservation will be permanently deleted:
+                </div>
+                <div class="bg-light p-3 rounded">
+                    <div class="row g-2">
+                        <div class="col-6"><strong>Guest:</strong></div>
+                        <div class="col-6">{{ reservation.guest_full_name }}</div>
+                        <div class="col-6"><strong>Dates:</strong></div>
+                        <div class="col-6">{{ reservation.arrival_date|date:"M j" }} - {{ reservation.departure_date|date:"M j, Y" }}</div>
+                        <div class="col-6"><strong>Rooms:</strong></div>
+                        <div class="col-6">{{ reservation.number_of_rooms }}</div>
+                        <div class="col-6"><strong>Total:</strong></div>
+                        <div class="col-6">{{ reservation.total_price }} {{ reservation.payment_currency }}</div>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <strong>Deletion Details:</strong>
+                    <ul class="small">
+                        <li>The reservation record will be permanently removed from the database</li>
+                        <li>A deletion audit log will be created for record keeping</li>
+                        <li>Any associated data may be affected</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </button>
+                <form method="post" action="{% url 'backoffice:reservation_delete' reservation.pk %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash me-2"></i>Yes, Delete Reservation
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card-section {
+        border-bottom: 1px solid #e9ecef;
+        padding-bottom: 1rem;
+    }
+    
+    .card-section:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+    
+    .timeline {
+        position: relative;
+        padding-left: 1.5rem;
+    }
+    
+    .timeline-item {
+        position: relative;
+        margin-bottom: 1rem;
+    }
+    
+    .timeline-item:last-child {
+        margin-bottom: 0;
+    }
+    
+    .timeline-marker {
+        position: absolute;
+        left: -1.75rem;
+        width: 0.75rem;
+        height: 0.75rem;
+        border-radius: 50%;
+        top: 0.25rem;
+    }
+    
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -1.4rem;
+        top: 1rem;
+        bottom: -1rem;
+        width: 2px;
+        background-color: #dee2e6;
+    }
+    
+    .timeline-item:last-child::before {
+        display: none;
+    }
+    
+    .section-title {
+        border-bottom: 2px solid currentColor;
+        padding-bottom: 0.5rem;
+        display: inline-block;
+    }
+</style>
+{% endblock %}
