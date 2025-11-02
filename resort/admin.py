@@ -1,5 +1,24 @@
 from django.contrib import admin
-from .models import RoomType, Amenity, Gallery, Contact, Resort, Activity, RoomGallery, Blog
+from .models import RoomType, Amenity, Gallery, Contact, Resort, Activity, RoomGallery, Blog, AboutPage
+
+
+@admin.register(AboutPage)
+class AboutPageAdmin(admin.ModelAdmin):
+    list_display = ['title', 'updated_at']
+    fieldsets = (
+        ('Page Content', {
+            'fields': ('title', 'subtitle', 'main_image', 'secondary_image')
+        }),
+        ('Founder\'s Narrative', {
+            'fields': ('founders_narrative_title', 'founders_narrative_content', 'founders_narrative_image')
+        }),
+        ('Management Partnership', {
+            'fields': ('management_partnership_title', 'management_partnership_content', 'management_partnership_image')
+        }),
+        ('Vision and Design', {
+            'fields': ('vision_and_design_title', 'vision_and_design_content', 'vision_and_design_image')
+        }),
+    )
 
 
 @admin.register(Resort)

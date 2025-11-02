@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.http import JsonResponse
-from .models import RoomType, Amenity, Gallery, Contact, Resort, Activity, Blog
+from .models import RoomType, Amenity, Gallery, Contact, Resort, Activity, Blog, AboutPage
 from .forms import ContactForm
 
 
@@ -125,12 +125,12 @@ def contact(request):
 
 def about(request):
     """About page"""
+    about_page = AboutPage.objects.first()
     resort = Resort.objects.first()
-    amenities = Amenity.objects.filter(is_featured=True)[:4]
     
     context = {
+        'about_page': about_page,
         'resort': resort,
-        'amenities': amenities,
     }
     return render(request, 'resort/about.html', context)
 

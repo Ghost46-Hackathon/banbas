@@ -316,6 +316,29 @@ class Blog(models.Model):
         super().save(*args, **kwargs)
 
 
+class AboutPage(models.Model):
+    title = models.CharField(max_length=200, default="OUR STORY")
+    subtitle = models.CharField(max_length=300, default="Story Behind Banbas | Sustainability | Chitwan National Park")
+    founders_narrative_title = models.CharField(max_length=200, default="Bashu Dhungana's Life Work")
+    founders_narrative_content = RichTextField(config_name='default', blank=True)
+    founders_narrative_image = models.CharField(max_length=300, default="https://www.banbasresort.com/static/img/b.jpg")
+    management_partnership_title = models.CharField(max_length=200, default="Management Partnership")
+    management_partnership_content = RichTextField(config_name='default', blank=True)
+    management_partnership_image = models.CharField(max_length=300, default="https://www.banbasresort.com/static/img/c.jpg")
+    vision_and_design_title = models.CharField(max_length=200, default="Vision and Design")
+    vision_and_design_content = RichTextField(config_name='default', blank=True)
+    vision_and_design_image = models.CharField(max_length=300, default="https://www.banbasresort.com/static/img/a.jpg")
+    main_image = models.CharField(max_length=300, default="https://images.unsplash.com/photo-1516426122078-c23e76319801?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80")
+    secondary_image = models.CharField(max_length=300, default="https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80")
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        verbose_name_plural = "About Page"
+
+
 class Resort(models.Model):
     """Single instance model for resort information"""
     name = models.CharField(max_length=100, default="Banbas Resort")
