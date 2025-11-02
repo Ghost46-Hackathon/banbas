@@ -1,0 +1,43 @@
+name: Deploy to Local Server
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:  # Allows manual triggering
+
+jobs:
+  notify-deployment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Display deployment notification
+        run: |
+          echo "=========================================="
+          echo "🚀 New code pushed to main branch!"
+          echo "=========================================="
+          echo ""
+          echo "To deploy on your local machine, run:"
+          echo "  cd C:\Banbas\banbas"
+          echo "  .\deploy.ps1"
+          echo ""
+          echo "Or set up a webhook listener to auto-deploy"
+          echo ""
+          echo "Commit: ${{ github.sha }}"
+          echo "Author: ${{ github.actor }}"
+          echo "Message: ${{ github.event.head_commit.message }}"
+      
+      - name: Create deployment marker
+        run: |
+          echo "New deployment triggered at $(date)" >> deployment.log
+          echo "Commit: ${{ github.sha }}" >> deployment.log
+          echo "Branch: ${{ github.ref }}" >> deployment.log
+      
+      - name: Archive deployment log
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-log
+          path: deployment.log
+          retention-days: 1
+
