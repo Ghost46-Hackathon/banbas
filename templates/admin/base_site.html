@@ -1,0 +1,30 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Banbas Admin | {{ block.super }}{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'admin/css/custom_admin.css' %}">
+{% endblock %}
+
+{% block bodyclass %}{{ block.super }} banbas-admin{% endblock %}
+
+{% block branding %}
+<div class="banbas-branding">
+    <img src="{% static 'images/logo/logo.png' %}" alt="Banbas Resort" class="banbas-brand-logo" loading="lazy">
+    <div>
+        <div class="brand-title">Banbas Resort Backoffice</div>
+        <p class="brand-subtitle">Manage rooms, experiences, content, and guest inquiries.</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block nav-global %}
+<div class="banbas-nav-links">
+    <a href="{% url 'resort:home' %}" target="_blank" rel="noopener" class="banbas-nav-link">View Website</a>
+    <a href="{% url 'resort:rooms' %}" target="_blank" rel="noopener" class="banbas-nav-link">Rooms Page</a>
+    <a href="{% url 'resort:contact' %}" target="_blank" rel="noopener" class="banbas-nav-link">Contact Page</a>
+    <a href="https://docs.djangoproject.com/en/stable/ref/contrib/admin/" target="_blank" rel="noopener" class="banbas-nav-link">Admin Docs</a>
+</div>
+{% endblock %}

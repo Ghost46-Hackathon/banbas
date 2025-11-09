@@ -1,0 +1,111 @@
+{% extends 'resort/base.html' %}
+{% load static %}
+
+{% block title %}Gallery - Banbas Resort{% endblock %}
+
+{% block content %}
+<section class="page-header py-5" style="background: linear-gradient(135deg, #134a39 0%, #1e6b54 100%); margin-top: 90px;">
+    <div class="container text-center text-white">
+        <h1 class="display-4 fw-bold mb-3">Resort Gallery</h1>
+        <p class="lead mb-0">Step inside Banbas Resort through curated imagery capturing rooms, amenities, dining, and the surrounding jungle.</p>
+    </div>
+</section>
+
+<section class="section bg-light">
+    <div class="container">
+        <div class="d-flex flex-wrap gap-2 justify-content-center mb-4">
+            <a href="?category=all" class="btn btn-sm {% if current_category == 'all' %}btn-primary{% else %}btn-outline-primary{% endif %} text-uppercase fw-semibold">
+                All
+            </a>
+            {% for category in categories %}
+            <a href="?category={{ category.slug }}" class="btn btn-sm {% if current_category == category.slug %}btn-primary{% else %}btn-outline-primary{% endif %} text-uppercase fw-semibold">
+                {{ category.name }}
+            </a>
+            {% empty %}
+            <span class="text-muted small">No categories available yet.</span>
+            {% endfor %}
+        </div>
+
+        {% if gallery_items %}
+        <div class="row g-4">
+            {% for item in gallery_items %}
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 shadow-sm h-100 gallery-card">
+                    <div class="gallery-media position-relative">
+                        {% if item.media_type == 'video' and item.video_file %}
+                        <div class="ratio ratio-16x9">
+                            <video class="w-100 h-100 rounded-top" controls poster="{{ item.video_thumbnail|default:item.image_placeholder }}">
+                                <source src="{{ item.video_file.url }}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                        {% else %}
+                        <div class="ratio ratio-4x3">
+                            <img src="{{ item.image_placeholder }}" alt="{{ item.title }}" class="img-fluid rounded-top">
+                        </div>
+                        {% endif %}
+                        {% if item.is_featured %}
+                        <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-3">Featured</span>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                            <h5 class="card-title mb-0">{{ item.title }}</h5>
+                            {% with item_categories=item.categories.all %}
+                            {% if item_categories %}
+                            <div class="d-flex flex-wrap gap-1">
+                                {% for cat in item_categories %}
+                                <span class="badge bg-primary-subtle text-primary text-uppercase small">{{ cat.name }}</span>
+                                {% endfor %}
+                            </div>
+                            {% elif item.get_category_display %}
+                            <span class="badge bg-primary-subtle text-primary text-uppercase small">{{ item.get_category_display }}</span>
+                            {% endif %}
+                            {% endwith %}
+                        </div>
+                        {% if item.description %}
+                        <p class="text-muted mb-0">{{ item.description }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if page_obj.has_other_pages %}
+        <nav class="mt-5" aria-label="Gallery pagination">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?category={{ current_category }}&page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                    <a class="page-link" href="?category={{ current_category }}&page={{ num }}">{{ num }}</a>
+                </li>
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?category={{ current_category }}&page={{ page_obj.next_page_number }}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+        {% else %}
+        <div class="text-center py-5">
+            <h3>Gallery Coming Soon</h3>
+            <p class="text-muted mb-3">Upload photos and videos via the admin dashboard to showcase Banbas Resort.</p>
+            <a href="{% url 'resort:contact' %}" class="btn btn-primary">Plan A Visit</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

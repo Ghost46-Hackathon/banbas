@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.http import JsonResponse
-from .models import RoomType, Amenity, Gallery, Contact, Resort, Activity, Blog, AboutPage
+from .models import RoomType, Amenity, Gallery, Contact, Resort, Activity, Blog, AboutPage, GalleryCategory
 from .forms import ContactForm
 from backoffice.email_service import BanbasEmailService
 
@@ -79,17 +79,34 @@ def amenities(request):
     return render(request, 'resort/amenities.html', context)
 
 
+def activities_list(request):
+    """Standalone activities listing page"""
+    activities = Activity.objects.filter(is_available=True).order_by('-is_featured', 'name')
+    featured = activities.filter(is_featured=True)
+    
+    context = {
+        'activities': activities,
+        'featured_activities': featured,
+    }
+    return render(request, 'resort/activities.html', context)
+
+
 def gallery(request):
     """Gallery page with filtering"""
-    category = request.GET.get('category', 'all')
+    category_slug = request.GET.get('category', 'all')
     
-    if category == 'all':
-        gallery_items = Gallery.objects.all()
-    else:
-        gallery_items = Gallery.objects.filter(category=category)
+    categories = GalleryCategory.objects.filter(is_active=True).order_by('display_order', 'name')
+    gallery_items = Gallery.objects.all()
+    selected_category = None
     
-    # Get all categories for filter buttons
-    categories = Gallery.objects.values_list('category', flat=True).distinct()
+    if category_slug != 'all':
+        selected_category = categories.filter(slug=category_slug).first()
+        if selected_category:
+            gallery_items = gallery_items.filter(categories=selected_category)
+        else:
+            # Fallback to legacy char field filtering if slug not found
+            gallery_items = gallery_items.filter(category=category_slug)
+    gallery_items = gallery_items.distinct()
     
     paginator = Paginator(gallery_items, 12)  # Show 12 images per page
     page_number = request.GET.get('page')
@@ -99,7 +116,8 @@ def gallery(request):
         'page_obj': page_obj,
         'gallery_items': page_obj,
         'categories': categories,
-        'current_category': category,
+        'current_category': category_slug,
+        'selected_category': selected_category,
     }
     return render(request, 'resort/gallery.html', context)
 

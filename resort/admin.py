@@ -1,5 +1,17 @@
 from django.contrib import admin
-from .models import RoomType, Amenity, Gallery, Contact, Resort, Activity, RoomGallery, Blog, AboutPage
+from .models import (
+    RoomType,
+    Amenity,
+    Gallery,
+    GalleryCategory,
+    Contact,
+    Resort,
+    Activity,
+    RoomGallery,
+    Blog,
+    AboutPage,
+    NavigationSettings,
+)
 
 
 @admin.register(AboutPage)
@@ -57,10 +69,10 @@ class RoomGalleryAdmin(admin.ModelAdmin):
 
 @admin.register(RoomType)
 class RoomTypeAdmin(admin.ModelAdmin):
-    list_display = ['name', 'max_occupancy', 'size_sqm', 'room_count', 'is_available', 'is_featured', 'created_at']
-    list_filter = ['max_occupancy', 'is_available', 'is_featured', 'has_ocean_view', 'has_balcony', 'is_suite']
+    list_display = ['name', 'max_occupancy', 'size_sqm', 'room_count', 'is_available', 'is_featured', 'show_price_publicly', 'created_at']
+    list_filter = ['max_occupancy', 'is_available', 'is_featured', 'show_price_publicly', 'has_ocean_view', 'has_balcony', 'is_suite']
     search_fields = ['name', 'description']
-    list_editable = ['is_available', 'is_featured']
+    list_editable = ['is_available', 'is_featured', 'show_price_publicly']
     ordering = ['name']
     inlines = [RoomGalleryInline]
     
@@ -78,7 +90,7 @@ class RoomTypeAdmin(admin.ModelAdmin):
             'fields': ('main_image',)
         }),
         ('Pricing & Availability', {
-            'fields': ('base_price', 'is_available', 'is_featured'),
+            'fields': ('base_price', 'show_price_publicly', 'is_available', 'is_featured'),
             'description': 'Base price is for admin reference only and not displayed to guests.'
         })
     )
@@ -93,22 +105,36 @@ class AmenityAdmin(admin.ModelAdmin):
     ordering = ['-is_featured', 'name']
 
 
+@admin.register(GalleryCategory)
+class GalleryCategoryAdmin(admin.ModelAdmin):
+    list_display = ['name', 'slug', 'is_active', 'display_order']
+    list_editable = ['is_active', 'display_order']
+    search_fields = ['name', 'slug']
+    ordering = ['display_order', 'name']
+    prepopulated_fields = {'slug': ('name',)}
+
+
 @admin.register(Gallery)
 class GalleryAdmin(admin.ModelAdmin):
-    list_display = ['title', 'media_type', 'category', 'is_featured', 'created_at']
-    list_filter = ['media_type', 'category', 'is_featured', 'created_at']
+    list_display = ['title', 'media_type', 'featured_categories', 'is_featured', 'created_at']
+    list_filter = ['media_type', 'is_featured', 'created_at', 'categories']
     search_fields = ['title', 'description']
-    list_editable = ['is_featured', 'category', 'media_type']
+    list_editable = ['is_featured', 'media_type']
     ordering = ['-is_featured', '-created_at']
+    filter_horizontal = ['categories']
     
     fieldsets = (
         ('Basic Information', {
-            'fields': ('title', 'description', 'category', 'is_featured')
+            'fields': ('title', 'description', 'categories', 'is_featured')
         }),
         ('Media Content', {
             'fields': ('media_type', 'image_placeholder', 'video_file', 'video_thumbnail')
         })
     )
+    
+    def featured_categories(self, obj):
+        return ", ".join(obj.categories.values_list('name', flat=True)) or "Uncategorized"
+    featured_categories.short_description = "Categories"
 
 
 @admin.register(Contact)
@@ -212,3 +238,28 @@ class BlogAdmin(admin.ModelAdmin):
     
     def get_queryset(self, request):
         return super().get_queryset(request)
+
+
+@admin.register(NavigationSettings)
+class NavigationSettingsAdmin(admin.ModelAdmin):
+    fieldsets = (
+        ('Primary Links', {
+            'fields': ('show_home', 'show_about', 'show_rooms', 'show_amenities', 'show_gallery', 'show_activities', 'show_blog', 'show_contact')
+        }),
+        ('Booking Button', {
+            'fields': ('show_book_button', 'book_button_label', 'book_button_url')
+        }),
+    )
+    list_display = ['__str__', 'updated_at', 'show_book_button']
+    readonly_fields = ['updated_at']
+
+    def has_add_permission(self, request):
+        if NavigationSettings.objects.exists():
+            return False
+        return super().has_add_permission(request)
+
+
+admin.site.site_header = "Banbas Resort Backoffice"
+admin.site.site_title = "Banbas Admin"
+admin.site.index_title = "Resort Operations Dashboard"
+admin.site.site_url = "/"

@@ -20,6 +20,71 @@ body {
     color: #333;
 }
 
+.nav-offset {
+    height: 120px;
+}
+
+@media (max-width: 768px) {
+    .nav-offset {
+        height: 90px;
+    }
+}
+
+.page-hero {
+    background: var(--primary-color);
+    color: #fff;
+    padding: calc(20vh + 2rem) 0 4.5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.page-hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top, rgba(255, 255, 255, 0.2), transparent 60%);
+    opacity: 0.3;
+}
+
+.page-hero .container {
+    position: relative;
+    z-index: 2;
+    max-width: 900px;
+}
+
+.page-hero .hero-kicker {
+    text-transform: uppercase;
+    letter-spacing: 0.35em;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.85);
+    margin-bottom: 1rem;
+}
+
+.page-hero h1 {
+    color: #fff;
+    font-size: clamp(2.2rem, 4vw, 3rem);
+}
+
+.page-hero p {
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 1.15rem;
+}
+
+.page-header {
+    color: #fff;
+}
+
+.page-header h1,
+.page-header p,
+.page-header .lead {
+    color: #fff;
+}
+
+.hero-offset {
+    margin-top: 0;
+}
+
 h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
     font-weight: 600;
@@ -49,35 +114,33 @@ h1, h2, h3, h4, h5, h6 {
 /* Navigation - TAJ Hotels Style */
 .navbar {
     padding: 1.2rem 0;
-    transition: all 0.4s ease;
-    background-color: transparent !important;
-    box-shadow: none;
-    
+    transition: padding 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1100;
 }
 
 .navbar.scrolled {
-    background-color: var(--primary-color) !important;
-    backdrop-filter: blur(20px);
-    padding: 0.8rem 0;
-    box-shadow: 0 2px 30px rgba(19, 74, 57, 0.3);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.9rem 0;
 }
 
-/* Initial transparent state */
 .navbar-initial {
     position: absolute;
-    top: 0;
-    width: 100%;
-    z-index: 1000;
-    background: linear-gradient(180deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.1) 50%, transparent 100%);
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0.1) 60%, transparent 100%);
+    box-shadow: none;
 }
 
-/* Scrolled sticky state */
 .navbar-sticky {
     position: fixed;
-    top: 0;
-    width: 100%;
-    z-index: 1000;
+    background-color: var(--primary-color);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.25);
+}
+
+.navbar-solid {
+    position: fixed;
+    background-color: var(--primary-color);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.25);
 }
 
 /* Logo/Brand styling */
@@ -902,6 +965,10 @@ html {
 
 /* Responsive Design - TAJ Style */
 @media (max-width: 768px) {
+    .page-hero {
+        padding: 7rem 0 3.5rem;
+    }
+    
     /* Activities responsive styling */
     .activity-card {
         margin-bottom: 2rem;
@@ -942,10 +1009,6 @@ html {
     
     .navbar {
         padding: 0.8rem 0;
-    }
-    
-    .navbar.scrolled {
-        padding: 0.6rem 0;
     }
     
     /* Mobile menu styling */
@@ -1017,4 +1080,9 @@ html {
     .navbar-brand {
         font-size: 1.5rem;
     }
+}
+.display-4.fw-bold.mb-3,
+.page-header .display-4,
+.page-header .fw-bold {
+    color: #fff !important;
 }

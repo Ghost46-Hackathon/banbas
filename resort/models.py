@@ -8,6 +8,7 @@ class RoomType(models.Model):
     description = models.TextField(help_text="Brief description for room cards")
     detailed_description = RichTextField(config_name='default', blank=True, help_text="Rich text content for room detail page")
     base_price = models.DecimalField(max_digits=10, decimal_places=2, help_text="Base price per night (for admin reference only)")
+    show_price_publicly = models.BooleanField(default=False, help_text="Toggle to display the price badge on the public rooms page")
     max_occupancy = models.IntegerField()
     size_sqm = models.IntegerField(help_text="Size in square meters")
     room_count = models.IntegerField(default=1, help_text="Number of available rooms of this type")
@@ -205,6 +206,22 @@ class Activity(models.Model):
         return [item.strip() for item in self.what_to_bring.split(',') if item.strip()]
 
 
+class GalleryCategory(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    slug = models.SlugField(max_length=100, unique=True)
+    description = models.CharField(max_length=200, blank=True)
+    display_order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['display_order', 'name']
+        verbose_name = "Gallery Category"
+        verbose_name_plural = "Gallery Categories"
+
+    def __str__(self):
+        return self.name
+
+
 class Gallery(models.Model):
     MEDIA_TYPE_CHOICES = [
         ('image', 'Image'),
@@ -217,6 +234,7 @@ class Gallery(models.Model):
     image_placeholder = models.CharField(max_length=200, default="https://via.placeholder.com/600x400/1e6b54/ffffff?text=Gallery+Image")
     video_file = models.FileField(upload_to='videos/', blank=True, null=True, help_text="Upload video file (MP4 recommended)")
     video_thumbnail = models.CharField(max_length=200, blank=True, help_text="Thumbnail image URL for video")
+    categories = models.ManyToManyField(GalleryCategory, blank=True, related_name='gallery_items', help_text="Select one or more categories for filtering on the gallery page.")
     category = models.CharField(max_length=50, choices=[
         ('rooms', 'Rooms'),
         ('amenities', 'Amenities'),
@@ -372,3 +390,26 @@ class Resort(models.Model):
             existing = Resort.objects.first()
             self.pk = existing.pk
         super().save(*args, **kwargs)
+
+
+class NavigationSettings(models.Model):
+    """Control visibility of header navigation items and booking button."""
+    show_home = models.BooleanField(default=True)
+    show_about = models.BooleanField(default=True)
+    show_rooms = models.BooleanField(default=True)
+    show_amenities = models.BooleanField(default=True)
+    show_gallery = models.BooleanField(default=True)
+    show_blog = models.BooleanField(default=True)
+    show_contact = models.BooleanField(default=True)
+    show_activities = models.BooleanField(default=True)
+    book_button_label = models.CharField(max_length=50, default="Book A Stay")
+    book_button_url = models.CharField(max_length=200, default="/contact/")
+    show_book_button = models.BooleanField(default=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Navigation Settings"
+        verbose_name_plural = "Navigation Settings"
+
+    def __str__(self):
+        return "Site Navigation Configuration"

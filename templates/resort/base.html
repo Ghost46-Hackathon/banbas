@@ -21,9 +21,10 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     {% block extra_css %}{% endblock %}
 </head>
-<body>
+{% with current=request.resolver_match.url_name %}
+<body class="{% if current == 'home' %}home-page{% else %}inner-page{% endif %}">
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light">
+    <nav class="navbar navbar-expand-lg navbar-light {% if current == 'home' %}navbar-home navbar-initial{% else %}navbar-solid navbar-sticky{% endif %}">
         <div class="container-fluid px-4">
             <!-- Logo - Far Left -->
             <a class="navbar-brand d-flex align-items-center" href="{% url 'resort:home' %}">
@@ -43,36 +44,62 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <!-- Centered Navigation Menu -->
                 <ul class="navbar-nav mx-auto">
+                    {% if nav_settings.show_home %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'resort:home' %}">HOME</a>
                     </li>
+                    {% endif %}
+                    {% if nav_settings.show_about %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'resort:about' %}">ABOUT</a>
                     </li>
+                    {% endif %}
+                    {% if nav_settings.show_rooms %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'resort:rooms' %}">ACCOMODATION</a>
                     </li>
+                    {% endif %}
+                    {% if nav_settings.show_amenities %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'resort:amenities' %}">AMENITIES</a>
                     </li>
+                    {% endif %}
+                    {% if nav_settings.show_gallery %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'resort:gallery' %}">GALLERY</a>
                     </li>
+                    {% endif %}
+                    {% if nav_settings.show_activities %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'resort:activities_list' %}">ACTIVITIES</a>
+                    </li>
+                    {% endif %}
+                    {% if nav_settings.show_blog %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'resort:blog_list' %}">BLOG</a>
                     </li>
+                    {% endif %}
+                    {% if nav_settings.show_contact %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'resort:contact' %}">CONTACT</a>
                     </li>
+                    {% endif %}
                 </ul>
                 
                 <!-- Right Side - Book a Stay -->
+                {% if nav_settings.show_book_button %}
+                {% url 'resort:contact' as contact_url %}
                 <div class="navbar-nav ms-auto">
-                    <a class="btn btn-primary book-stay-btn" href="{% url 'resort:contact' %}">BOOK A STAY</a>
+                    <a class="btn btn-primary book-stay-btn" href="{{ nav_settings.book_button_url|default:contact_url }}">{{ nav_settings.book_button_label }}</a>
                 </div>
+                {% endif %}
             </div>
         </div>
     </nav>
+
+    {% if current != 'home' %}
+    <div class="nav-offset"></div>
+    {% endif %}
 
     <!-- Main Content -->
     <main>
@@ -181,3 +208,4 @@
     {% block extra_js %}{% endblock %}
 </body>
 </html>
+{% endwith %}

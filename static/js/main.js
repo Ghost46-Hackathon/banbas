@@ -3,6 +3,9 @@
 // TAJ Hotels-style navbar scroll effect
 window.addEventListener('scroll', function() {
     const navbar = document.querySelector('.navbar');
+    if (!navbar) return;
+    const isHome = document.body.classList.contains('home-page');
+    if (!isHome) return;
     const scrollY = window.scrollY;
     
     if (scrollY > 100) {
@@ -18,10 +21,17 @@ window.addEventListener('scroll', function() {
     }
 });
 
-// Initialize navbar as transparent overlay
+// Initialize navbar state
 document.addEventListener('DOMContentLoaded', function() {
     const navbar = document.querySelector('.navbar');
-    navbar.classList.add('navbar-initial');
+    if (!navbar) return;
+    const isHome = document.body.classList.contains('home-page');
+    if (isHome) {
+        navbar.classList.add('navbar-initial');
+    } else {
+        navbar.classList.add('navbar-sticky');
+        navbar.classList.remove('navbar-initial');
+    }
     
     // Handle logo display
     handleLogoDisplay(navbar);
