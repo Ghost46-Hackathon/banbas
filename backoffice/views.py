@@ -16,6 +16,7 @@ import logging
 from .models import Reservation, UserProfile, ReservationAuditLog
 from .forms import ReservationForm, UserProfileForm
 from .currency_rates import EXCHANGE_RATES
+from .email_service import BanbasEmailService
 from resort.models import Contact
 
 
@@ -293,7 +294,16 @@ class ReservationCreateView(AgentRequiredMixin, CreateView):
             changes={'status': 'Created new reservation'}
         )
         
-        messages.success(self.request, f'Reservation for {self.object.guest_full_name} created successfully!')
+        # Send confirmation email to guest
+        try:
+            email_sent = BanbasEmailService.send_reservation_confirmation(self.object)
+            if email_sent:
+                messages.success(self.request, f'Reservation for {self.object.guest_full_name} created successfully! Confirmation email sent.')
+            else:
+                messages.warning(self.request, f'Reservation for {self.object.guest_full_name} created successfully! However, confirmation email could not be sent.')
+        except Exception as e:
+            messages.warning(self.request, f'Reservation for {self.object.guest_full_name} created successfully! However, confirmation email could not be sent: {str(e)}')
+        
         return response
 
 
@@ -465,10 +475,25 @@ class ConvertInquiryView(AgentRequiredMixin, TemplateView):
                 inquiry.is_read = True
                 inquiry.save()
             
-            messages.success(
-                request, 
-                f'Successfully created reservation for {reservation.guest_full_name} from inquiry "{inquiry.subject}".'
-            )
+            # Send confirmation email to guest
+            try:
+                email_sent = BanbasEmailService.send_reservation_confirmation(reservation)
+                if email_sent:
+                    messages.success(
+                        request, 
+                        f'Successfully created reservation for {reservation.guest_full_name} from inquiry "{inquiry.subject}". Confirmation email sent.'
+                    )
+                else:
+                    messages.warning(
+                        request, 
+                        f'Successfully created reservation for {reservation.guest_full_name} from inquiry "{inquiry.subject}". However, confirmation email could not be sent.'
+                    )
+            except Exception as e:
+                messages.warning(
+                    request, 
+                    f'Successfully created reservation for {reservation.guest_full_name} from inquiry "{inquiry.subject}". However, confirmation email could not be sent: {str(e)}'
+                )
+            
             return redirect('backoffice:reservation_detail', pk=reservation.pk)
         
         else:

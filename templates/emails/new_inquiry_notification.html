@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Contact Inquiry - {{ resort_name }}</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .email-container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #134a39, #2d6a4f);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 300;
+        }
+        .new-badge {
+            background-color: #dc3545;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 10px;
+            display: inline-block;
+        }
+        .content {
+            padding: 30px;
+        }
+        .inquiry-details {
+            background-color: #f8f9fa;
+            border-left: 4px solid #134a39;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 5px 5px 0;
+        }
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 5px 0;
+        }
+        .detail-label {
+            font-weight: 600;
+            color: #134a39;
+        }
+        .detail-value {
+            color: #666;
+        }
+        .message-content {
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            font-style: italic;
+        }
+        .action-button {
+            display: inline-block;
+            background-color: #134a39;
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .action-button:hover {
+            background-color: #2d6a4f;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #e9ecef;
+        }
+        @media (max-width: 600px) {
+            .detail-row {
+                flex-direction: column;
+            }
+            .detail-label {
+                margin-bottom: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h1>{{ resort_name }}</h1>
+            <div class="new-badge">NEW INQUIRY</div>
+        </div>
+        
+        <div class="content">
+            <h2 style="color: #134a39; margin-top: 0;">New Contact Inquiry Received</h2>
+            
+            <p>A new contact inquiry has been submitted through the resort website. Please review the details below and respond accordingly.</p>
+            
+            <div class="inquiry-details">
+                <h3 style="margin-top: 0; color: #134a39;">Inquiry Details</h3>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Name:</span>
+                    <span class="detail-value">{{ contact.name }}</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Email:</span>
+                    <span class="detail-value"><a href="mailto:{{ contact.email }}">{{ contact.email }}</a></span>
+                </div>
+                
+                {% if contact.phone %}
+                <div class="detail-row">
+                    <span class="detail-label">Phone:</span>
+                    <span class="detail-value"><a href="tel:{{ contact.phone }}">{{ contact.phone }}</a></span>
+                </div>
+                {% endif %}
+                
+                <div class="detail-row">
+                    <span class="detail-label">Subject:</span>
+                    <span class="detail-value"><strong>{{ contact.subject }}</strong></span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Submitted:</span>
+                    <span class="detail-value">{{ contact.created_at|date:"F d, Y \a\t g:i A" }}</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Status:</span>
+                    <span class="detail-value">
+                        {% if contact.is_read %}
+                            <span style="color: #28a745;">Read</span>
+                        {% else %}
+                            <span style="color: #dc3545;">Unread</span>
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+            
+            <div class="message-content">
+                <h4 style="margin-top: 0; color: #134a39;">Message:</h4>
+                <p>{{ contact.message|linebreaks }}</p>
+            </div>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="http://127.0.0.1:8000/_internal/inquiries/{{ contact.id }}/" class="action-button">
+                    View Full Inquiry Details
+                </a>
+            </div>
+            
+            <div style="background-color: #d1ecf1; border: 1px solid #bee5eb; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                <h4 style="margin-top: 0; color: #0c5460;">Recommended Actions:</h4>
+                <ul style="margin-bottom: 0;">
+                    <li>Review the inquiry details in the backoffice system</li>
+                    <li>Respond to the guest within 24 hours</li>
+                    <li>Convert to a reservation if appropriate</li>
+                    <li>Mark as read after responding</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p style="font-size: 12px; color: #666; margin: 0;">
+                This is an automated notification from the {{ resort_name }} management system.
+                Please log into the backoffice to manage this inquiry.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+

@@ -1,0 +1,1 @@
+web: gunicorn banbas_resort.wsgi --log-file -

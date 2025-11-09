@@ -4,6 +4,7 @@ from django.core.paginator import Paginator
 from django.http import JsonResponse
 from .models import RoomType, Amenity, Gallery, Contact, Resort, Activity
 from .forms import ContactForm
+from backoffice.email_service import BanbasEmailService
 
 
 def home(request):
@@ -110,8 +111,18 @@ def contact(request):
     if request.method == 'POST':
         form = ContactForm(request.POST)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Thank you for your message! We will get back to you soon.')
+            contact = form.save()
+            
+            # Send notification email to staff
+            try:
+                email_sent = BanbasEmailService.send_new_inquiry_notification(contact)
+                if email_sent:
+                    messages.success(request, 'Thank you for your message! We will get back to you soon. Our team has been notified.')
+                else:
+                    messages.success(request, 'Thank you for your message! We will get back to you soon.')
+            except Exception as e:
+                messages.success(request, 'Thank you for your message! We will get back to you soon.')
+            
             return redirect('resort:contact')
     else:
         form = ContactForm()

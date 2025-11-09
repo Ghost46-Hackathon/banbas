@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to {{ resort_name }}!</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .email-container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #134a39, #2d6a4f);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 300;
+        }
+        .welcome-badge {
+            background-color: #28a745;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 10px;
+            display: inline-block;
+        }
+        .content {
+            padding: 30px;
+        }
+        .greeting {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #134a39;
+        }
+        .highlight-section {
+            background-color: #e8f5e8;
+            border-left: 4px solid #134a39;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 5px 5px 0;
+        }
+        .amenities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .amenity-item {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .amenity-icon {
+            font-size: 24px;
+            color: #134a39;
+            margin-bottom: 10px;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #e9ecef;
+        }
+        .contact-info {
+            margin: 15px 0;
+        }
+        .contact-info a {
+            color: #134a39;
+            text-decoration: none;
+        }
+        .contact-info a:hover {
+            text-decoration: underline;
+        }
+        .button {
+            display: inline-block;
+            background-color: #134a39;
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .button:hover {
+            background-color: #2d6a4f;
+        }
+        @media (max-width: 600px) {
+            .amenities-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h1>{{ resort_name }}</h1>
+            <div class="welcome-badge">WELCOME!</div>
+        </div>
+        
+        <div class="content">
+            <div class="greeting">
+                Welcome to {{ resort_name }}, {{ guest_name }}!
+            </div>
+            
+            <p>We are absolutely delighted to welcome you to our tropical paradise! At {{ resort_name }}, we are committed to providing you with an unforgettable experience that combines luxury, comfort, and the natural beauty of our stunning location.</p>
+            
+            <div class="highlight-section">
+                <h3 style="margin-top: 0; color: #134a39;">What Makes Us Special</h3>
+                <ul>
+                    <li><strong>Prime Location:</strong> Situated on a pristine beach with breathtaking ocean views</li>
+                    <li><strong>Luxury Accommodations:</strong> Spacious rooms and suites designed for ultimate comfort</li>
+                    <li><strong>World-Class Amenities:</strong> From infinity pools to spa services</li>
+                    <li><strong>Exceptional Service:</strong> Our dedicated team is here to make your stay perfect</li>
+                    <li><strong>Dining Excellence:</strong> Fresh, local cuisine prepared by our talented chefs</li>
+                </ul>
+            </div>
+            
+            <h3 style="color: #134a39;">Resort Amenities</h3>
+            <div class="amenities-grid">
+                <div class="amenity-item">
+                    <div class="amenity-icon">🏊‍♂️</div>
+                    <strong>Infinity Pool</strong>
+                </div>
+                <div class="amenity-item">
+                    <div class="amenity-icon">🏖️</div>
+                    <strong>Private Beach</strong>
+                </div>
+                <div class="amenity-item">
+                    <div class="amenity-icon">🍽️</div>
+                    <strong>Fine Dining</strong>
+                </div>
+                <div class="amenity-item">
+                    <div class="amenity-icon">💆‍♀️</div>
+                    <strong>Spa Services</strong>
+                </div>
+                <div class="amenity-item">
+                    <div class="amenity-icon">🏃‍♂️</div>
+                    <strong>Fitness Center</strong>
+                </div>
+                <div class="amenity-item">
+                    <div class="amenity-icon">🚗</div>
+                    <strong>Concierge</strong>
+                </div>
+            </div>
+            
+            <p>Whether you're here for a romantic getaway, family vacation, or business retreat, we have everything you need to make your stay exceptional. Our concierge team is available 24/7 to assist with any requests or recommendations.</p>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="{{ resort_website }}/rooms/" class="button">
+                    Explore Our Rooms
+                </a>
+                <a href="{{ resort_website }}/amenities/" class="button">
+                    View Amenities
+                </a>
+            </div>
+            
+            <p>We can't wait to welcome you to {{ resort_name }} and create memories that will last a lifetime!</p>
+            
+            <p>Warm regards,<br>
+            The {{ resort_name }} Team</p>
+        </div>
+        
+        <div class="footer">
+            <div class="contact-info">
+                <strong>{{ resort_name }}</strong><br>
+                {{ resort_address }}<br>
+                Phone: <a href="tel:{{ resort_phone }}">{{ resort_phone }}</a><br>
+                Email: <a href="mailto:{{ resort_email }}">{{ resort_email }}</a><br>
+                Website: <a href="{{ resort_website }}">{{ resort_website }}</a>
+            </div>
+            
+            <p style="font-size: 12px; color: #666; margin-top: 20px;">
+                Follow us on social media for updates and special offers!
+            </p>
+        </div>
+    </div>
+</body>
+</html>

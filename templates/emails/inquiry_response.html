@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Response to Your Inquiry - {{ resort_name }}</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .email-container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #134a39, #2d6a4f);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 300;
+        }
+        .content {
+            padding: 30px;
+        }
+        .greeting {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #134a39;
+        }
+        .original-inquiry {
+            background-color: #f8f9fa;
+            border-left: 4px solid #6c757d;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 5px 5px 0;
+        }
+        .response-content {
+            background-color: #e8f5e8;
+            border-left: 4px solid #134a39;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 5px 5px 0;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #e9ecef;
+        }
+        .contact-info {
+            margin: 15px 0;
+        }
+        .contact-info a {
+            color: #134a39;
+            text-decoration: none;
+        }
+        .contact-info a:hover {
+            text-decoration: underline;
+        }
+        .button {
+            display: inline-block;
+            background-color: #134a39;
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .button:hover {
+            background-color: #2d6a4f;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h1>{{ resort_name }}</h1>
+            <p>Your Paradise Awaits</p>
+        </div>
+        
+        <div class="content">
+            <div class="greeting">
+                Dear {{ contact.name }},
+            </div>
+            
+            <p>Thank you for your inquiry regarding "{{ contact.subject }}". We appreciate your interest in {{ resort_name }} and are pleased to provide you with the following response:</p>
+            
+            <div class="response-content">
+                <h3 style="margin-top: 0; color: #134a39;">Our Response</h3>
+                <p>{{ response_message|linebreaks }}</p>
+                <p style="margin-bottom: 0;"><strong>Responded by:</strong> {{ responded_by.get_full_name|default:responded_by.username }}</p>
+            </div>
+            
+            <div class="original-inquiry">
+                <h4 style="margin-top: 0; color: #6c757d;">Your Original Inquiry</h4>
+                <p><strong>Subject:</strong> {{ contact.subject }}</p>
+                <p><strong>Message:</strong></p>
+                <p style="font-style: italic;">{{ contact.message|linebreaks }}</p>
+            </div>
+            
+            <p>If you have any additional questions or would like to proceed with a reservation, please don't hesitate to contact us. We are here to help make your stay at {{ resort_name }} truly memorable.</p>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="{{ resort_website }}/contact/" class="button">
+                    Contact Us Again
+                </a>
+            </div>
+            
+            <p>We look forward to welcoming you to {{ resort_name }}!</p>
+            
+            <p>Best regards,<br>
+            The {{ resort_name }} Team</p>
+        </div>
+        
+        <div class="footer">
+            <div class="contact-info">
+                <strong>{{ resort_name }}</strong><br>
+                Phone: <a href="tel:{{ resort_phone }}">{{ resort_phone }}</a><br>
+                Email: <a href="mailto:{{ resort_email }}">{{ resort_email }}</a><br>
+                Website: <a href="{{ resort_website }}">{{ resort_website }}</a>
+            </div>
+            
+            <p style="font-size: 12px; color: #666; margin-top: 20px;">
+                This email is in response to your inquiry submitted on {{ contact.created_at|date:"F d, Y" }}.
+                If you have any questions, please contact us at {{ resort_email }}.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+
+
+
