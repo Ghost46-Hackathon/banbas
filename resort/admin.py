@@ -1,5 +1,24 @@
 from django.contrib import admin
-from .models import RoomType, Amenity, Gallery, Contact, Resort, Activity, RoomGallery
+from .models import RoomType, Amenity, Gallery, Contact, Resort, Activity, RoomGallery, Blog, AboutPage
+
+
+@admin.register(AboutPage)
+class AboutPageAdmin(admin.ModelAdmin):
+    list_display = ['title', 'updated_at']
+    fieldsets = (
+        ('Page Content', {
+            'fields': ('title', 'subtitle', 'main_image', 'secondary_image')
+        }),
+        ('Founder\'s Narrative', {
+            'fields': ('founders_narrative_title', 'founders_narrative_content', 'founders_narrative_image')
+        }),
+        ('Management Partnership', {
+            'fields': ('management_partnership_title', 'management_partnership_content', 'management_partnership_image')
+        }),
+        ('Vision and Design', {
+            'fields': ('vision_and_design_title', 'vision_and_design_content', 'vision_and_design_image')
+        }),
+    )
 
 
 @admin.register(Resort)
@@ -158,3 +177,38 @@ class ActivityAdmin(admin.ModelAdmin):
             'all': ('admin/css/activity_admin.css',)
         }
         js = ('admin/js/activity_admin.js',)
+
+
+@admin.register(Blog)
+class BlogAdmin(admin.ModelAdmin):
+    list_display = ['title', 'category', 'author', 'is_published', 'is_featured', 'published_date', 'created_at']
+    list_filter = ['category', 'is_published', 'is_featured', 'published_date', 'created_at']
+    search_fields = ['title', 'content', 'author', 'excerpt']
+    list_editable = ['is_published', 'is_featured']
+    prepopulated_fields = {'slug': ('title',)}
+    ordering = ['-published_date', '-created_at']
+    date_hierarchy = 'published_date'
+    
+    fieldsets = (
+        ('Basic Information', {
+            'fields': ('title', 'slug', 'author', 'category')
+        }),
+        ('Content', {
+            'fields': ('content', 'excerpt'),
+            'description': 'Use the rich text editor to format your blog post. Excerpt is auto-generated if left empty.'
+        }),
+        ('Media', {
+            'fields': ('featured_image',)
+        }),
+        ('Publishing', {
+            'fields': ('is_published', 'is_featured', 'published_date'),
+            'description': 'Published date is automatically set when first published.'
+        }),
+        ('SEO', {
+            'fields': ('meta_description',),
+            'classes': ('collapse',)
+        })
+    )
+    
+    def get_queryset(self, request):
+        return super().get_queryset(request)

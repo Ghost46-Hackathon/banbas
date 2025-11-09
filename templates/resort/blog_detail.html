@@ -1,0 +1,154 @@
+{% extends 'resort/base.html' %}
+{% load static %}
+
+{% block title %}{{ blog_post.title }} - Banbas Resort Blog{% endblock %}
+
+{% block content %}
+<!-- Blog Post Header -->
+<section class="blog-header" style="margin-top: 76px;">
+    <div class="position-relative">
+        <img src="{{ blog_post.featured_image }}" alt="{{ blog_post.title }}" class="w-100" style="height: 400px; object-fit: cover; filter: brightness(0.7);">
+        <div class="position-absolute top-50 start-50 translate-middle text-center text-white w-100 px-3">
+            <span class="badge bg-primary mb-3">{{ blog_post.get_category_display }}</span>
+            <h1 class="display-4 fw-bold mb-3">{{ blog_post.title }}</h1>
+            <div class="d-flex justify-content-center align-items-center gap-3 flex-wrap">
+                <span><i class="far fa-user"></i> {{ blog_post.author }}</span>
+                <span>•</span>
+                <span><i class="far fa-calendar"></i> {{ blog_post.published_date|date:"F d, Y" }}</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Blog Post Content -->
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Blog Content -->
+                <article class="blog-content mb-5">
+                    {{ blog_post.content|safe }}
+                </article>
+
+                <hr class="my-5">
+
+                <!-- Share Section -->
+                <div class="text-center mb-5">
+                    <h5 class="mb-3">Share this post</h5>
+                    <div class="d-flex justify-content-center gap-2">
+                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                            <i class="fab fa-facebook-f"></i> Facebook
+                        </a>
+                        <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ blog_post.title }}" target="_blank" class="btn btn-outline-info btn-sm">
+                            <i class="fab fa-twitter"></i> Twitter
+                        </a>
+                        <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ request.build_absolute_uri }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                            <i class="fab fa-linkedin-in"></i> LinkedIn
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Back to Blog -->
+                <div class="text-center">
+                    <a href="{% url 'resort:blog_list' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-left me-2"></i> Back to Blog
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Related Posts -->
+{% if related_posts %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center fw-bold mb-5">Related Posts</h2>
+        <div class="row g-4">
+            {% for post in related_posts %}
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 shadow-sm hover-lift">
+                    <img src="{{ post.featured_image }}" class="card-img-top" alt="{{ post.title }}" style="height: 200px; object-fit: cover;">
+                    <div class="card-body">
+                        <span class="badge bg-primary mb-2">{{ post.get_category_display }}</span>
+                        <h5 class="card-title fw-bold">{{ post.title }}</h5>
+                        <p class="card-text text-muted small">{{ post.excerpt|truncatewords:15 }}</p>
+                        <a href="{% url 'resort:blog_detail' post.slug %}" class="btn btn-sm btn-outline-primary">
+                            Read More <i class="fas fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- CTA Section -->
+<section class="py-5" style="background: linear-gradient(135deg, #134a39 0%, #1e6b54 100%);">
+    <div class="container text-center text-white">
+        <h2 class="fw-bold mb-3">Ready to Experience Paradise?</h2>
+        <p class="lead mb-4">Book your stay at Banbas Resort today</p>
+        <a href="{% url 'resort:contact' %}" class="btn btn-light btn-lg">
+            Book Your Stay <i class="fas fa-arrow-right ms-2"></i>
+        </a>
+    </div>
+</section>
+
+<style>
+.blog-content {
+    font-size: 1.1rem;
+    line-height: 1.8;
+}
+
+.blog-content h2 {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.blog-content h3 {
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+}
+
+.blog-content p {
+    margin-bottom: 1.5rem;
+}
+
+.blog-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 1.5rem 0;
+}
+
+.blog-content ul, .blog-content ol {
+    margin-bottom: 1.5rem;
+    padding-left: 2rem;
+}
+
+.blog-content li {
+    margin-bottom: 0.5rem;
+}
+
+.blog-content blockquote {
+    border-left: 4px solid #1e6b54;
+    padding-left: 1.5rem;
+    margin: 1.5rem 0;
+    font-style: italic;
+    color: #555;
+}
+
+.hover-lift {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
+}
+</style>
+{% endblock %}

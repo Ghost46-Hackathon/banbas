@@ -26,9 +26,9 @@ class Command(BaseCommand):
         )
         
         if created:
-            self.stdout.write('✓ Resort information created')
+            self.stdout.write('[OK] Resort information created')
         else:
-            self.stdout.write('✓ Resort information already exists')
+            self.stdout.write('[OK] Resort information already exists')
 
         # Create Room Types
         rooms_data = [
@@ -85,7 +85,7 @@ class Command(BaseCommand):
                 defaults=room_data
             )
             if created:
-                self.stdout.write(f'✓ Created room: {room.name}')
+                self.stdout.write(f'[OK] Created room: {room.name}')
 
         # Create Amenities
         amenities_data = [
@@ -153,7 +153,7 @@ class Command(BaseCommand):
                 defaults=amenity_data
             )
             if created:
-                self.stdout.write(f'✓ Created amenity: {amenity.name}')
+                self.stdout.write(f'[OK] Created amenity: {amenity.name}')
 
         # Create Gallery Items
         gallery_data = [
@@ -221,7 +221,7 @@ class Command(BaseCommand):
                 defaults=gallery_item_data
             )
             if created:
-                self.stdout.write(f'✓ Created gallery item: {gallery_item.title}')
+                self.stdout.write(f'[OK] Created gallery item: {gallery_item.title}')
 
         # Create some sample contact messages
         sample_contacts = [
@@ -250,7 +250,7 @@ class Command(BaseCommand):
                 defaults=contact_data
             )
             if created:
-                self.stdout.write(f'✓ Created contact message from: {contact.name}')
+                self.stdout.write(f'[OK] Created contact message from: {contact.name}')
 
         self.stdout.write(self.style.SUCCESS('\nSample data population completed successfully!'))
         self.stdout.write(self.style.SUCCESS('You can now access the website and admin panel.'))

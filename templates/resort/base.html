@@ -19,7 +19,6 @@
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    
     {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -58,6 +57,9 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'resort:gallery' %}">GALLERY</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'resort:blog_list' %}">BLOG</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'resort:contact' %}">CONTACT</a>
@@ -132,6 +134,7 @@
                     <h6 class="fw-semibold mb-3">Services</h6>
                     <ul class="list-unstyled">
                         <li class="mb-2"><a href="{% url 'resort:gallery' %}" class="text-light text-decoration-none">Gallery</a></li>
+                        <li class="mb-2"><a href="{% url 'resort:blog_list' %}" class="text-light text-decoration-none">Blog</a></li>
                         <li class="mb-2"><a href="{% url 'resort:contact' %}" class="text-light text-decoration-none">Contact</a></li>
                         <li class="mb-2"><a href="#" class="text-light text-decoration-none">Reservations</a></li>
                         <li class="mb-2"><a href="#" class="text-light text-decoration-none">Special Offers</a></li>

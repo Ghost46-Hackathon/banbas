@@ -1,0 +1,74 @@
+{% extends 'resort/base.html' %}
+{% load static %}
+
+{% block title %}About Us | {{ resort.name }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/about.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-wrap hero-wrap-2" style="background-image: url('{{ about_page.main_image }}');" data-stellar-background-ratio="0.5">
+    <div class="overlay"></div>
+    <div class="container">
+        <div class="row no-gutters slider-text align-items-center justify-content-center">
+            <div class="col-md-9 ftco-animate text-center">
+                <h1 class="mb-0 bread">{{ about_page.title }}</h1>
+                <p>{{ about_page.subtitle }}</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="ftco-section ftco-no-pt ftco-no-pb">
+    <div class="container">
+        <div class="row d-flex">
+            <div class="col-md-6 d-flex">
+                <div class="img img-2 w-100 mr-md-2" style="background-image: url({{ about_page.founders_narrative_image }});"></div>
+            </div>
+            <div class="col-md-6 ftco-animate maker-bio p-md-5">
+                <div class="heading-section ftco-animate mb-5">
+                    <span class="subheading">{{ about_page.founders_narrative_title }}</span>
+                    <h2 class="mb-4">{{ about_page.founders_narrative_title }}</h2>
+                    {{ about_page.founders_narrative_content|safe }}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="ftco-section bg-light">
+    <div class="container">
+        <div class="row d-flex">
+            <div class="col-md-6 ftco-animate maker-bio p-md-5">
+                <div class="heading-section ftco-animate mb-5">
+                    <span class="subheading">{{ about_page.management_partnership_title }}</span>
+                    <h2 class="mb-4">{{ about_page.management_partnership_title }}</h2>
+                    {{ about_page.management_partnership_content|safe }}
+                </div>
+            </div>
+            <div class="col-md-6 d-flex">
+                <div class="img img-2 w-100 mr-md-2" style="background-image: url({{ about_page.management_partnership_image }});"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="ftco-section">
+    <div class="container">
+        <div class="row d-flex">
+            <div class="col-md-6 d-flex">
+                <div class="img img-2 w-100 mr-md-2" style="background-image: url({{ about_page.vision_and_design_image }});"></div>
+            </div>
+            <div class="col-md-6 ftco-animate maker-bio p-md-5">
+                <div class="heading-section ftco-animate mb-5">
+                    <span class="subheading">{{ about_page.vision_and_design_title }}</span>
+                    <h2 class="mb-4">{{ about_page.vision_and_design_title }}</h2>
+                    {{ about_page.vision_and_design_content|safe }}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

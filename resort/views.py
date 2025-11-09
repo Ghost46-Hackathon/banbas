@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.http import JsonResponse
-from .models import RoomType, Amenity, Gallery, Contact, Resort, Activity
+from .models import RoomType, Amenity, Gallery, Contact, Resort, Activity, Blog, AboutPage
 from .forms import ContactForm
 from backoffice.email_service import BanbasEmailService
 
@@ -136,12 +136,12 @@ def contact(request):
 
 def about(request):
     """About page"""
+    about_page = AboutPage.objects.first()
     resort = Resort.objects.first()
-    amenities = Amenity.objects.filter(is_featured=True)[:4]
     
     context = {
+        'about_page': about_page,
         'resort': resort,
-        'amenities': amenities,
     }
     return render(request, 'resort/about.html', context)
 
@@ -158,3 +158,43 @@ def activity_detail(request, pk):
         'resort': resort,
     }
     return render(request, 'resort/activity_detail.html', context)
+
+
+def blog_list(request):
+    """Blog listing page"""
+    category = request.GET.get('category', 'all')
+    
+    # Only show published blog posts
+    if category == 'all':
+        blog_posts = Blog.objects.filter(is_published=True)
+    else:
+        blog_posts = Blog.objects.filter(is_published=True, category=category)
+    
+    # Get all categories for filter buttons
+    categories = Blog.objects.filter(is_published=True).values_list('category', flat=True).distinct()
+    
+    paginator = Paginator(blog_posts, 9)  # Show 9 blog posts per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'page_obj': page_obj,
+        'blog_posts': page_obj,
+        'categories': categories,
+        'current_category': category,
+    }
+    return render(request, 'resort/blog_list.html', context)
+
+
+def blog_detail(request, slug):
+    """Individual blog post detail page"""
+    blog_post = get_object_or_404(Blog, slug=slug, is_published=True)
+    related_posts = Blog.objects.filter(is_published=True).exclude(slug=slug)[:3]
+    resort = Resort.objects.first()
+    
+    context = {
+        'blog_post': blog_post,
+        'related_posts': related_posts,
+        'resort': resort,
+    }
+    return render(request, 'resort/blog_detail.html', context)

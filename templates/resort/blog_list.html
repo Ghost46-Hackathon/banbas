@@ -1,0 +1,129 @@
+{% extends 'resort/base.html' %}
+{% load static %}
+
+{% block title %}Blog - Banbas Resort{% endblock %}
+
+{% block content %}
+<!-- Blog Header -->
+<section class="page-header py-5" style="background: linear-gradient(135deg, #134a39 0%, #1e6b54 100%); margin-top: 76px;">
+    <div class="container text-center text-white">
+        <h1 class="display-4 fw-bold mb-3">Resort Blog</h1>
+        <p class="lead mb-0">News, tips, and stories from paradise</p>
+    </div>
+</section>
+
+<!-- Category Filter -->
+<section class="py-4 bg-light">
+    <div class="container">
+        <div class="d-flex flex-wrap justify-content-center gap-2">
+            <a href="{% url 'resort:blog_list' %}" class="btn btn-sm {% if current_category == 'all' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                All Posts
+            </a>
+            {% for category_value, category_label in blog_posts.model.CATEGORY_CHOICES %}
+                {% if category_value in categories %}
+                <a href="?category={{ category_value }}" class="btn btn-sm {% if current_category == category_value %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                    {{ category_label }}
+                </a>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Blog Posts Grid -->
+<section class="py-5">
+    <div class="container">
+        {% if blog_posts %}
+            <div class="row g-4">
+                {% for post in blog_posts %}
+                <div class="col-lg-4 col-md-6">
+                    <div class="card h-100 shadow-sm hover-lift">
+                        <img src="{{ post.featured_image }}" class="card-img-top" alt="{{ post.title }}" style="height: 250px; object-fit: cover;">
+                        <div class="card-body d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-primary">{{ post.get_category_display }}</span>
+                                <small class="text-muted">
+                                    <i class="far fa-calendar"></i> 
+                                    {{ post.published_date|date:"M d, Y" }}
+                                </small>
+                            </div>
+                            <h5 class="card-title fw-bold">{{ post.title }}</h5>
+                            <p class="card-text text-muted">{{ post.excerpt|truncatewords:20 }}</p>
+                            <div class="mt-auto">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <i class="far fa-user"></i> {{ post.author }}
+                                    </small>
+                                    <a href="{% url 'resort:blog_detail' post.slug %}" class="btn btn-sm btn-outline-primary">
+                                        Read More <i class="fas fa-arrow-right ms-1"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+            <nav class="mt-5">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if current_category != 'all' %}&category={{ current_category }}{% endif %}">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% if current_category != 'all' %}&category={{ current_category }}{% endif %}">{{ num }}</a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if current_category != 'all' %}&category={{ current_category }}{% endif %}">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-blog fa-4x text-muted mb-3"></i>
+                <h3 class="text-muted">No Blog Posts Yet</h3>
+                <p class="text-muted">Check back soon for updates and stories from Banbas Resort!</p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<style>
+.hover-lift {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
+}
+
+.card-img-top {
+    transition: transform 0.3s ease;
+}
+
+.card:hover .card-img-top {
+    transform: scale(1.05);
+    overflow: hidden;
+}
+</style>
+{% endblock %}

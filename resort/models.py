@@ -251,6 +251,94 @@ class Contact(models.Model):
         return f"{self.name} - {self.subject}"
 
 
+class Blog(models.Model):
+    """Blog post model with rich text editor"""
+    CATEGORY_CHOICES = [
+        ('resort', 'Resort News'),
+        ('travel', 'Travel Tips'),
+        ('local', 'Local Attractions'),
+        ('food', 'Food & Dining'),
+        ('events', 'Events'),
+        ('general', 'General'),
+    ]
+    
+    title = models.CharField(max_length=200, help_text="Blog post title")
+    slug = models.SlugField(max_length=200, unique=True, help_text="URL-friendly version of title")
+    content = RichTextField(config_name='default', help_text="Blog post content with rich text formatting")
+    excerpt = models.TextField(max_length=300, blank=True, help_text="Short description for blog list (auto-generated if empty)")
+    author = models.CharField(max_length=100, default="Banbas Resort", help_text="Author name")
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='general')
+    featured_image = models.CharField(
+        max_length=300,
+        default="https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        help_text="Featured image URL for the blog post"
+    )
+    
+    # Publishing
+    is_published = models.BooleanField(default=False, help_text="Publish this blog post")
+    is_featured = models.BooleanField(default=False, help_text="Feature on homepage")
+    published_date = models.DateTimeField(blank=True, null=True, help_text="Date to publish (leave blank for now)")
+    
+    # SEO
+    meta_description = models.CharField(max_length=160, blank=True, help_text="SEO meta description")
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-published_date', '-created_at']
+        verbose_name_plural = "Blog Posts"
+    
+    def __str__(self):
+        return self.title
+    
+    def get_absolute_url(self):
+        return reverse('resort:blog_detail', kwargs={'slug': self.slug})
+    
+    def save(self, *args, **kwargs):
+        # Auto-generate slug if not provided
+        if not self.slug:
+            from django.utils.text import slugify
+            self.slug = slugify(self.title)
+        
+        # Auto-generate excerpt if not provided
+        if not self.excerpt and self.content:
+            from django.utils.html import strip_tags
+            plain_content = strip_tags(self.content)
+            self.excerpt = plain_content[:297] + '...' if len(plain_content) > 300 else plain_content
+        
+        # Set published_date if publishing for the first time
+        if self.is_published and not self.published_date:
+            from django.utils import timezone
+            self.published_date = timezone.now()
+        
+        super().save(*args, **kwargs)
+
+
+class AboutPage(models.Model):
+    title = models.CharField(max_length=200, default="OUR STORY")
+    subtitle = models.CharField(max_length=300, default="Story Behind Banbas | Sustainability | Chitwan National Park")
+    founders_narrative_title = models.CharField(max_length=200, default="Bashu Dhungana's Life Work")
+    founders_narrative_content = RichTextField(config_name='default', blank=True)
+    founders_narrative_image = models.CharField(max_length=300, default="https://www.banbasresort.com/static/img/b.jpg")
+    management_partnership_title = models.CharField(max_length=200, default="Management Partnership")
+    management_partnership_content = RichTextField(config_name='default', blank=True)
+    management_partnership_image = models.CharField(max_length=300, default="https://www.banbasresort.com/static/img/c.jpg")
+    vision_and_design_title = models.CharField(max_length=200, default="Vision and Design")
+    vision_and_design_content = RichTextField(config_name='default', blank=True)
+    vision_and_design_image = models.CharField(max_length=300, default="https://www.banbasresort.com/static/img/a.jpg")
+    main_image = models.CharField(max_length=300, default="https://images.unsplash.com/photo-1516426122078-c23e76319801?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80")
+    secondary_image = models.CharField(max_length=300, default="https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80")
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        verbose_name_plural = "About Page"
+
+
 class Resort(models.Model):
     """Single instance model for resort information"""
     name = models.CharField(max_length=100, default="Banbas Resort")
