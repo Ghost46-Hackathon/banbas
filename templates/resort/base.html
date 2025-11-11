@@ -23,7 +23,7 @@
 </head>
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light">
+    <nav class="navbar navbar-expand-lg navbar-light {% if request.path != '/' %}navbar-green{% endif %}">
         <div class="container-fluid px-4">
             <!-- Logo - Far Left -->
             <a class="navbar-brand d-flex align-items-center" href="{% url 'resort:home' %}">

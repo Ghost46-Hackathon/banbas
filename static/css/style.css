@@ -26,6 +26,38 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--dark-color);
 }
 
+/* Page Header - Ensure white text on green backgrounds */
+.page-header {
+    color: white !important;
+}
+
+.page-header h1,
+.page-header h2,
+.page-header h3,
+.page-header p,
+.page-header .lead {
+    color: white !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Ensure all green backgrounds have white text */
+.bg-primary,
+.bg-primary *,
+[style*="background: linear-gradient"][style*="#134a39"],
+[style*="background: linear-gradient"][style*="#1e6b54"] {
+    color: white !important;
+}
+
+.bg-primary h1,
+.bg-primary h2,
+.bg-primary h3,
+.bg-primary h4,
+.bg-primary h5,
+.bg-primary h6 {
+    color: white !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
 .btn-primary {
     background-color: var(--primary-color);
     border-color: var(--primary-color);
@@ -61,6 +93,32 @@ h1, h2, h3, h4, h5, h6 {
     padding: 0.8rem 0;
     box-shadow: 0 2px 30px rgba(19, 74, 57, 0.3);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Green navbar for non-home pages */
+.navbar-green {
+    background-color: var(--primary-color) !important;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 2px 30px rgba(19, 74, 57, 0.3);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+.navbar-green .navbar-brand,
+.navbar-green .nav-link,
+.navbar-green .navbar-toggler-icon {
+    color: white !important;
+}
+
+.navbar-green .nav-link {
+    text-shadow: none;
+}
+
+.navbar-green .nav-link:hover {
+    color: rgba(255, 255, 255, 0.8) !important;
 }
 
 /* Initial transparent state */
@@ -343,6 +401,37 @@ h1, h2, h3, h4, h5, h6 {
 /* Sections */
 .section {
     padding: 80px 0;
+}
+
+/* Call to Action Section */
+.cta-section {
+    background: linear-gradient(135deg, #134a39 0%, #1e6b54 100%);
+    padding: 100px 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(%23grid)"/></svg>');
+    opacity: 0.3;
+}
+
+.cta-section .container {
+    position: relative;
+    z-index: 1;
+}
+
+.cta-section h2,
+.cta-section p,
+.cta-section .lead {
+    color: white !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .section-title {
@@ -754,9 +843,28 @@ h1, h2, h3, h4, h5, h6 {
     transition: all 0.3s ease;
 }
 
+/* Default state - green heading, black text */
+.amenity-card h5 {
+    color: var(--primary-color);
+    transition: color 0.3s ease;
+}
+
+.amenity-card p {
+    color: #333;
+    transition: color 0.3s ease;
+}
+
+/* Hover state - white text on green background */
 .amenity-card:hover {
     background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-    color: white;
+    color: white !important;
+}
+
+.amenity-card:hover h5,
+.amenity-card:hover h6,
+.amenity-card:hover p {
+    color: white !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .amenity-icon {
@@ -767,7 +875,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .amenity-card:hover .amenity-icon {
-    color: white;
+    color: white !important;
 }
 
 /* Room Details */
