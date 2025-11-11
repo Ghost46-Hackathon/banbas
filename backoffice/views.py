@@ -682,7 +682,25 @@ class ReservationDeleteView(LoginRequiredMixin, DetailView):
     model = Reservation
     template_name = 'backoffice/reservation_confirm_delete.html'
     context_object_name = 'reservation'
-    
+
+    def dispatch(self, request, *args, **kwargs):
+        # Allow admins to delete any reservation and agents to delete only their own
+        try:
+            profile = request.user.userprofile
+        except UserProfile.DoesNotExist:
+            return HttpResponseForbidden("Access denied")
+
+        # Fetch target reservation for ownership check
+        obj = get_object_or_404(Reservation, pk=kwargs.get('pk'))
+        is_admin = (profile.role == 'admin')
+        is_owner = (obj.created_by_id == request.user.id)
+
+        if not (is_admin or is_owner):
+            messages.error(request, 'You can only delete reservations you created. Administrators can delete all reservations.')
+            return redirect('backoffice:reservation_detail', pk=kwargs['pk'])
+
+        return super().dispatch(request, *args, **kwargs)
+
     def post(self, request, *args, **kwargs):
         reservation = self.get_object()
         

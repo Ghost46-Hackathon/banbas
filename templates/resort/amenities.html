@@ -1,0 +1,85 @@
+{% extends 'resort/base.html' %}
+{% load static %}
+
+{% block title %}Amenities - Banbas Resort{% endblock %}
+
+{% block content %}
+<section class="page-header py-5" style="background: linear-gradient(135deg, #134a39 0%, #1e6b54 100%); margin-top: 70px;">
+    <div class="container text-center text-white">
+        <h1 class="display-4 fw-bold mb-3">Amenities & Signature Services</h1>
+        <p class="lead mb-0">Every detail is considered to keep you relaxed, inspired, and connected to nature.</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        {% if featured_amenities %}
+        <div class="section-title text-center mb-5">
+            <p class="text-uppercase text-muted mb-2" style="letter-spacing: 0.2em;">Guest Favorites</p>
+            <h2 class="fw-bold">Featured Experiences</h2>
+            <p class="text-muted">Signature amenities curated to complement your stay.</p>
+        </div>
+        <div class="row g-4 mb-5">
+            {% for amenity in featured_amenities %}
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 border-0 shadow-lg amenity-feature-card text-center p-4">
+                    <div class="amenity-icon mb-3">
+                        <i class="{{ amenity.icon_class }} fa-2x text-primary"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">{{ amenity.name }}</h5>
+                    <p class="text-muted mb-0">{{ amenity.description }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if all_amenities %}
+        <div class="section-title text-center mb-4">
+            <p class="text-uppercase text-muted mb-2" style="letter-spacing: 0.2em;">All Amenities</p>
+            <h2 class="fw-bold">Thoughtful Comforts Throughout The Property</h2>
+        </div>
+        <div class="row g-4">
+            {% for amenity in regular_amenities %}
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="card h-100 border-0 shadow-sm amenity-card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="amenity-icon-wrapper me-3">
+                                <i class="{{ amenity.icon_class }} fa-lg text-primary"></i>
+                            </span>
+                            <h6 class="mb-0">{{ amenity.name }}</h6>
+                        </div>
+                        <p class="small text-muted mb-0">{{ amenity.description }}</p>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            {% comment %}If there are only featured amenities, fall back to displaying them here{% endcomment %}
+            {% for amenity in all_amenities %}
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="card h-100 border-0 shadow-sm amenity-card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="amenity-icon-wrapper me-3">
+                                <i class="{{ amenity.icon_class }} fa-lg text-primary"></i>
+                            </span>
+                            <h6 class="mb-0">{{ amenity.name }}</h6>
+                        </div>
+                        <p class="small text-muted mb-0">{{ amenity.description }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <h3>Amenities Coming Soon</h3>
+            <p class="text-muted mb-3">We are still configuring amenities in the admin dashboard. Please check back soon or contact us for detailed information.</p>
+            <a href="{% url 'resort:contact' %}" class="btn btn-primary">Contact Guest Services</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

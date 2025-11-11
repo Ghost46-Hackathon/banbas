@@ -1,0 +1,68 @@
+{% extends 'resort/base.html' %}
+{% load static %}
+
+{% block title %}Activities & Experiences - Banbas Resort{% endblock %}
+
+{% block content %}
+<section class="page-header py-5" style="background: linear-gradient(135deg, #134a39 0%, #1e6b54 100%); margin-top: 70px;">
+    <div class="container text-center text-white">
+        <h1 class="display-4 fw-bold mb-3">Activities & Signature Experiences</h1>
+        <p class="lead mb-0">Curated adventures, wellness rituals, and cultural immersions designed to elevate every stay.</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        {% if featured_activities %}
+        <div class="section-title text-center mb-5">
+            <p class="text-uppercase text-muted mb-2" style="letter-spacing: 0.2em;">Guest Favorites</p>
+            <h2 class="fw-bold">Featured Experiences</h2>
+            <p class="text-muted mb-0">Start with our most celebrated adventures, handpicked each season.</p>
+        </div>
+        {% endif %}
+
+        {% if activities %}
+        <div class="row g-4">
+            {% for activity in activities %}
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 border-0 shadow-sm activity-card-list">
+                    <div class="ratio ratio-4x3">
+                        <img src="{{ activity.image_placeholder }}" alt="{{ activity.name }}" class="img-fluid rounded-top">
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="mb-0">{{ activity.name }}</h5>
+                            <span class="badge bg-primary-subtle text-primary text-uppercase small">{{ activity.get_category_display }}</span>
+                        </div>
+                        <p class="text-muted">{{ activity.short_description }}</p>
+                        <ul class="list-unstyled small text-muted mb-3">
+                            <li><i class="fas fa-clock text-primary me-1"></i>{{ activity.duration }}</li>
+                            <li><i class="fas fa-user-friends text-primary me-1"></i>Max {{ activity.max_participants }} guests</li>
+                            <li><i class="fas fa-mountain text-primary me-1"></i>{{ activity.get_difficulty_display }}</li>
+                        </ul>
+                        <div class="mt-auto d-flex justify-content-between align-items-center">
+                            <div>
+                                {% if activity.requires_booking %}
+                                <span class="badge bg-warning text-dark text-uppercase small">Booking Required</span>
+                                {% endif %}
+                                {% if activity.price %}
+                                <span class="badge bg-light text-primary border ms-1">From ${{ activity.price }}</span>
+                                {% endif %}
+                            </div>
+                            <a href="{% url 'resort:activity_detail' activity.pk %}" class="btn btn-outline-primary btn-sm">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <h3>Activities Coming Soon</h3>
+            <p class="text-muted mb-3">We are putting the finishing touches on a new lineup of experiences. Please check back shortly or contact us for custom arrangements.</p>
+            <a href="{% url 'resort:contact' %}" class="btn btn-primary">Contact Guest Services</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
