@@ -3,7 +3,7 @@
 :root {
     --primary-color: #134a39;
     --secondary-color: #1e6b54;
-    --accent-color: #2d8f6f;
+    --accent-color: #bf9b30;
     --success-color: #28a745;
     --warning-color: #ffc107;
     --danger-color: #dc3545;
@@ -72,6 +72,24 @@ h1, h2, h3, h4, h5, h6 {
     border-color: #0f3a2e;
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(19, 74, 57, 0.3);
+}
+
+.btn-outline-primary {
+    background-color: transparent;
+    border: 2px solid #bf9b30;
+    color: #bf9b30;
+    padding: 12px 30px;
+    font-weight: 500;
+    border-radius: 25px;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-primary:hover {
+    background-color: #bf9b30;
+    border-color: #bf9b30;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(191, 155, 48, 0.3);
 }
 
 .text-primary {
@@ -453,7 +471,7 @@ h1, h2, h3, h4, h5, h6 {
     transform: translateX(-50%);
     width: 80px;
     height: 4px;
-    background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+    background: #bf9b30;
     border-radius: 2px;
 }
 
@@ -856,7 +874,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Hover state - white text on green background */
 .amenity-card:hover {
-    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    background: var(--primary-color);
     color: white !important;
 }
 
@@ -1125,4 +1143,45 @@ html {
     .navbar-brand {
         font-size: 1.5rem;
     }
+}
+
+/* Gallery Filter Buttons */
+.gallery-filter-btn {
+    display: inline-block;
+    padding: 12px 30px;
+    border: 2px solid var(--primary-color);
+    border-radius: 50px;
+    background-color: white;
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.gallery-filter-btn:hover {
+    background-color: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(19, 74, 57, 0.3);
+    text-decoration: none;
+}
+
+.gallery-filter-btn.active {
+    background-color: var(--primary-color);
+    color: white;
+    box-shadow: 0 4px 12px rgba(19, 74, 57, 0.3);
+}
+
+/* Gallery Cards */
+.gallery-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+}
+
+.gallery-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15) !important;
 }

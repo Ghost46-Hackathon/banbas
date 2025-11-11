@@ -1,0 +1,143 @@
+:root {
+    --banbas-primary: #134a39;
+    --banbas-secondary: #b8860b;
+    --banbas-muted: #6c7a71;
+    --banbas-panel: #ffffff;
+    --banbas-border: #e2e8e4;
+}
+
+body.banbas-admin {
+    background: #f5f7f4;
+    font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+#header {
+    background: linear-gradient(120deg, var(--banbas-primary), #0c2b21);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 1.2rem 2rem;
+}
+
+#header h1 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+}
+
+.banbas-branding {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.banbas-brand-logo {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
+}
+
+.brand-title {
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+.brand-subtitle {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 0.9rem;
+}
+
+.banbas-nav-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding: 0.75rem 2rem 1rem;
+    background: #0f3325;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.banbas-nav-link {
+    color: #f3f6f4;
+    padding: 0.35rem 0.9rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    font-size: 0.85rem;
+    text-decoration: none;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.banbas-nav-link:hover {
+    background: #f8f6f0;
+    color: var(--banbas-primary);
+}
+
+#content {
+    padding: 30px 40px;
+}
+
+#content-main .module,
+.dashboard #content main .module {
+    border: 1px solid var(--banbas-border);
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(19, 74, 57, 0.08);
+    background: var(--banbas-panel);
+    padding: 1.25rem;
+}
+
+.module h2,
+.module caption {
+    color: var(--banbas-primary);
+    font-weight: 600;
+}
+
+#content .breadcrumbs {
+    background: transparent;
+    color: var(--banbas-muted);
+    padding-left: 0;
+    font-size: 0.9rem;
+}
+
+#content .breadcrumbs a {
+    color: var(--banbas-primary);
+}
+
+.submit-row {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    background: #f0f3f1;
+    border-top: 1px solid var(--banbas-border);
+    border-radius: 0 0 14px 14px;
+}
+
+.submit-row input {
+    border-radius: 999px;
+    padding: 0.45rem 1.4rem;
+}
+
+#user-tools {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+}
+
+#user-tools a {
+    color: #fff;
+    font-weight: 500;
+}
+
+@media (max-width: 768px) {
+    #content {
+        padding: 20px;
+    }
+
+    .banbas-nav-links {
+        flex-direction: column;
+        padding: 0.75rem 1.25rem 1.25rem;
+    }
+
+    .banbas-nav-link {
+        width: 100%;
+        text-align: center;
+    }
+}

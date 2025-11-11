@@ -87,8 +87,14 @@ def gallery(request):
     else:
         gallery_items = Gallery.objects.filter(category=category)
     
-    # Get all categories for filter buttons
-    categories = Gallery.objects.values_list('category', flat=True).distinct()
+    # Define categories with proper display names
+    categories = [
+        {'slug': 'rooms', 'name': 'Rooms'},
+        {'slug': 'amenities', 'name': 'Amenities'},
+        {'slug': 'dining', 'name': 'Dining'},
+        {'slug': 'exterior', 'name': 'Exterior'},
+        {'slug': 'activities', 'name': 'Activities'},
+    ]
     
     paginator = Paginator(gallery_items, 12)  # Show 12 images per page
     page_number = request.GET.get('page')
@@ -124,15 +130,19 @@ def contact(request):
 
 
 def about(request):
-    """About page"""
-    about_page = AboutPage.objects.first()
+    """About page - Admin-managed content"""
+    page = AboutPage.objects.first()
     resort = Resort.objects.first()
     
+    # If no about page exists, create a default one
+    if not page:
+        page = AboutPage.objects.create()
+    
     context = {
-        'about_page': about_page,
+        'page': page,
         'resort': resort,
     }
-    return render(request, 'resort/about.html', context)
+    return render(request, 'resort/about_admin.html', context)
 
 
 def activity_detail(request, pk):

@@ -1,0 +1,338 @@
+{% extends 'resort/base.html' %}
+{% load static %}
+
+{% block title %}About Us | {{ resort.name }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/about.css' %}">
+<style>
+    .about-hero {
+        background: linear-gradient(135deg, #f5f1e8 0%, #e8dcc8 100%);
+        padding: 120px 0 80px;
+        text-align: center;
+    }
+    .about-hero h1 {
+        font-size: 3.5rem;
+        color: #134a39;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        letter-spacing: 1px;
+    }
+    .about-hero .lead {
+        font-size: 1.3rem;
+        color: #555;
+        max-width: 800px;
+        margin: 0 auto;
+        line-height: 1.8;
+    }
+    
+    .transformation-section {
+        padding: 80px 0;
+        background: #fff;
+    }
+    .transformation-title {
+        text-align: center;
+        margin-bottom: 60px;
+    }
+    .transformation-title h2 {
+        font-size: 2.5rem;
+        color: #134a39;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+    .before-after-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        margin-bottom: 40px;
+    }
+    .transformation-image {
+        position: relative;
+        border-radius: 8px;
+        overflow: hidden;
+        height: 400px;
+    }
+    .transformation-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .transformation-label {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(255, 255, 255, 0.95);
+        padding: 10px 30px;
+        border-radius: 25px;
+        font-weight: 600;
+        color: #134a39;
+        font-size: 1.1rem;
+    }
+    
+    .story-section {
+        padding: 80px 0;
+        background: linear-gradient(135deg, #f5f1e8 0%, #e8dcc8 100%);
+    }
+    .story-grid {
+        display: grid;
+        grid-template-columns: 350px 1fr;
+        gap: 60px;
+        align-items: center;
+    }
+    .founder-image {
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    }
+    .founder-image img {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+    .story-content h2 {
+        font-size: 2.5rem;
+        color: #134a39;
+        margin-bottom: 1.5rem;
+        font-weight: 700;
+    }
+    .story-content p {
+        font-size: 1.1rem;
+        line-height: 1.9;
+        color: #444;
+        margin-bottom: 1.2rem;
+    }
+    .story-highlight {
+        background: rgba(19, 74, 57, 0.08);
+        border-left: 4px solid #134a39;
+        padding: 20px 25px;
+        margin: 30px 0;
+        border-radius: 4px;
+        font-style: italic;
+    }
+    
+    .values-section {
+        padding: 80px 0;
+        background: #fff;
+    }
+    .values-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 40px;
+        margin-top: 50px;
+    }
+    .value-card {
+        text-align: center;
+        padding: 40px 30px;
+        background: linear-gradient(135deg, #f5f1e8 0%, #e8dcc8 100%);
+        border-radius: 12px;
+        transition: transform 0.3s ease;
+    }
+    .value-card:hover {
+        transform: translateY(-5px);
+    }
+    .value-icon {
+        font-size: 3rem;
+        color: #134a39;
+        margin-bottom: 20px;
+    }
+    .value-card h3 {
+        font-size: 1.5rem;
+        color: #134a39;
+        margin-bottom: 15px;
+        font-weight: 600;
+    }
+    .value-card p {
+        color: #555;
+        line-height: 1.7;
+    }
+    
+    .experience-section {
+        padding: 80px 0;
+        background: linear-gradient(135deg, #134a39 0%, #1e6b54 100%);
+        color: white;
+        text-align: center;
+    }
+    .experience-section h2 {
+        font-size: 2.5rem;
+        margin-bottom: 2rem;
+        font-weight: 700;
+    }
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 40px;
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+    .stat-item {
+        padding: 30px;
+    }
+    .stat-number {
+        font-size: 3.5rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+        color: #B8860B;
+    }
+    .stat-label {
+        font-size: 1.1rem;
+        opacity: 0.95;
+    }
+    
+    @media (max-width: 768px) {
+        .before-after-container,
+        .story-grid {
+            grid-template-columns: 1fr;
+        }
+        .about-hero h1 {
+            font-size: 2.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="about-hero">
+    <div class="container">
+        <h1>WELCOME TO BANBAS RESORT</h1>
+        <p class="lead">
+            Built with passion and respect for nature, by locals who envisioned Chitwan's first truly sustainable luxury resort—where wilderness meets comfort.
+        </p>
+    </div>
+</section>
+
+<!-- Transformation Section -->
+<section class="transformation-section">
+    <div class="container">
+        <div class="transformation-title">
+            <h2>From Vision to Reality</h2>
+            <p class="lead" style="color: #666; max-width: 700px; margin: 0 auto;">
+                What began as untamed wilderness has been transformed into a sanctuary of luxury, while preserving the natural beauty that makes Chitwan magical.
+            </p>
+        </div>
+        
+        <div class="before-after-container">
+            <div class="transformation-image">
+                <img src="https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Before - Natural Land">
+                <div class="transformation-label">Before</div>
+            </div>
+            <div class="transformation-image">
+                <img src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="After - Banbas Resort">
+                <div class="transformation-label">After</div>
+            </div>
+        </div>
+        
+        <div class="text-center" style="max-width: 900px; margin: 0 auto;">
+            <p style="font-size: 1.15rem; line-height: 1.9; color: #555;">
+                Every tree, every stone, every design element tells the story of our commitment to creating a space where luxury and nature coexist in perfect harmony. The transformation you see is not just physical—it's a testament to sustainable development done right.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- Our Story Section -->
+<section class="story-section">
+    <div class="container">
+        <div class="story-grid">
+            <div class="founder-image">
+                <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Founder">
+            </div>
+            <div class="story-content">
+                <h2>OUR STORY</h2>
+                <p>
+                    Banbas Resort was born from a simple dream: to create a luxury retreat that honors and celebrates the incredible natural heritage of Chitwan National Park. As locals who grew up surrounded by this wilderness, we understood that true luxury isn't about dominating nature—it's about becoming part of it.
+                </p>
+                <p>
+                    Our journey began with a vision to build something different. Not just another resort, but a destination where guests could experience the raw beauty of Chitwan while enjoying world-class comfort and hospitality. Every decision, from the architecture to the landscaping, was made with deep respect for the land and its wildlife.
+                </p>
+                
+                <div class="story-highlight">
+                    "We didn't just build a resort. We created a bridge between civilization and wilderness, where every guest becomes part of Chitwan's story."
+                </div>
+                
+                <p>
+                    Today, Banbas stands as proof that luxury and sustainability can coexist. Our resort employs local craftsmen, sources from local suppliers, and works closely with conservation efforts to protect the very ecosystem that makes our location so special. When you stay with us, you're not just a guest—you're part of our mission to preserve Chitwan for future generations.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Values Section -->
+<section class="values-section">
+    <div class="container">
+        <div class="text-center">
+            <h2 style="font-size: 2.5rem; color: #134a39; margin-bottom: 1rem; font-weight: 700;">What We Stand For</h2>
+            <p style="font-size: 1.2rem; color: #666; max-width: 700px; margin: 0 auto;">
+                Our values guide everything we do, from how we treat our guests to how we care for the environment.
+            </p>
+        </div>
+        
+        <div class="values-grid">
+            <div class="value-card">
+                <div class="value-icon">
+                    <i class="fas fa-leaf"></i>
+                </div>
+                <h3>Sustainability First</h3>
+                <p>Every aspect of our resort is designed with environmental responsibility in mind. From solar power to water conservation, we're committed to leaving a positive footprint.</p>
+            </div>
+            
+            <div class="value-card">
+                <div class="value-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3>Community Partnership</h3>
+                <p>We believe in empowering local communities. Our team is 90% local, and we source materials and services from Chitwan businesses whenever possible.</p>
+            </div>
+            
+            <div class="value-card">
+                <div class="value-icon">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <h3>Authentic Hospitality</h3>
+                <p>Nepali hospitality isn't just a service—it's a way of life. We treat every guest like family, sharing our culture, stories, and traditions with genuine warmth.</p>
+            </div>
+            
+            <div class="value-card">
+                <div class="value-icon">
+                    <i class="fas fa-paw"></i>
+                </div>
+                <h3>Wildlife Conservation</h3>
+                <p>Located next to Chitwan National Park, we actively support conservation efforts and educate guests about the incredible biodiversity that surrounds us.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Experience Section -->
+<section class="experience-section">
+    <div class="container">
+        <h2>The Banbas Experience in Numbers</h2>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-number">60+</div>
+                <div class="stat-label">Species of Wild Birds</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">100%</div>
+                <div class="stat-label">Sustainable Practices</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">24/7</div>
+                <div class="stat-label">Nature Immersion</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">∞</div>
+                <div class="stat-label">Unforgettable Memories</div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 50px;">
+            <a href="{% url 'resort:contact' %}" class="btn btn-light btn-lg" style="padding: 15px 40px; font-size: 1.1rem;">
+                <i class="fas fa-calendar-alt me-2"></i>Plan Your Visit
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}
