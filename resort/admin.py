@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import RoomType, Amenity, Gallery, Contact, Resort, Activity, RoomGallery, Blog, AboutPage
+from .models import RoomType, Amenity, Gallery, Contact, Resort, Activity, RoomGallery, Blog, AboutPage, NavigationSettings
 
 
 @admin.register(AboutPage)
@@ -212,3 +212,16 @@ class BlogAdmin(admin.ModelAdmin):
     
     def get_queryset(self, request):
         return super().get_queryset(request)
+
+
+@admin.register(NavigationSettings)
+class NavigationSettingsAdmin(admin.ModelAdmin):
+    list_display = ['show_home', 'show_about', 'show_accommodation', 'show_amenities', 'show_gallery', 'show_blog', 'show_contact', 'show_book_button', 'updated_at']
+    fieldsets = (
+        ('Visibility', {
+            'fields': ('show_home', 'show_about', 'show_accommodation', 'show_amenities', 'show_gallery', 'show_blog', 'show_contact', 'show_book_button')
+        }),
+        ('Appearance', {
+            'fields': ('nav_style',)
+        }),
+    )

@@ -372,3 +372,22 @@ class Resort(models.Model):
             existing = Resort.objects.first()
             self.pk = existing.pk
         super().save(*args, **kwargs)
+
+
+class NavigationSettings(models.Model):
+    show_home = models.BooleanField(default=True)
+    show_about = models.BooleanField(default=True)
+    show_accommodation = models.BooleanField(default=True)
+    show_amenities = models.BooleanField(default=True)
+    show_gallery = models.BooleanField(default=True)
+    show_blog = models.BooleanField(default=True)
+    show_contact = models.BooleanField(default=True)
+    show_book_button = models.BooleanField(default=True)
+    nav_style = models.CharField(max_length=20, default='pills')
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name_plural = "Navigation Settings"
+
+    def __str__(self):
+        return "Navigation Settings"

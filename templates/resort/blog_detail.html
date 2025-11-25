@@ -39,7 +39,7 @@
                         <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank" class="btn btn-outline-primary btn-sm">
                             <i class="fab fa-facebook-f"></i> Facebook
                         </a>
-                        <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ blog_post.title }}" target="_blank" class="btn btn-outline-info btn-sm">
+                        <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ blog_post.title }}" target="_blank" class="btn btn-outline-primary btn-sm">
                             <i class="fab fa-twitter"></i> Twitter
                         </a>
                         <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ request.build_absolute_uri }}" target="_blank" class="btn btn-outline-primary btn-sm">
@@ -88,8 +88,8 @@
 <!-- CTA Section -->
 <section class="py-5" style="background: linear-gradient(135deg, #134a39 0%, #1e6b54 100%);">
     <div class="container text-center text-white">
-        <h2 class="fw-bold mb-3">Ready to Experience Paradise?</h2>
-        <p class="lead mb-4">Book your stay at Banbas Resort today</p>
+        <h2 class="fw-bold mb-3 text-white" style="color:#fff !important;">Ready to Experience Paradise?</h2>
+        <p class="lead mb-4 text-white" style="color:#fff !important;">Book your stay at Banbas Resort today</p>
         <a href="{% url 'resort:contact' %}" class="btn btn-light btn-lg">
             Book Your Stay <i class="fas fa-arrow-right ms-2"></i>
         </a>

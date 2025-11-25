@@ -43,33 +43,35 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <!-- Centered Navigation Menu -->
                 <ul class="navbar-nav mx-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'resort:home' %}">HOME</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'resort:about' %}">ABOUT</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'resort:rooms' %}">ACCOMODATION</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'resort:amenities' %}">AMENITIES</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'resort:gallery' %}">GALLERY</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'resort:blog_list' %}">BLOG</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'resort:contact' %}">CONTACT</a>
-                    </li>
+                    {% if nav_settings is None or nav_settings.show_home %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'resort:home' %}">HOME</a></li>
+                    {% endif %}
+                    {% if nav_settings is None or nav_settings.show_about %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'resort:about' %}">ABOUT</a></li>
+                    {% endif %}
+                    {% if nav_settings is None or nav_settings.show_accommodation %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'resort:rooms' %}">ACCOMODATION</a></li>
+                    {% endif %}
+                    {% if nav_settings is None or nav_settings.show_amenities %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'resort:amenities' %}">AMENITIES</a></li>
+                    {% endif %}
+                    {% if nav_settings is None or nav_settings.show_gallery %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'resort:gallery' %}">GALLERY</a></li>
+                    {% endif %}
+                    {% if nav_settings is None or nav_settings.show_blog %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'resort:blog_list' %}">BLOG</a></li>
+                    {% endif %}
+                    {% if nav_settings is None or nav_settings.show_contact %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'resort:contact' %}">CONTACT</a></li>
+                    {% endif %}
                 </ul>
                 
                 <!-- Right Side - Book a Stay -->
+                {% if nav_settings is None or nav_settings.show_book_button %}
                 <div class="navbar-nav ms-auto">
                     <a class="btn btn-primary book-stay-btn" href="{% url 'resort:contact' %}">BOOK A STAY</a>
                 </div>
+                {% endif %}
             </div>
         </div>
     </nav>
