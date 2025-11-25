@@ -1,0 +1,35 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}Admin Login | Banbas{% endblock %}
+
+{% block content %}
+<div class="admin-login-wrapper">
+    <div class="admin-login-card">
+        <div class="admin-login-brand">
+            <img src="{% static 'images/logo/logo.png' %}" alt="Banbas Resort" class="admin-login-logo">
+            <div class="admin-login-title">Banbas Admin</div>
+            <div class="admin-login-subtitle">Sign in to manage content and bookings</div>
+        </div>
+        <form action="{% url 'admin:login' %}" method="post" id="login-form" novalidate>
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next }}">
+            {% if form.errors %}
+            <div class="admin-login-error">Incorrect username or password</div>
+            {% endif %}
+            <div class="form-row">
+                <label for="id_username">Username</label>
+                {{ form.username }}
+            </div>
+            <div class="form-row">
+                <label for="id_password">Password</label>
+                {{ form.password }}
+            </div>
+            <div class="form-actions">
+                <input type="submit" value="Sign In" class="button primary">
+            </div>
+        </form>
+    </div>
+    <div class="admin-login-footer">Protected area. Authorized staff only.</div>
+</div>
+{% endblock %}
