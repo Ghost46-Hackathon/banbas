@@ -15,6 +15,11 @@ body.banbas-admin {
     background: linear-gradient(120deg, var(--banbas-primary), #0c2b21);
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
     padding: 1.2rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
 }
 
 #header h1 {
@@ -48,13 +53,16 @@ body.banbas-admin {
     font-size: 0.9rem;
 }
 
+#nav-global {
+    background: #0f3325;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.75rem 2rem 0.9rem;
+}
+
 .banbas-nav-links {
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem;
-    padding: 0.75rem 2rem 1rem;
-    background: #0f3325;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .banbas-nav-link {
@@ -64,12 +72,21 @@ body.banbas-admin {
     border: 1px solid rgba(255, 255, 255, 0.25);
     font-size: 0.85rem;
     text-decoration: none;
-    transition: background 0.2s ease, color 0.2s ease;
+    transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
-.banbas-nav-link:hover {
-    background: #f8f6f0;
-    color: var(--banbas-primary);
+#nav-global .banbas-nav-link:hover,
+#nav-global .banbas-nav-link:focus {
+    background: #e8efe9;
+    color: var(--banbas-primary) !important;
+    border-color: rgba(19, 74, 57, 0.35);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+#nav-global .banbas-nav-link:active {
+    background: #dbe6df;
+    color: var(--banbas-primary) !important;
+    border-color: rgba(19, 74, 57, 0.5);
 }
 
 #content {
@@ -131,13 +148,114 @@ body.banbas-admin {
         padding: 20px;
     }
 
+    #nav-global {
+        padding: 0.75rem 1.25rem 1.25rem;
+    }
+
     .banbas-nav-links {
         flex-direction: column;
-        padding: 0.75rem 1.25rem 1.25rem;
     }
 
     .banbas-nav-link {
         width: 100%;
         text-align: center;
     }
+}
+
+.admin-login-wrapper {
+    min-height: calc(100vh - 80px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem 1rem;
+}
+
+.admin-login-card {
+    width: 100%;
+    max-width: 420px;
+    background: var(--banbas-panel);
+    border: 1px solid var(--banbas-border);
+    border-radius: 16px;
+    box-shadow: 0 14px 40px rgba(19, 74, 57, 0.1);
+    padding: 1.75rem;
+}
+
+.admin-login-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.admin-login-logo {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+}
+
+.admin-login-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--banbas-primary);
+}
+
+.admin-login-subtitle {
+    color: var(--banbas-muted);
+    font-size: 0.95rem;
+}
+
+.admin-login-error {
+    background: #fdecea;
+    border: 1px solid #f5c2c0;
+    color: #8b1d1a;
+    padding: 0.6rem 0.75rem;
+    border-radius: 10px;
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+}
+
+.form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 0.9rem;
+}
+
+.form-row label {
+    color: var(--banbas-primary);
+    font-weight: 600;
+}
+
+input[type="text"], input[type="password"] {
+    border: 1px solid var(--banbas-border);
+    border-radius: 10px;
+    padding: 0.55rem 0.75rem;
+    font-size: 0.95rem;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.button.primary {
+    background: var(--banbas-primary);
+    color: #fff;
+    border: none;
+    border-radius: 999px;
+    padding: 0.55rem 1.25rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.button.primary:hover {
+    background: #0f3a2c;
+}
+
+.admin-login-footer {
+    margin-top: 1rem;
+    color: var(--banbas-muted);
+    font-size: 0.9rem;
 }

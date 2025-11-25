@@ -1,4 +1,4 @@
-{% extends "admin/base_site.html" %}
+{% extends "admin/base.html" %}
 {% load static %}
 
 {% block title %}Banbas Admin | {{ block.super }}{% endblock %}
@@ -14,8 +14,8 @@
 <div class="banbas-branding">
     <img src="{% static 'images/logo/logo.png' %}" alt="Banbas Resort" class="banbas-brand-logo" loading="lazy">
     <div>
-        <div class="brand-title">Banbas Resort Backoffice</div>
-        <p class="brand-subtitle">Manage rooms, experiences, content, and guest inquiries.</p>
+        <div class="brand-title">Banbas Admin</div>
+        <p class="brand-subtitle">Django Admin for site configuration and data.</p>
     </div>
 </div>
 {% endblock %}
