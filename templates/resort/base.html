@@ -146,15 +146,27 @@
                     <div class="contact-info">
                         <p class="mb-2">
                             <i class="fas fa-map-marker-alt me-2 text-primary"></i>
+                            {% if resort_info and resort_info.address %}
+                            {{ resort_info.address|linebreaksbr }}
+                            {% else %}
                             123 Paradise Beach, Resort Island
+                            {% endif %}
                         </p>
                         <p class="mb-2">
                             <i class="fas fa-phone me-2 text-primary"></i>
+                            {% if resort_info and resort_info.phone %}
+                            <a href="tel:{{ resort_info.phone }}" class="text-light text-decoration-none">{{ resort_info.phone }}</a>
+                            {% else %}
                             +1 (555) 123-4567
+                            {% endif %}
                         </p>
                         <p class="mb-2">
                             <i class="fas fa-envelope me-2 text-primary"></i>
+                            {% if resort_info and resort_info.email %}
+                            <a href="mailto:{{ resort_info.email }}" class="text-light text-decoration-none">{{ resort_info.email }}</a>
+                            {% else %}
                             info@banbasresort.com
+                            {% endif %}
                         </p>
                     </div>
                 </div>

@@ -79,6 +79,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.media',
                 'resort.context_processors.navigation_settings',
+                'resort.context_processors.site_resort_info',
             ],
         },
     },
