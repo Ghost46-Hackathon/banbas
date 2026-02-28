@@ -15,29 +15,64 @@
             <div class="col-lg-8">
                 <div class="contact-form">
                     <h3 class="mb-4">Send Us a Message</h3>
+                    <div class="alert alert-info mb-4" role="alert">
+                        Please contact +977 9845069897 via WhatsApp for quicker responses.
+                    </div>
                     <form method="post">
                         {% csrf_token %}
+                        {% for hidden_field in form.hidden_fields %}
+                            {{ hidden_field }}
+                        {% endfor %}
+
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                            <div>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label for="{{ form.name.id_for_label }}" class="form-label">{{ form.name.label }}</label>
                                 {{ form.name }}
+                                {% if form.name.errors %}
+                                <div class="text-danger small mt-1">{{ form.name.errors.0 }}</div>
+                                {% endif %}
                             </div>
                             <div class="col-md-6">
                                 <label for="{{ form.email.id_for_label }}" class="form-label">{{ form.email.label }}</label>
                                 {{ form.email }}
+                                {% if form.email.errors %}
+                                <div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>
+                                {% endif %}
                             </div>
                             <div class="col-12">
                                 <label for="{{ form.phone.id_for_label }}" class="form-label">{{ form.phone.label }}</label>
                                 {{ form.phone }}
+                                {% if form.phone.errors %}
+                                <div class="text-danger small mt-1">{{ form.phone.errors.0 }}</div>
+                                {% endif %}
                             </div>
                             <div class="col-12">
                                 <label for="{{ form.subject.id_for_label }}" class="form-label">{{ form.subject.label }}</label>
                                 {{ form.subject }}
+                                {% if form.subject.errors %}
+                                <div class="text-danger small mt-1">{{ form.subject.errors.0 }}</div>
+                                {% endif %}
                             </div>
                             <div class="col-12">
                                 <label for="{{ form.message.id_for_label }}" class="form-label">{{ form.message.label }}</label>
                                 {{ form.message }}
+                                {% if form.message.errors %}
+                                <div class="text-danger small mt-1">{{ form.message.errors.0 }}</div>
+                                {% endif %}
                             </div>
+                            {% if turnstile_enabled and turnstile_site_key %}
+                            <div class="col-12">
+                                <div class="cf-turnstile" data-sitekey="{{ turnstile_site_key }}" data-callback="onTurnstileSuccess" data-expired-callback="onTurnstileExpired" data-error-callback="onTurnstileError"></div>
+                            </div>
+                            {% endif %}
                             <div class="col-12">
                                 <button type="submit" class="btn btn-primary btn-lg">Send Message</button>
                             </div>
@@ -86,4 +121,32 @@
         </div>
     </div>
 </section>
+{% endblock %}
+
+{% block extra_js %}
+{% if turnstile_enabled and turnstile_site_key %}
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<script>
+function onTurnstileSuccess(token) {
+    const tokenField = document.getElementById('id_turnstile_token');
+    if (tokenField) {
+        tokenField.value = token;
+    }
+}
+
+function onTurnstileExpired() {
+    const tokenField = document.getElementById('id_turnstile_token');
+    if (tokenField) {
+        tokenField.value = '';
+    }
+}
+
+function onTurnstileError() {
+    const tokenField = document.getElementById('id_turnstile_token');
+    if (tokenField) {
+        tokenField.value = '';
+    }
+}
+</script>
+{% endif %}
 {% endblock %}

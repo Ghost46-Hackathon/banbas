@@ -1,3 +1,10 @@
+import json
+import logging
+import urllib.parse
+import urllib.request
+
+from django.conf import settings
+from django.core.cache import cache
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.core.paginator import Paginator
@@ -5,6 +12,77 @@ from django.http import JsonResponse
 from .models import RoomType, Amenity, Gallery, Contact, Resort, Activity, Blog, AboutPage, GalleryCategory
 from .forms import ContactForm
 from backoffice.email_service import BanbasEmailService
+
+logger = logging.getLogger(__name__)
+
+
+def _client_ip(request):
+    forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if forwarded_for:
+        forwarded_ips = [ip.strip() for ip in forwarded_for.split(',') if ip.strip()]
+        if forwarded_ips:
+            # Use the right-most value to reduce spoofing risk when proxies append client IP.
+            return forwarded_ips[-1]
+    return request.META.get('REMOTE_ADDR', 'unknown')
+
+
+def _contact_rate_limited(request):
+    ip_address = _client_ip(request)
+    key = f'contact-rate:{ip_address}'
+    current_attempts = cache.get(key, 0)
+    max_attempts = settings.CONTACT_RATE_LIMIT_MAX_ATTEMPTS
+    window_seconds = settings.CONTACT_RATE_LIMIT_WINDOW_SECONDS
+
+    if current_attempts >= max_attempts:
+        return True
+
+    cache.set(key, current_attempts + 1, timeout=window_seconds)
+    return False
+
+
+def _verify_turnstile_token(request, token):
+    if not settings.TURNSTILE_ENABLED:
+        return True, None
+
+    if not settings.TURNSTILE_SECRET_KEY:
+        logger.warning('TURNSTILE_ENABLED is true but TURNSTILE_SECRET_KEY is missing.')
+        return False, 'Bot verification is temporarily unavailable.'
+
+    if not token:
+        return False, 'Please complete the bot verification challenge.'
+
+    payload = urllib.parse.urlencode({
+        'secret': settings.TURNSTILE_SECRET_KEY,
+        'response': token,
+        'remoteip': _client_ip(request),
+    }).encode('utf-8')
+
+    try:
+        req = urllib.request.Request(
+            'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+            data=payload,
+            method='POST',
+        )
+        with urllib.request.urlopen(req, timeout=5) as response:
+            result = json.loads(response.read().decode('utf-8'))
+    except Exception:
+        logger.exception('Turnstile verification request failed.')
+        return False, 'Could not verify bot challenge. Please try again.'
+
+    if not result.get('success'):
+        return False, 'Bot verification failed. Please try again.'
+
+    expected_hostname = settings.TURNSTILE_EXPECTED_HOSTNAME
+    response_hostname = result.get('hostname')
+    if expected_hostname and response_hostname != expected_hostname:
+        logger.warning(
+            'Turnstile hostname mismatch. expected=%s got=%s',
+            expected_hostname,
+            response_hostname,
+        )
+        return False, 'Invalid verification response.'
+
+    return True, None
 
 
 def home(request):
@@ -125,29 +203,50 @@ def gallery(request):
 def contact(request):
     """Contact page with form"""
     resort = Resort.objects.first()
-    
+    form_kwargs = {
+        'enable_turnstile': settings.TURNSTILE_ENABLED,
+        'min_submit_seconds': settings.CONTACT_MIN_SUBMIT_SECONDS,
+    }
+
     if request.method == 'POST':
-        form = ContactForm(request.POST)
+        if _contact_rate_limited(request):
+            messages.error(
+                request,
+                'Too many inquiry attempts. Please wait a few minutes before trying again.',
+            )
+            form = ContactForm(request.POST, **form_kwargs)
+        else:
+            form = ContactForm(request.POST, **form_kwargs)
+
         if form.is_valid():
-            contact = form.save()
-            
-            # Send notification email to staff
-            try:
-                email_sent = BanbasEmailService.send_new_inquiry_notification(contact)
-                if email_sent:
-                    messages.success(request, 'Thank you for your message! We will get back to you soon. Our team has been notified.')
-                else:
+            verified, error_message = _verify_turnstile_token(
+                request,
+                form.cleaned_data.get('turnstile_token'),
+            )
+            if not verified:
+                form.add_error(None, error_message)
+            else:
+                contact = form.save()
+
+                # Send notification email to staff
+                try:
+                    email_sent = BanbasEmailService.send_new_inquiry_notification(contact)
+                    if email_sent:
+                        messages.success(request, 'Thank you for your message! We will get back to you soon. Our team has been notified.')
+                    else:
+                        messages.success(request, 'Thank you for your message! We will get back to you soon.')
+                except Exception:
                     messages.success(request, 'Thank you for your message! We will get back to you soon.')
-            except Exception as e:
-                messages.success(request, 'Thank you for your message! We will get back to you soon.')
-            
-            return redirect('resort:contact')
+
+                return redirect('resort:contact')
     else:
-        form = ContactForm()
+        form = ContactForm(**form_kwargs)
     
     context = {
         'form': form,
         'resort': resort,
+        'turnstile_enabled': settings.TURNSTILE_ENABLED,
+        'turnstile_site_key': settings.TURNSTILE_SITE_KEY,
     }
     return render(request, 'resort/contact.html', context)
 
