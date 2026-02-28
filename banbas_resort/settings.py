@@ -72,6 +72,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.media',
                 'resort.context_processors.navigation_settings',
+                'resort.context_processors.site_resort_info',
             ],
         },
     },
@@ -184,3 +185,16 @@ CKEDITOR_CONFIGS = {
         'filebrowserWindowHeight': 725,
     },
 }
+
+# Bot protection for public contact form
+TURNSTILE_SITE_KEY = os.environ.get('TURNSTILE_SITE_KEY', '')
+TURNSTILE_SECRET_KEY = os.environ.get('TURNSTILE_SECRET_KEY', '')
+TURNSTILE_ENABLED = os.environ.get('TURNSTILE_ENABLED', 'False').lower() in ['true', '1', 'yes']
+
+# Optional hostname check for Turnstile verification response
+TURNSTILE_EXPECTED_HOSTNAME = os.environ.get('TURNSTILE_EXPECTED_HOSTNAME', '')
+
+# Contact form flood controls
+CONTACT_RATE_LIMIT_WINDOW_SECONDS = int(os.environ.get('CONTACT_RATE_LIMIT_WINDOW_SECONDS', '300'))
+CONTACT_RATE_LIMIT_MAX_ATTEMPTS = int(os.environ.get('CONTACT_RATE_LIMIT_MAX_ATTEMPTS', '5'))
+CONTACT_MIN_SUBMIT_SECONDS = int(os.environ.get('CONTACT_MIN_SUBMIT_SECONDS', '3'))

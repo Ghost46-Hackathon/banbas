@@ -119,10 +119,12 @@
     </main>
 
     <!-- Floating Book a Stay Button -->
+    {% if nav_settings is None or nav_settings.show_book_button %}
     <a href="{% url 'resort:contact' %}" class="floating-book-btn" title="Book Your Stay">
         <i class="fas fa-calendar-check"></i>
         Book a Stay
     </a>
+    {% endif %}
 
     <!-- Footer -->
     <footer class="bg-dark text-light py-5 mt-5">
@@ -162,7 +164,9 @@
                     <ul class="list-unstyled">
                         <li class="mb-2"><a href="{% url 'resort:gallery' %}" class="text-light text-decoration-none">Gallery</a></li>
                         <li class="mb-2"><a href="{% url 'resort:blog_list' %}" class="text-light text-decoration-none">Blog</a></li>
+                        {% if nav_settings is None or nav_settings.show_contact %}
                         <li class="mb-2"><a href="{% url 'resort:contact' %}" class="text-light text-decoration-none">Contact</a></li>
+                        {% endif %}
                         <li class="mb-2"><a href="#" class="text-light text-decoration-none">Reservations</a></li>
                         <li class="mb-2"><a href="#" class="text-light text-decoration-none">Special Offers</a></li>
                     </ul>
@@ -173,15 +177,27 @@
                     <div class="contact-info">
                         <p class="mb-2">
                             <i class="fas fa-map-marker-alt me-2 text-primary"></i>
+                            {% if resort_info and resort_info.address %}
+                            {{ resort_info.address|linebreaksbr }}
+                            {% else %}
                             123 Paradise Beach, Resort Island
+                            {% endif %}
                         </p>
                         <p class="mb-2">
                             <i class="fas fa-phone me-2 text-primary"></i>
+                            {% if resort_info and resort_info.phone %}
+                            <a href="tel:{{ resort_info.phone }}" class="text-light text-decoration-none">{{ resort_info.phone }}</a>
+                            {% else %}
                             +1 (555) 123-4567
+                            {% endif %}
                         </p>
                         <p class="mb-2">
                             <i class="fas fa-envelope me-2 text-primary"></i>
+                            {% if resort_info and resort_info.email %}
+                            <a href="mailto:{{ resort_info.email }}" class="text-light text-decoration-none">{{ resort_info.email }}</a>
+                            {% else %}
                             info@banbasresort.com
+                            {% endif %}
                         </p>
                     </div>
                 </div>
