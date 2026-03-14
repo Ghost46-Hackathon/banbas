@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError
@@ -252,6 +253,20 @@ class UserProfileForm(forms.ModelForm):
             raise ValidationError('A user with this email already exists.')
         
         return email
+
+    def clean_password(self):
+        password = self.cleaned_data.get('password')
+        if not password:
+            return password
+
+        user = self.instance.user if self.instance and self.instance.pk and hasattr(self.instance, 'user') else User()
+        user.username = self.cleaned_data.get('username', '')
+        user.first_name = self.cleaned_data.get('first_name', '')
+        user.last_name = self.cleaned_data.get('last_name', '')
+        user.email = self.cleaned_data.get('email', '')
+
+        validate_password(password, user=user)
+        return password
     
     def save(self, commit=True):
         profile = super().save(commit=False)

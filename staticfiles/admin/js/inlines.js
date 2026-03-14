@@ -23,16 +23,38 @@
         const $this = $(this);
         const $parent = $this.parent();
         const updateElementIndex = function(el, prefix, ndx) {
-            const id_regex = new RegExp("(" + prefix + "-(\\d+|__prefix__))");
             const replacement = prefix + "-" + ndx;
+            const replaceIndexToken = function(value) {
+                const marker = prefix + "-";
+                const start = value.indexOf(marker);
+                if (start === -1) {
+                    return value;
+                }
+
+                const tokenStart = start + marker.length;
+                let tokenEnd = tokenStart;
+                if (value.startsWith("__prefix__", tokenStart)) {
+                    tokenEnd += "__prefix__".length;
+                } else {
+                    while (tokenEnd < value.length && value.charCodeAt(tokenEnd) >= 48 && value.charCodeAt(tokenEnd) <= 57) {
+                        tokenEnd += 1;
+                    }
+                }
+
+                if (tokenEnd === tokenStart) {
+                    return value;
+                }
+
+                return value.slice(0, start) + replacement + value.slice(tokenEnd);
+            };
             if ($(el).prop("for")) {
-                $(el).prop("for", $(el).prop("for").replace(id_regex, replacement));
+                $(el).prop("for", replaceIndexToken($(el).prop("for")));
             }
             if (el.id) {
-                el.id = el.id.replace(id_regex, replacement);
+                el.id = replaceIndexToken(el.id);
             }
             if (el.name) {
-                el.name = el.name.replace(id_regex, replacement);
+                el.name = replaceIndexToken(el.name);
             }
         };
         const totalForms = $("#id_" + options.prefix + "-TOTAL_FORMS").prop("autocomplete", "off");

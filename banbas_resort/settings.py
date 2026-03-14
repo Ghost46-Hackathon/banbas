@@ -1,5 +1,7 @@
 from pathlib import Path
 import os
+
+from django.core.exceptions import ImproperlyConfigured
 import dotenv
 
 dotenv.load_dotenv()
@@ -11,24 +13,51 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-d$(3grk@tj0x59f%mf+aa1o-_tv6v0sx^(cg&qz+he-$1xe+7+')
+def env_flag(name, default=False):
+    return os.environ.get(name, str(default)).lower() in {'true', '1', 'yes', 'on'}
+
+
+def env_list(name, default=None):
+    value = os.environ.get(name)
+    if value is None:
+        return list(default or [])
+    return [item.strip() for item in value.split(',') if item.strip()]
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
-import os
+DEBUG = env_flag('DEBUG', True)
 
-DEBUG = os.environ.get('DEBUG', 'True').lower() in ['true', '1', 'yes']
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = os.environ.get('SECRET_KEY')
+if not SECRET_KEY:
+    if DEBUG:
+        SECRET_KEY = 'django-insecure-d$(3grk@tj0x59f%mf+aa1o-_tv6v0sx^(cg&qz+he-$1xe+7+'
+    else:
+        raise ImproperlyConfigured('SECRET_KEY must be set when DEBUG is False.')
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',') if os.environ.get('ALLOWED_HOSTS') else [
-    '*',  # Allow all hosts for development
-]
+ALLOWED_HOSTS = env_list(
+    'ALLOWED_HOSTS',
+    ['127.0.0.1', 'localhost'] if DEBUG else [],
+)
+if not DEBUG and not ALLOWED_HOSTS:
+    raise ImproperlyConfigured('ALLOWED_HOSTS must be set when DEBUG is False.')
 
-# CSRF Trusted Origins - Required for ngrok and other external domains
-CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',') if os.environ.get('CSRF_TRUSTED_ORIGINS') else [
-    'https://fatigued-unyouthfully-david.ngrok-free.dev',  # Current ngrok URL
-    'http://127.0.0.1:8000',
-    'http://localhost:8000',
-]
+# CSRF Trusted Origins - set explicitly for tunnels or external domains
+CSRF_TRUSTED_ORIGINS = env_list(
+    'CSRF_TRUSTED_ORIGINS',
+    ['http://127.0.0.1:8000', 'http://localhost:8000'] if DEBUG else [],
+)
+
+SESSION_COOKIE_SECURE = env_flag('SESSION_COOKIE_SECURE', not DEBUG)
+CSRF_COOKIE_SECURE = env_flag('CSRF_COOKIE_SECURE', not DEBUG)
+SECURE_SSL_REDIRECT = env_flag('SECURE_SSL_REDIRECT', not DEBUG)
+SESSION_COOKIE_HTTPONLY = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+X_FRAME_OPTIONS = 'DENY'
+SECURE_HSTS_SECONDS = int(os.environ.get('SECURE_HSTS_SECONDS', '0' if DEBUG else '31536000'))
+SECURE_HSTS_INCLUDE_SUBDOMAINS = env_flag('SECURE_HSTS_INCLUDE_SUBDOMAINS', not DEBUG)
+SECURE_HSTS_PRELOAD = env_flag('SECURE_HSTS_PRELOAD', False)
 
 
 # Application definition
