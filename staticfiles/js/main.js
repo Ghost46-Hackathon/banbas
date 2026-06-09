@@ -455,6 +455,31 @@ function formatDate(dateStr) {
     });
 }
 
+function clearNode(node) {
+    while (node.firstChild) {
+        node.removeChild(node.firstChild);
+    }
+}
+
+function renderBookingErrors(container, errors) {
+    clearNode(container);
+
+    const title = document.createElement('strong');
+    title.textContent = 'Please fix the following errors:';
+    container.appendChild(title);
+
+    const list = document.createElement('ul');
+    list.className = 'mb-0 mt-2';
+
+    errors.forEach((error) => {
+        const item = document.createElement('li');
+        item.textContent = error;
+        list.appendChild(item);
+    });
+
+    container.appendChild(list);
+}
+
 // Validate booking form
 function validateBookingForm() {
     const requiredFields = [
@@ -515,7 +540,7 @@ function validateBookingForm() {
             errorDiv.className = 'alert alert-danger booking-error-message mt-3';
             document.querySelector('#booking-form').appendChild(errorDiv);
         }
-        errorDiv.innerHTML = `<strong>Please fix the following errors:</strong><ul class="mb-0 mt-2">${errors.map(error => `<li>${error}</li>`).join('')}</ul>`;
+        renderBookingErrors(errorDiv, errors);
         
         // Scroll to first error
         const firstError = document.querySelector('.is-invalid');
@@ -536,7 +561,7 @@ function validateBookingForm() {
 // Show booking success message
 function showBookingSuccess() {
     const formContainer = document.querySelector('.booking-form-container');
-    const successHtml = `
+    const successFragment = document.createRange().createContextualFragment(`
         <div class="text-center py-5">
             <div class="success-animation mb-4">
                 <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
@@ -565,9 +590,9 @@ function showBookingSuccess() {
                 <button onclick="location.reload()" class="btn btn-outline-primary">Make Another Booking</button>
             </div>
         </div>
-    `;
+    `);
     
-    formContainer.innerHTML = successHtml;
+    formContainer.replaceChildren(successFragment);
     
     // Scroll to success message
     formContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -596,10 +621,15 @@ function initializeInquiryForm() {
 function showInquirySuccess(form) {
     const successMsg = document.createElement('div');
     successMsg.className = 'alert alert-success mt-3';
-    successMsg.innerHTML = `
-        <i class="fas fa-check-circle me-2"></i>
-        <strong>Message sent successfully!</strong> We'll get back to you within 24 hours.
-    `;
+
+    const icon = document.createElement('i');
+    icon.className = 'fas fa-check-circle me-2';
+    successMsg.appendChild(icon);
+
+    const title = document.createElement('strong');
+    title.textContent = 'Message sent successfully!';
+    successMsg.appendChild(title);
+    successMsg.appendChild(document.createTextNode(" We'll get back to you within 24 hours."));
     
     form.appendChild(successMsg);
     form.reset();
@@ -732,7 +762,7 @@ class ModernDatePicker {
         // Create calendar
         this.calendar = document.createElement('div');
         this.calendar.className = 'date-picker-calendar';
-        this.calendar.innerHTML = this.getCalendarHTML();
+        this.buildCalendarShell();
         
         // Assemble
         this.wrapper.appendChild(this.icon);
@@ -744,46 +774,87 @@ class ModernDatePicker {
         this.element.parentNode.replaceChild(this.wrapper, this.element);
     }
     
-    getCalendarHTML() {
-        return `
-            <div class="calendar-header">
-                <button type="button" class="calendar-nav-button" data-action="prev-month">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-                <div class="calendar-title"></div>
-                <button type="button" class="calendar-nav-button" data-action="next-month">
-                    <i class="fas fa-chevron-right"></i>
-                </button>
-            </div>
-            <div class="calendar-grid">
-                <div class="calendar-day-header">Sun</div>
-                <div class="calendar-day-header">Mon</div>
-                <div class="calendar-day-header">Tue</div>
-                <div class="calendar-day-header">Wed</div>
-                <div class="calendar-day-header">Thu</div>
-                <div class="calendar-day-header">Fri</div>
-                <div class="calendar-day-header">Sat</div>
-            </div>
-            <div class="calendar-footer">
-                <button type="button" class="calendar-today-button">Today</button>
-                <button type="button" class="calendar-clear-button">Clear</button>
-            </div>
-            ${this.options.showQuickDates ? this.getQuickDatesHTML() : ''}
-        `;
+    buildCalendarShell() {
+        const header = document.createElement('div');
+        header.className = 'calendar-header';
+
+        header.appendChild(this.createCalendarNavButton('prev-month', 'fas fa-chevron-left'));
+
+        const title = document.createElement('div');
+        title.className = 'calendar-title';
+        header.appendChild(title);
+
+        header.appendChild(this.createCalendarNavButton('next-month', 'fas fa-chevron-right'));
+        this.calendar.appendChild(header);
+
+        const grid = document.createElement('div');
+        grid.className = 'calendar-grid';
+        ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach((label) => {
+            const dayHeader = document.createElement('div');
+            dayHeader.className = 'calendar-day-header';
+            dayHeader.textContent = label;
+            grid.appendChild(dayHeader);
+        });
+        this.calendar.appendChild(grid);
+
+        const footer = document.createElement('div');
+        footer.className = 'calendar-footer';
+
+        const todayButton = document.createElement('button');
+        todayButton.type = 'button';
+        todayButton.className = 'calendar-today-button';
+        todayButton.textContent = 'Today';
+        footer.appendChild(todayButton);
+
+        const clearButton = document.createElement('button');
+        clearButton.type = 'button';
+        clearButton.className = 'calendar-clear-button';
+        clearButton.textContent = 'Clear';
+        footer.appendChild(clearButton);
+
+        this.calendar.appendChild(footer);
+
+        if (this.options.showQuickDates) {
+            const quickDates = document.createElement('div');
+            quickDates.className = 'quick-dates';
+
+            const quickDatesTitle = document.createElement('div');
+            quickDatesTitle.className = 'quick-dates-title';
+            quickDatesTitle.textContent = 'Quick Select';
+            quickDates.appendChild(quickDatesTitle);
+
+            const quickDateButtons = document.createElement('div');
+            quickDateButtons.className = 'quick-date-buttons';
+            [
+                { days: '0', label: 'Today' },
+                { days: '1', label: 'Tomorrow' },
+                { days: '7', label: 'Next Week' },
+                { days: '30', label: 'Next Month' },
+            ].forEach(({ days, label }) => {
+                const quickButton = document.createElement('button');
+                quickButton.type = 'button';
+                quickButton.className = 'quick-date-btn';
+                quickButton.dataset.days = days;
+                quickButton.textContent = label;
+                quickDateButtons.appendChild(quickButton);
+            });
+
+            quickDates.appendChild(quickDateButtons);
+            this.calendar.appendChild(quickDates);
+        }
     }
-    
-    getQuickDatesHTML() {
-        return `
-            <div class="quick-dates">
-                <div class="quick-dates-title">Quick Select</div>
-                <div class="quick-date-buttons">
-                    <button type="button" class="quick-date-btn" data-days="0">Today</button>
-                    <button type="button" class="quick-date-btn" data-days="1">Tomorrow</button>
-                    <button type="button" class="quick-date-btn" data-days="7">Next Week</button>
-                    <button type="button" class="quick-date-btn" data-days="30">Next Month</button>
-                </div>
-            </div>
-        `;
+
+    createCalendarNavButton(action, iconClass) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'calendar-nav-button';
+        button.dataset.action = action;
+
+        const icon = document.createElement('i');
+        icon.className = iconClass;
+        button.appendChild(icon);
+
+        return button;
     }
     
     bindEvents() {
@@ -805,9 +876,14 @@ class ModernDatePicker {
     }
     
     handleCalendarClick(e) {
-        const action = e.target.dataset.action;
-        const day = e.target.dataset.day;
-        const quickDays = e.target.dataset.days;
+        const actionTarget = e.target.closest('[data-action]');
+        const dayTarget = e.target.closest('[data-day]');
+        const quickDateTarget = e.target.closest('.quick-date-btn');
+        const todayButton = e.target.closest('.calendar-today-button');
+        const clearButton = e.target.closest('.calendar-clear-button');
+        const action = actionTarget ? actionTarget.dataset.action : null;
+        const day = dayTarget ? dayTarget.dataset.day : null;
+        const quickDays = quickDateTarget ? quickDateTarget.dataset.days : null;
         
         if (action === 'prev-month') {
             this.currentDate.setMonth(this.currentDate.getMonth() - 1);
@@ -816,14 +892,14 @@ class ModernDatePicker {
             this.currentDate.setMonth(this.currentDate.getMonth() + 1);
             this.render();
         } else if (day) {
-            this.selectDate(new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), parseInt(day)));
-        } else if (e.target.classList.contains('calendar-today-button')) {
+            this.selectDate(new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), parseInt(day, 10)));
+        } else if (todayButton) {
             this.selectDate(new Date());
-        } else if (e.target.classList.contains('calendar-clear-button')) {
+        } else if (clearButton) {
             this.clear();
-        } else if (quickDays !== undefined) {
+        } else if (quickDays !== null) {
             const date = new Date();
-            date.setDate(date.getDate() + parseInt(quickDays));
+            date.setDate(date.getDate() + parseInt(quickDays, 10));
             this.selectDate(date);
         }
     }

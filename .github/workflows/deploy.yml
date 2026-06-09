@@ -13,6 +13,8 @@ jobs:
         uses: actions/checkout@v4
       
       - name: Display deployment notification
+        env:
+          HEAD_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
         run: |
           echo "=========================================="
           echo "🚀 New code pushed to main branch!"
@@ -24,15 +26,15 @@ jobs:
           echo ""
           echo "Or set up a webhook listener to auto-deploy"
           echo ""
-          echo "Commit: ${{ github.sha }}"
-          echo "Author: ${{ github.actor }}"
-          echo "Message: ${{ github.event.head_commit.message }}"
+          echo "Commit: $GITHUB_SHA"
+          echo "Author: $GITHUB_ACTOR"
+          echo "Message: $HEAD_COMMIT_MESSAGE"
       
       - name: Create deployment marker
         run: |
           echo "New deployment triggered at $(date)" >> deployment.log
-          echo "Commit: ${{ github.sha }}" >> deployment.log
-          echo "Branch: ${{ github.ref }}" >> deployment.log
+          echo "Commit: $GITHUB_SHA" >> deployment.log
+          echo "Branch: $GITHUB_REF" >> deployment.log
       
       - name: Archive deployment log
         uses: actions/upload-artifact@v4
@@ -40,4 +42,3 @@ jobs:
           name: deployment-log
           path: deployment.log
           retention-days: 1
-
